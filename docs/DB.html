@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Acumen Craft – ERD</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 2em; }
+    .erd { display: flex; flex-wrap: wrap; gap: 2em; }
+    .table {
+      background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001;
+      min-width: 300px; margin-bottom: 1.5em;
+      border: 1px solid #e2e2e2;
+    }
+    .table h3 {
+      margin: 0; padding: .5em 1em; background: #2d7ff9; color: #fff; border-radius: 8px 8px 0 0;
+      font-size: 1.1em; letter-spacing: 1px;
+    }
+    .fields { padding: 1em; }
+    .field { margin: .1em 0; font-size: .97em; }
+    .pk { color: #2d7ff9; font-weight: bold; }
+    .fk { color: #e67e22; font-weight: bold; }
+    .enum { color: #70a1ff; }
+    .json { color: #5352ed; }
+    .bool { color: #20bf6b; }
+    .ref { font-size: .93em; color: #636e72; }
+    .erd-rel { margin: 1em 0; }
+    code { background: #f1f2f6; padding: 1px 4px; border-radius: 3px; }
+    .erd-rel { font-size: .96em; }
+    .erd-rel strong { color: #2d7ff9; }
+  </style>
+</head>
+<body>
+  <h1>Acumen Craft – Main ERD</h1>
+  <div class="erd">
+    <!-- USERS -->
+    <div class="table">
+      <h3>users</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field">name VARCHAR</div>
+        <div class="field">email VARCHAR UNIQUE</div>
+        <div class="field">password VARCHAR</div>
+        <div class="field">provider VARCHAR <span class="ref">(social)</span></div>
+        <div class="field">provider_id VARCHAR</div>
+        <div class="field">oauth_avatar VARCHAR</div>
+        <div class="field bool">oauth_email_verified BOOLEAN</div>
+        <div class="field">twofa_secret VARCHAR</div>
+        <div class="field">avatar_path VARCHAR</div>
+        <div class="field">bio TEXT</div>
+        <div class="field">creative_field VARCHAR</div>
+        <div class="field">lang VARCHAR</div>
+        <div class="field json">notification_prefs JSON</div>
+        <div class="field json">privacy_prefs JSON</div>
+        <div class="field enum">role ENUM</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">email_verified_at TIMESTAMP</div>
+        <div class="field">created_at, updated_at</div>
+      </div>
+    </div>
+    <!-- LINKED_ACCOUNTS -->
+    <div class="table">
+      <h3>linked_accounts</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">provider VARCHAR</div>
+        <div class="field">provider_id VARCHAR</div>
+        <div class="field">email VARCHAR</div>
+        <div class="field">avatar_url VARCHAR</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <!-- ARTWORKS -->
+    <div class="table">
+      <h3>artworks</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field json">title_translations JSON</div>
+        <div class="field json">description_translations JSON</div>
+        <div class="field enum">media_type ENUM</div>
+        <div class="field">media_path VARCHAR</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field json">tags JSON</div>
+        <div class="field json">categories JSON</div>
+        <div class="field">copyright_notice TEXT</div>
+        <div class="field enum">license_type ENUM</div>
+        <div class="field">license_detail TEXT</div>
+        <div class="field">file_hash VARCHAR</div>
+        <div class="field">upload_timestamp TIMESTAMP</div>
+        <div class="field json">watermark_meta JSON</div>
+        <div class="field enum">visibility ENUM</div>
+        <div class="field">blockchain_txid VARCHAR</div>
+        <div class="field bool">ai_generated BOOLEAN</div>
+        <div class="field">ai_edit_detail TEXT</div>
+        <div class="field">acq_score DECIMAL</div>
+        <div class="field">created_at, updated_at</div>
+      </div>
+    </div>
+    <!-- EVALUATIONS -->
+    <div class="table">
+      <h3>evaluations</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">artwork_id FK</div>
+        <div class="field fk">evaluator_id FK</div>
+        <div class="field">score_technique SMALLINT</div>
+        <div class="field">score_composition SMALLINT</div>
+        <div class="field">score_originality SMALLINT</div>
+        <div class="field">score_impact SMALLINT</div>
+        <div class="field">feedback_text TEXT</div>
+        <div class="field enum">source ENUM</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <!-- PAYMENTS -->
+    <div class="table">
+      <h3>payments</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">amount DECIMAL</div>
+        <div class="field">currency VARCHAR</div>
+        <div class="field enum">provider ENUM</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">payment_id VARCHAR</div>
+        <div class="field">created_at, refunded_at</div>
+      </div>
+    </div>
+    <!-- WITHDRAWALS -->
+    <div class="table">
+      <h3>withdrawals</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">amount DECIMAL</div>
+        <div class="field">currency VARCHAR</div>
+        <div class="field enum">provider ENUM</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">requested_at, processed_at</div>
+      </div>
+    </div>
+    <!-- CRYPTO_PAYMENTS -->
+    <div class="table">
+      <h3>crypto_payments</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">amount DECIMAL</div>
+        <div class="field">currency VARCHAR</div>
+        <div class="field">tx_hash VARCHAR</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">network VARCHAR</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <!-- NFT_OWNERSHIP -->
+    <div class="table">
+      <h3>nft_ownership</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">artwork_id FK</div>
+        <div class="field">owner_wallet VARCHAR</div>
+        <div class="field">network VARCHAR</div>
+        <div class="field">token_id VARCHAR</div>
+        <div class="field">tx_hash VARCHAR</div>
+        <div class="field">minted_at TIMESTAMP</div>
+      </div>
+    </div>
+    <!-- COMMUNITIES -->
+    <div class="table">
+      <h3>communities</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field json">name_translations JSON</div>
+        <div class="field json">description_translations JSON</div>
+        <div class="field fk">created_by FK</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>community_members</h3>
+      <div class="fields">
+        <div class="field fk">community_id FK (PK)</div>
+        <div class="field fk">user_id FK (PK)</div>
+        <div class="field enum">role ENUM</div>
+        <div class="field">joined_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>community_posts</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">community_id FK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field json">content_translations JSON</div>
+        <div class="field">media_path VARCHAR</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>community_post_comments</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">post_id FK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field json">content_translations JSON</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <!-- CONVERSATIONS & MESSAGES -->
+    <div class="table">
+      <h3>conversations</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field enum">type ENUM</div>
+        <div class="field">created_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>conversation_participants</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">conversation_id FK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">joined_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>messages</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">conversation_id FK</div>
+        <div class="field fk">sender_id FK</div>
+        <div class="field">message TEXT</div>
+        <div class="field enum">message_type ENUM</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">sent_at TIMESTAMP</div>
+        <div class="field">read_at TIMESTAMP</div>
+        <div class="field">attachment_url VARCHAR</div>
+      </div>
+    </div>
+    <!-- AI CHAT -->
+    <div class="table">
+      <h3>ai_chat_sessions</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">guest_id VARCHAR</div>
+        <div class="field">started_at TIMESTAMP</div>
+        <div class="field">ended_at TIMESTAMP</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>ai_chat_messages</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">session_id FK</div>
+        <div class="field enum">role ENUM</div>
+        <div class="field">content TEXT</div>
+        <div class="field">sent_at TIMESTAMP</div>
+      </div>
+    </div>
+    <!-- HELP ARTICLES & SUPPORT TICKETS -->
+    <div class="table">
+      <h3>help_articles</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field">category VARCHAR</div>
+        <div class="field json">title_translations JSON</div>
+        <div class="field json">content_translations JSON</div>
+        <div class="field">created_at, updated_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>support_tickets</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">subject VARCHAR</div>
+        <div class="field">description TEXT</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field fk">assigned_to FK</div>
+        <div class="field enum">priority ENUM</div>
+        <div class="field">created_at, resolved_at</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>ticket_messages</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">ticket_id FK</div>
+        <div class="field fk">sender_id FK</div>
+        <div class="field">content TEXT</div>
+        <div class="field">sent_at TIMESTAMP</div>
+      </div>
+    </div>
+    <!-- NOTIFICATIONS -->
+    <div class="table">
+      <h3>notifications</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">type VARCHAR</div>
+        <div class="field json">content JSON</div>
+        <div class="field json">data JSON</div>
+        <div class="field">read_at TIMESTAMP</div>
+        <div class="field">created_at TIMESTAMP</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>notification_settings</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">type VARCHAR</div>
+        <div class="field bool">enabled BOOLEAN</div>
+        <div class="field enum">channel ENUM</div>
+      </div>
+    </div>
+    <!-- SECURITY LOGS -->
+    <div class="table">
+      <h3>security_logs</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">action VARCHAR</div>
+        <div class="field">ip VARCHAR</div>
+        <div class="field">meta TEXT</div>
+        <div class="field">created_at TIMESTAMP</div>
+      </div>
+    </div>
+    <!-- API CLIENTS & USAGE -->
+    <div class="table">
+      <h3>api_clients</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">name VARCHAR</div>
+        <div class="field">api_key VARCHAR</div>
+        <div class="field">scope VARCHAR</div>
+        <div class="field bool">enabled BOOLEAN</div>
+        <div class="field">created_at TIMESTAMP</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>api_usage</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">client_id FK</div>
+        <div class="field">endpoint VARCHAR</div>
+        <div class="field">count INT</div>
+        <div class="field">day DATE</div>
+      </div>
+    </div>
+    <!-- ANALYTICS -->
+    <div class="table">
+      <h3>analytics_events</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">user_id FK</div>
+        <div class="field">event_type VARCHAR</div>
+        <div class="field json">event_data JSON</div>
+        <div class="field">created_at TIMESTAMP</div>
+      </div>
+    </div>
+    <div class="table">
+      <h3>admin_reports</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field">report_type VARCHAR</div>
+        <div class="field json">data JSON</div>
+        <div class="field">generated_at TIMESTAMP</div>
+      </div>
+    </div>
+    <!-- INFRINGEMENT REPORTS -->
+    <div class="table">
+      <h3>infringement_reports</h3>
+      <div class="fields">
+        <div class="field pk">id BIGINT PK</div>
+        <div class="field fk">artwork_id FK</div>
+        <div class="field fk">reporter_id FK</div>
+        <div class="field">reporter_contact VARCHAR</div>
+        <div class="field">description TEXT</div>
+        <div class="field">assertion TEXT</div>
+        <div class="field">evidence TEXT</div>
+        <div class="field enum">status ENUM</div>
+        <div class="field">created_at TIMESTAMP</div>
+        <div class="field">reviewed_at TIMESTAMP</div>
+      </div>
+    </div>
+  </div>
+  <div class="erd-rel">
+    <strong>Relationship notes:</strong>
+    <ul>
+      <li><b>users</b> 1—* <b>artworks</b>, <b>payments</b>, <b>withdrawals</b>, <b>crypto_payments</b>, <b>support_tickets</b></li>
+      <li><b>artworks</b> 1—* <b>evaluations</b>, <b>nft_ownership</b>, <b>infringement_reports</b></li>
+      <li><b>communities</b> 1—* <b>community_members</b>, <b>community_posts</b></li>
+      <li><b>community_posts</b> 1—* <b>community_post_comments</b></li>
+      <li><b>conversations</b> 1—* <b>conversation_participants</b>, <b>messages</b></li>
+      <li><b>ai_chat_sessions</b> 1—* <b>ai_chat_messages</b></li>
+      <li><b>support_tickets</b> 1—* <b>ticket_messages</b></li>
+    </ul>
+  </div>
+  <div style="margin:2em 0; color:#636e72;">
+    <em>სქემა განახლებულია 2025-07-22. არასდროს შეცვალოთ ველი/ცხრილის სახელი კოდის ან API-ის განახლების გარეშე!</em>
+  </div>
+</body>
+</html>

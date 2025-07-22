@@ -1,0 +1,756 @@
+openapi: 3.0.0
+info:
+  title: ACUMEN CRAFT API
+  version: 2.0.0
+  description: |
+    API for the Acumen Craft platform. Covers all major modules: User/Auth, Artworks, Evaluations, Payments, Crypto, NFT, Chat, HelpDesk, Notifications, Analytics, Admin, and AI.
+    All endpoints are versioned under `/api/v1`. All responses are JSON unless otherwise noted.
+servers:
+  - url: /api/v1
+
+tags:
+  - name: User
+  - name: Auth
+  - name: Artworks
+  - name: Evaluations
+  - name: Payments
+  - name: Crypto
+  - name: NFT
+  - name: Chat
+  - name: AI
+  - name: Communities
+  - name: HelpDesk
+  - name: Notifications
+  - name: Analytics
+  - name: Admin
+
+paths:
+
+  # --- AUTH & USER ---
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        201:
+          description: User registered
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        200:
+          description: Auth token
+
+  /auth/social/{provider}/redirect:
+    get:
+      tags: [Auth]
+      summary: Redirect to social OAuth provider
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, facebook, apple, github, microsoft]
+      responses:
+        302:
+          description: Redirect to provider
+
+  /auth/social/{provider}/callback:
+    get:
+      tags: [Auth]
+      summary: Handle social OAuth callback
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, facebook, apple, github, microsoft]
+      responses:
+        200:
+          description: Auth token
+
+  /user/me:
+    get:
+      tags: [User]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Profile details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  /user/linked-accounts:
+    get:
+      tags: [User]
+      summary: List linked social accounts
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Linked accounts
+
+  /user/2fa/setup:
+    post:
+      tags: [User]
+      summary: Setup two-factor authentication
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 2FA setup details
+
+  # --- ARTWORK ---
+
+  /artworks:
+    get:
+      tags: [Artworks]
+      summary: List artworks
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [approved, pending, rejected, private]
+      responses:
+        200:
+          description: Paginated artworks list
+    post:
+      tags: [Artworks]
+      summary: Upload new artwork
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtworkCreate'
+      responses:
+        201:
+          description: Artwork created
+
+  /artworks/{id}:
+    get:
+      tags: [Artworks]
+      summary: Get artwork by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Artwork details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artwork'
+
+    patch:
+      tags: [Artworks]
+      summary: Update artwork (owner only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtworkUpdate'
+      responses:
+        200:
+          description: Artwork updated
+
+    delete:
+      tags: [Artworks]
+      summary: Delete artwork (owner only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        204:
+          description: Artwork deleted
+
+  /artworks/{id}/evaluations:
+    get:
+      tags: [Evaluations]
+      summary: Get evaluations for artwork
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: List of evaluations
+
+    post:
+      tags: [Evaluations]
+      summary: Submit evaluation for artwork
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationCreate'
+      responses:
+        201:
+          description: Evaluation submitted
+
+  # --- PAYMENTS & DONATIONS ---
+
+  /payments/stripe/checkout:
+    post:
+      tags: [Payments]
+      summary: Stripe checkout session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCheckout'
+      responses:
+        200:
+          description: Payment session created
+
+  /payments/paypal/checkout:
+    post:
+      tags: [Payments]
+      summary: PayPal checkout session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCheckout'
+      responses:
+        200:
+          description: Payment session created
+
+  /payments/history:
+    get:
+      tags: [Payments]
+      summary: Get payment history
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of payments
+
+  /withdrawals/request:
+    post:
+      tags: [Payments]
+      summary: Request withdrawal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawalRequest'
+      responses:
+        200:
+          description: Withdrawal requested
+
+  # --- CRYPTO ---
+
+  /crypto/checkout:
+    post:
+      tags: [Crypto]
+      summary: Create crypto payment session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoCheckout'
+      responses:
+        200:
+          description: Crypto session created
+
+  /crypto/verify-payment:
+    post:
+      tags: [Crypto]
+      summary: Verify on-chain payment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoVerify'
+      responses:
+        200:
+          description: Payment verified
+
+  # --- NFT ---
+
+  /nft/mint:
+    post:
+      tags: [NFT]
+      summary: Mint NFT from artwork
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NFTMint'
+      responses:
+        200:
+          description: NFT minted
+
+  /nft/ownership/{artwork_id}:
+    get:
+      tags: [NFT]
+      summary: Get NFT ownership of artwork
+      parameters:
+        - name: artwork_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: NFT ownership details
+
+  # --- CHAT (USER, GROUP, AI) ---
+
+  /chat/start:
+    post:
+      tags: [Chat]
+      summary: Start a new conversation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatStart'
+      responses:
+        200:
+          description: Conversation started
+
+  /chat/conversations:
+    get:
+      tags: [Chat]
+      summary: List user conversations
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of conversations
+
+  /chat/messages/{conversation_id}:
+    get:
+      tags: [Chat]
+      summary: Get messages for conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Messages
+
+    post:
+      tags: [Chat]
+      summary: Send message to conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessage'
+      responses:
+        201:
+          description: Message sent
+
+  # --- AI CHAT ---
+
+  /ai-chat/message:
+    post:
+      tags: [AI]
+      summary: Send message to AI assistant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIChatMessage'
+      responses:
+        200:
+          description: AI response
+
+  /ai-chat/history/{session_id}:
+    get:
+      tags: [AI]
+      summary: Get AI chat session history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of messages
+
+  # --- COMMUNITIES ---
+
+  /communities:
+    get:
+      tags: [Communities]
+      summary: List communities
+      responses:
+        200:
+          description: List of communities
+    post:
+      tags: [Communities]
+      summary: Create a community
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityCreate'
+      responses:
+        201:
+          description: Community created
+
+  /communities/{id}/members:
+    get:
+      tags: [Communities]
+      summary: Get members of a community
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: List of members
+
+  # --- HELP DESK ---
+
+  /helpdesk/articles:
+    get:
+      tags: [HelpDesk]
+      summary: List help articles
+      responses:
+        200:
+          description: List of articles
+
+  /helpdesk/ticket:
+    post:
+      tags: [HelpDesk]
+      summary: Submit support ticket
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportTicket'
+      responses:
+        201:
+          description: Ticket created
+
+  # --- NOTIFICATIONS ---
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of notifications
+
+  /notifications/mark-read:
+    post:
+      tags: [Notifications]
+      summary: Mark notifications as read
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items: { type: integer }
+      responses:
+        200:
+          description: Marked as read
+
+  # --- ANALYTICS ---
+
+  /analytics/me:
+    get:
+      tags: [Analytics]
+      summary: Get analytics for current user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Analytics data
+
+  # --- ADMIN ---
+
+  /admin/reports:
+    get:
+      tags: [Admin]
+      summary: Get admin reports
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Admin reports
+
+# --- COMPONENTS (SCHEMAS, SECURITY) ---
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    UserRegister:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+
+    UserLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    UserProfile:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        role: { type: string }
+        avatar_path: { type: string }
+        bio: { type: string }
+        lang: { type: string }
+        notification_prefs: { type: object }
+        privacy_prefs: { type: object }
+
+    ArtworkCreate:
+      type: object
+      required: [title_translations, media_type, media_path]
+      properties:
+        title_translations: { type: object }
+        description_translations: { type: object }
+        media_type: { type: string }
+        media_path: { type: string }
+        tags: { type: array, items: { type: string } }
+        categories: { type: array, items: { type: string } }
+        copyright_notice: { type: string }
+        license_type: { type: string }
+        visibility: { type: string }
+        ai_generated: { type: boolean }
+
+    ArtworkUpdate:
+      type: object
+      properties:
+        title_translations: { type: object }
+        description_translations: { type: object }
+        tags: { type: array, items: { type: string } }
+        categories: { type: array, items: { type: string } }
+        status: { type: string }
+        visibility: { type: string }
+        ai_generated: { type: boolean }
+
+    Artwork:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        title_translations: { type: object }
+        description_translations: { type: object }
+        media_type: { type: string }
+        media_path: { type: string }
+        status: { type: string }
+        tags: { type: array, items: { type: string } }
+        categories: { type: array, items: { type: string } }
+        copyright_notice: { type: string }
+        license_type: { type: string }
+        visibility: { type: string }
+        ai_generated: { type: boolean }
+        acq_score: { type: number }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    EvaluationCreate:
+      type: object
+      required: [score_technique, score_composition, score_originality, score_impact]
+      properties:
+        score_technique: { type: integer }
+        score_composition: { type: integer }
+        score_originality: { type: integer }
+        score_impact: { type: integer }
+        feedback_text: { type: string }
+
+    PaymentCheckout:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount: { type: number }
+        currency: { type: string }
+        provider: { type: string }
+        item_id: { type: integer }
+        item_type: { type: string }
+
+    WithdrawalRequest:
+      type: object
+      required: [amount, currency, provider]
+      properties:
+        amount: { type: number }
+        currency: { type: string }
+        provider: { type: string }
+
+    CryptoCheckout:
+      type: object
+      required: [amount, currency, network]
+      properties:
+        amount: { type: number }
+        currency: { type: string }
+        network: { type: string }
+
+    CryptoVerify:
+      type: object
+      required: [tx_hash, network]
+      properties:
+        tx_hash: { type: string }
+        network: { type: string }
+
+    NFTMint:
+      type: object
+      required: [artwork_id, network]
+      properties:
+        artwork_id: { type: integer }
+        network: { type: string }
+        wallet_address: { type: string }
+
+    ChatStart:
+      type: object
+      required: [participant_ids]
+      properties:
+        participant_ids:
+          type: array
+          items: { type: integer }
+        type:
+          type: string
+          enum: [direct, group, ai]
+
+    ChatMessage:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        message_type: { type: string }
+        attachment_url: { type: string }
+
+    AIChatMessage:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string }
+        context: { type: string }
+
+    CommunityCreate:
+      type: object
+      required: [name_translations]
+      properties:
+        name_translations: { type: object }
+        description_translations: { type: object }
+
+    SupportTicket:
+      type: object
+      required: [subject, description]
+      properties:
+        subject: { type: string }
+        description: { type: string }
+        priority: { type: string }
+        attachments: { type: array, items: { type: string } }
