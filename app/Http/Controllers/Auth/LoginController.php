@@ -24,35 +24,43 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
 
-        $credentials = $request->only('email', 'password');
+            $credentials = $request->only('email', 'password');
+            $remember = $request->has('remember') ? true : false;
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+            if (Auth::attempt($credentials, $remember)) {
+                $request->session()->regenerate();
 
-            $user = Auth::user();
+                $user = Auth::user();
 
-            // Check if user has 2FA enabled
-            if ($user->twofa_enabled) {
-                // Don't complete login yet - redirect to 2FA verification
-                session(['2fa_user_id' => $user->id]);
-                Auth::logout();
+                // Check if user has 2FA enabled
+                if ($user && $user->twofa_enabled) {
+                    // Don't complete login yet - redirect to 2FA verification
+                    session(['2fa_user_id' => $user->id]);
+                    Auth::logout();
 
-                return redirect()->route('two-factor.verify')
-                    ->with('success', 'Please enter your 2FA verification code.');
+                    return redirect()->route('two-factor.verify')
+                        ->with('success', 'Please enter your 2FA verification code.');
+                }
+
+                return redirect()->intended('/dashboard')
+                    ->with('success', 'Welcome back!');
             }
 
-            return redirect()->intended('/dashboard')
-                ->with('success', 'Welcome back!');
-        }
+            return redirect()->back()
+                ->withErrors(['email' => 'The provided credentials do not match our records.'])
+                ->withInput($request->except('password'));
 
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials do not match our records.'],
-        ]);
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['email' => 'Login error: ' . $e->getMessage()])
+                ->withInput($request->except('password'));
+        }
     }
 
     /**
