@@ -98,6 +98,24 @@
                 <p>Don't have an account? <a href="#" class="text-blue-600 hover:underline">Sign up</a></p>
                 <p><a href="#" class="text-blue-600 hover:underline">Forgot password?</a></p>
             </div>
+
+            @if (app()->environment('local'))
+                <!-- Development Quick Login -->
+                <div class="mt-8 pt-6 border-t border-gray-300">
+                    <h3 class="text-center text-sm font-medium text-gray-900 mb-4">Development Quick Login</h3>
+                    <div class="space-y-2">
+                        <a href="/dev-login/test@acumencraft.com" 
+                           class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
+                            👤 test@acumencraft.com (with password)
+                        </a>
+                        <a href="/dev-login/oauth@acumencraft.com" 
+                           class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
+                            🔐 oauth@acumencraft.com (OAuth user)
+                        </a>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center mt-2">Only available in development</p>
+                </div>
+            @endif
         </div>
     </div>
 </body>

@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,14 +14,32 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+// Load development routes only in local environment
+if (app()->environment('local')) {
+    require __DIR__.'/dev.php';
+}
+
 // Dashboard (placeholder)
 Route::get('/dashboard', function () {
-    return '<h1>Dashboard - Welcome ' . auth()->user()->name . '!</h1><a href="/logout">Logout</a>';
+    $user = Auth::user();
+    $twoFaStatus = $user->twofa_enabled ? 'enabled' : 'disabled';
+    return "
+    <div style='font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px;'>
+        <h1>Dashboard - Welcome {$user->name}!</h1>
+        <div style='background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;'>
+            <h3>Account Security</h3>
+            <p>Two-Factor Authentication: <strong style='color: " . ($user->twofa_enabled ? 'green' : 'orange') . ";'>" . ucfirst($twoFaStatus) . "</strong></p>
+            <a href='/2fa' style='color: #007bff; text-decoration: none;'>→ Manage 2FA Settings</a>
+        </div>
+        <div style='margin-top: 30px;'>
+            <a href='/logout' style='color: #dc3545; text-decoration: none;'>Logout</a>
+        </div>
+    </div>";
 })->middleware('auth')->name('dashboard');
 
 // Logout
 Route::post('/logout', function () {
-    auth()->logout();
+    Auth::logout();
     return redirect('/login');
 })->name('logout');
 
@@ -37,4 +57,18 @@ Route::prefix('auth')->group(function () {
         ->where('provider', 'google|github|facebook|apple')
         ->name('auth.unlink')
         ->middleware('auth');
+});
+
+// Two-Factor Authentication Routes
+Route::middleware('auth')->prefix('2fa')->group(function () {
+    Route::get('/', [TwoFactorController::class, 'show'])->name('two-factor.show');
+    Route::post('/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
+    Route::get('/backup-codes', [TwoFactorController::class, 'generateBackupCodes'])->name('two-factor.backup-codes');
+});
+
+// Two-Factor Verification (for login)
+Route::middleware('guest')->group(function () {
+    Route::get('/2fa/verify', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
+    Route::post('/2fa/verify', [TwoFactorController::class, 'verifyCode'])->name('two-factor.verify.post');
 });

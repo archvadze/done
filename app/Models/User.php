@@ -33,6 +33,8 @@ class User extends Authenticatable
         'privacy_prefs',
         'role',
         'status',
+        'twofa_enabled',
+        'twofa_backup_codes',
     ];
 
     /**
@@ -57,8 +59,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'oauth_email_verified' => 'boolean',
+            'twofa_enabled' => 'boolean',
             'notification_prefs' => 'array',
             'privacy_prefs' => 'array',
+            'twofa_backup_codes' => 'array',
         ];
     }
 
