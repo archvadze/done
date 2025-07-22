@@ -232,4 +232,20 @@ class Artwork extends Model
 
         return round($bytes, 2) . ' ' . $units[$i];
     }
+
+    /**
+     * Get available license types
+     */
+    public static function getLicenseTypes(): array
+    {
+        return [
+            'all_rights_reserved' => 'All Rights Reserved',
+            'creative_commons_by' => 'Creative Commons BY',
+            'creative_commons_by_sa' => 'Creative Commons BY-SA',
+            'creative_commons_by_nc' => 'Creative Commons BY-NC',
+            'creative_commons_by_nc_sa' => 'Creative Commons BY-NC-SA',
+            'public_domain' => 'Public Domain',
+            'nft_exclusive' => 'NFT Exclusive'
+        ];
+    }
 }
