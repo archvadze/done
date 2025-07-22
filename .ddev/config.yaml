@@ -3,18 +3,20 @@ type: laravel
 docroot: public
 php_version: "8.3"
 webserver_type: nginx-fpm
+router_http_port: "33000"
+router_https_port: "33443"
 xdebug_enabled: false
 additional_hostnames: []
 additional_fqdns: []
-router_http_port: "33000"
-router_https_port: "33443"
-use_dns_when_possible: true
 database:
-  type: mariadb
-  version: "10.11"
+    type: mariadb
+    version: "10.11"
+use_dns_when_possible: true
 composer_version: "2"
-web_environment: []
+web_environment:
+    - GD_EXTENSION=true
 corepack_enable: false
+
 # Key features of DDEV's config.yaml:
 
 # name: <projectname> # Name of the project, automatically provides
@@ -59,7 +61,7 @@ corepack_enable: false
 
 # host_xhgui_port: 8142
 # Can be used to change the host binding port of the xhgui
-# application. Rarely used; only when port conflict and
+# application. Rarely used; only when port conflict and 
 # bind_all_ports is used (normally with router disabled)
 
 # xhprof_enabled: false  # Set to true to enable Xhprof and "ddev start" or "ddev restart"

@@ -31,10 +31,10 @@
             @php
                 $configuredProviders = getConfiguredOAuthProviders();
             @endphp
-            
-            @if(!empty($configuredProviders))
+
+            @if (!empty($configuredProviders))
                 <!-- OAuth Buttons -->
-                @if(in_array('google', $configuredProviders))
+                @if (in_array('google', $configuredProviders))
                     <a href="{{ route('auth.provider', 'google') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
                     </a>
                 @endif
 
-                @if(in_array('github', $configuredProviders))
+                @if (in_array('github', $configuredProviders))
                     <a href="{{ route('auth.provider', 'github') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -63,7 +63,7 @@
                     </a>
                 @endif
 
-                @if(in_array('facebook', $configuredProviders))
+                @if (in_array('facebook', $configuredProviders))
                     <a href="{{ route('auth.provider', 'facebook') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
@@ -86,28 +86,44 @@
             @endif
 
             <!-- Email/Password Form -->
-            <form class="space-y-4">
+            <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
+                @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @enderror"
                         placeholder="your@email.com">
+                    @error('email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 @enderror"
                         placeholder="Password">
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember"
+                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                    </label>
+                </div>
+
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
-                    disabled>
-                    Sign In (Coming Soon)
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                    Sign In
                 </button>
             </form>
 
             <div class="text-center text-sm text-gray-600">
-                <p>Don't have an account? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Sign up</a></p>
+                <p>Don't have an account? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Sign
+                        up</a></p>
                 <p><a href="#" class="text-blue-600 hover:underline">Forgot password?</a></p>
             </div>
 

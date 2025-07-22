@@ -5,16 +5,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ArtworkController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Login page
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// Authentication routes
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Registration routes
 Route::get('/register', [RegisterController::class, 'show'])->name('register');

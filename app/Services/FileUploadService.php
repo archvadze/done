@@ -14,11 +14,14 @@ use Exception;
 
 class FileUploadService
 {
-    private ImageManager $imageManager;
+    private ?ImageManager $imageManager = null;
 
-    public function __construct()
+    private function getImageManager(): ImageManager
     {
-        $this->imageManager = new ImageManager(new Driver());
+        if ($this->imageManager === null) {
+            $this->imageManager = new ImageManager(new Driver());
+        }
+        return $this->imageManager;
     }
 
     /**
@@ -184,7 +187,7 @@ class FileUploadService
      */
     private function extractImageMetadata(UploadedFile $file): array
     {
-        $image = $this->imageManager->read($file->getPathname());
+        $image = $this->getImageManager()->read($file->getPathname());
 
         return [
             'width' => $image->width(),
@@ -256,7 +259,7 @@ class FileUploadService
     {
         // Simplified color profile detection
         try {
-            $image = $this->imageManager->read($file->getPathname());
+            $image = $this->getImageManager()->read($file->getPathname());
             return 'RGB'; // Default for web images
         } catch (Exception $e) {
             return null;
@@ -320,7 +323,7 @@ class FileUploadService
      */
     private function generateImageThumbnail(UploadedFile $file, string $outputPath): void
     {
-        $image = $this->imageManager->read($file->getPathname());
+        $image = $this->getImageManager()->read($file->getPathname());
 
         // Resize to max 300x300 while maintaining aspect ratio
         $image->scale(width: 300, height: 300);
@@ -355,7 +358,7 @@ class FileUploadService
     private function createPlaceholderThumbnail(string $outputPath, string $type): void
     {
         // Create a simple colored rectangle as placeholder
-        $image = $this->imageManager->create(300, 300);
+        $image = $this->getImageManager()->create(300, 300);
 
         $color = match ($type) {
             'video' => '#2563eb', // Blue
