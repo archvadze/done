@@ -20,36 +20,36 @@ if (app()->environment('local')) {
     // Development quick login
     Route::get('/dev-login/{email}', function ($email) {
         $user = User::where('email', $email)->first();
-        
+
         if (!$user) {
             return redirect('/login')->with('error', 'User not found');
         }
-        
+
         Auth::login($user);
-        
+
         return redirect('/dashboard')->with('success', 'Logged in as ' . $user->name . ' (development mode)');
     })->name('dev-login');
-    
+
     // Development 2FA code generator
     Route::get('/dev-2fa-code/{email}', function ($email) {
         $user = User::where('email', $email)->first();
-        
+
         if (!$user) {
             return "User not found";
         }
-        
+
         $google2fa = new Google2FA();
-        
+
         // Generate secret if user doesn't have one
         if (!$user->twofa_secret) {
             $secret = $google2fa->generateSecretKey();
             $user->twofa_secret = $secret;
             $user->save();
         }
-        
+
         // Generate current OTP
         $currentCode = $google2fa->getCurrentOtp($user->twofa_secret);
-        
+
         $html = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
             <h2>2FA Development Helper</h2>
@@ -67,39 +67,39 @@ if (app()->environment('local')) {
             </div>
             <p style='margin-top: 20px;'><a href='/2fa'>Go to 2FA Settings</a></p>
         </div>";
-        
+
         return $html;
     })->name('dev.2fa-code');
-    
+
     // Development 2FA test enable
     Route::get('/dev-2fa-enable/{email}', function ($email) {
         $user = User::where('email', $email)->first();
-        
+
         if (!$user) {
             return "User not found";
         }
-        
+
         if (!Auth::check() || Auth::id() !== $user->id) {
             Auth::login($user);
         }
-        
+
         $google2fa = new Google2FA();
-        
+
         // Generate secret if user doesn't have one
         if (!$user->twofa_secret) {
             $secret = $google2fa->generateSecretKey();
             $user->twofa_secret = $secret;
             $user->save();
         }
-        
+
         // Generate current OTP and try to enable 2FA
         $currentCode = $google2fa->getCurrentOtp($user->twofa_secret);
         $isValidCode = $google2fa->verifyKey($user->twofa_secret, $currentCode);
-        
+
         if ($isValidCode) {
             // Enable 2FA
             $user->twofa_enabled = true;
-            
+
             // Generate backup codes
             $backupCodes = [];
             for ($i = 0; $i < 8; $i++) {
@@ -107,27 +107,27 @@ if (app()->environment('local')) {
             }
             $user->twofa_backup_codes = json_encode($backupCodes);
             $user->save();
-            
+
             $html = "
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #f0f8f0;'>
                 <h2 style='color: #2d5016;'>✅ 2FA Successfully Enabled!</h2>
                 <p><strong>User:</strong> {$user->name} ({$user->email})</p>
                 <p><strong>2FA Status:</strong> <span style='color: green; font-weight: bold;'>Enabled</span></p>
                 <p><strong>Used OTP:</strong> <code>{$currentCode}</code></p>
-                
+
                 <div style='margin-top: 20px; padding: 15px; background: #fff; border-radius: 5px; border: 1px solid #ccc;'>
                     <h3>🔐 Backup Codes (Save These!):</h3>
                     <div style='display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-family: monospace; font-size: 14px;'>";
-            
+
             foreach ($backupCodes as $code) {
                 $html .= "<div style='background: #f8f9fa; padding: 8px; border-radius: 3px; text-align: center; border: 1px solid #e9ecef;'>{$code}</div>";
             }
-            
+
             $html .= "
                     </div>
                     <p style='color: #dc3545; font-size: 12px; margin-top: 10px;'><strong>Important:</strong> Save these backup codes in a safe place. You can use them to access your account if you lose your authenticator device.</p>
                 </div>
-                
+
                 <div style='margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 5px;'>
                     <p><strong>Next Steps:</strong></p>
                     <ol>
@@ -137,13 +137,13 @@ if (app()->environment('local')) {
                     </ol>
                 </div>
             </div>";
-            
+
             return $html;
         } else {
             return "Invalid OTP code: {$currentCode}";
         }
     })->name('dev.2fa-enable');
-    
+
     // Development logout
     Route::get('/dev-logout', function () {
         Auth::logout();

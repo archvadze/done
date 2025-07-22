@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\ArtworkController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,9 +15,15 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+// Artwork routes
+Route::resource('artworks', ArtworkController::class);
+Route::post('artworks/{artwork}/like', [ArtworkController::class, 'toggleLike'])->name('artworks.like');
+Route::post('artworks/{artwork}/publish', [ArtworkController::class, 'publish'])->name('artworks.publish');
+Route::get('upload-progress', [ArtworkController::class, 'uploadProgress'])->name('artworks.upload-progress');
+
 // Load development routes only in local environment
 if (app()->environment('local')) {
-    require __DIR__.'/dev.php';
+    require __DIR__ . '/dev.php';
 }
 
 // Dashboard (placeholder)

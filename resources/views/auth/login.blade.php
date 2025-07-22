@@ -104,12 +104,12 @@
                 <div class="mt-8 pt-6 border-t border-gray-300">
                     <h3 class="text-center text-sm font-medium text-gray-900 mb-4">Development Quick Login</h3>
                     <div class="space-y-2">
-                        <a href="/dev-login/test@acumencraft.com" 
-                           class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
+                        <a href="/dev-login/test@acumencraft.com"
+                            class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
                             👤 test@acumencraft.com (with password)
                         </a>
-                        <a href="/dev-login/oauth@acumencraft.com" 
-                           class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
+                        <a href="/dev-login/oauth@acumencraft.com"
+                            class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
                             🔐 oauth@acumencraft.com (OAuth user)
                         </a>
                     </div>
