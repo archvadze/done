@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ArtworkController;
+use App\Http\Controllers\CommentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,16 @@ Route::resource('artworks', ArtworkController::class);
 Route::post('artworks/{artwork}/like', [ArtworkController::class, 'toggleLike'])->name('artworks.like');
 Route::post('artworks/{artwork}/publish', [ArtworkController::class, 'publish'])->name('artworks.publish');
 Route::get('upload-progress', [ArtworkController::class, 'uploadProgress'])->name('artworks.upload-progress');
+
+// Comments routes (protected by auth middleware)
+Route::middleware('auth')->group(function () {
+    Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
+
+// Public comments routes
+Route::get('artworks/{artwork}/comments', [CommentController::class, 'getComments'])->name('comments.get');
 
 // Load development routes only in local environment
 if (app()->environment('local')) {

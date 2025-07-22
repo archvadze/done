@@ -75,6 +75,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get comments by this user
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * Check if user has linked account for provider
      */
     public function hasLinkedAccount(string $provider): bool

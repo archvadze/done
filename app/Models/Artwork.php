@@ -75,6 +75,21 @@ class Artwork extends Model
         return $this->hasMany(ArtworkLike::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)
+                    ->where('status', 'active')
+                    ->whereNull('parent_id') // Only root comments, replies are loaded separately
+                    ->with(['user', 'replies.user'])
+                    ->latest();
+    }
+
+    public function allComments(): HasMany
+    {
+        return $this->hasMany(Comment::class)
+                    ->where('status', 'active');
+    }
+
     /**
      * Scopes
      */

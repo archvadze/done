@@ -410,44 +410,66 @@
             </div>
 
             <!-- Comments Section -->
-            @if ($artwork->comments_enabled)
-                <div class="mt-12 bg-white rounded-lg shadow-sm border p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-6">💬 Comments</h3>
+            <div class="mt-12 bg-white rounded-lg shadow-sm border p-6" id="comments-section">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">
+                    💬 Comments (<span id="comments-count">{{ $artwork->allComments()->count() }}</span>)
+                </h3>
 
-                    <!-- Add Comment Form -->
-                    @auth
-                        <form method="POST" action="#" class="mb-8">
-                            @csrf
-                            <div class="mb-4">
-                                <textarea name="comment" rows="3" placeholder="Share your thoughts about this artwork..."
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required></textarea>
+                <!-- Add Comment Form -->
+                @auth
+                    <form id="comment-form" class="mb-8">
+                        @csrf
+                        <input type="hidden" name="artwork_id" value="{{ $artwork->id }}">
+                        <input type="hidden" name="parent_id" value="" id="parent_id">
+                        <div class="mb-4">
+                            <textarea name="content" id="comment-content" rows="3" 
+                                placeholder="Share your thoughts about this artwork..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required maxlength="2000"></textarea>
+                            <div class="text-right text-sm text-gray-500 mt-1">
+                                <span id="char-count">0</span>/2000
                             </div>
-                            <button type="submit"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                                Add Comment
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div id="reply-info" class="hidden text-sm text-gray-600">
+                                Replying to <span id="reply-username" class="font-medium"></span>
+                                <button type="button" onclick="cancelReply()" class="text-blue-600 hover:underline ml-2">Cancel</button>
+                            </div>
+                            <button type="submit" id="submit-btn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                disabled>
+                                <span id="submit-text">Add Comment</span>
+                                <span id="loading" class="hidden">Adding...</span>
                             </button>
-                        </form>
-                    @else
-                        <div class="mb-8 p-4 bg-gray-50 rounded-lg text-center">
-                            <p class="text-gray-600 mb-3">Want to leave a comment?</p>
-                            <a href="{{ route('login') }}"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                                Login to Comment
-                            </a>
                         </div>
-                    @endauth
+                    </form>
+                @else
+                    <div class="mb-8 p-4 bg-gray-50 rounded-lg text-center">
+                        <p class="text-gray-600 mb-3">Want to leave a comment?</p>
+                        <a href="{{ route('login') }}"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Login to Comment
+                        </a>
+                    </div>
+                @endauth
 
-                    <!-- Comments List -->
-                    <div class="space-y-4">
-                        <!-- Placeholder for comments -->
-                        <div class="text-center text-gray-500 py-8">
-                            <div class="text-4xl mb-2">💬</div>
-                            <p>No comments yet. Be the first to share your thoughts!</p>
-                        </div>
+                <!-- Comments List -->
+                <div id="comments-list" class="space-y-6">
+                    <!-- Comments will be loaded here via JavaScript -->
+                    <div id="comments-loading" class="text-center text-gray-500 py-8">
+                        <div class="text-4xl mb-2">⏳</div>
+                        <p>Loading comments...</p>
                     </div>
                 </div>
-            @endif
+
+                <!-- Load More Button -->
+                <div id="load-more-container" class="hidden text-center mt-6">
+                    <button id="load-more-btn" onclick="loadMoreComments()" 
+                        class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors">
+                        Load More Comments
+                    </button>
+                </div>
+            </div>
 
             <!-- Related Artworks -->
             <div class="mt-12">
@@ -539,6 +561,326 @@
                 document.body.appendChild(form);
                 form.submit();
             }
+        }
+
+        // Comments System JavaScript
+        let currentPage = 1;
+        let isLoading = false;
+
+        // Initialize comments when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComments();
+            setupCommentForm();
+            setupCharacterCounter();
+        });
+
+        function loadComments(page = 1) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const loadingEl = document.getElementById('comments-loading');
+            
+            if (page === 1) {
+                loadingEl.style.display = 'block';
+            }
+
+            fetch(`{{ route('comments.get', $artwork) }}?page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (page === 1) {
+                        renderComments(data.comments.data);
+                        loadingEl.style.display = 'none';
+                    } else {
+                        appendComments(data.comments.data);
+                    }
+                    
+                    // Update comments count
+                    document.getElementById('comments-count').textContent = data.total_comments;
+                    
+                    // Show/hide load more button
+                    const loadMoreContainer = document.getElementById('load-more-container');
+                    if (data.comments.next_page_url) {
+                        loadMoreContainer.classList.remove('hidden');
+                        currentPage = page;
+                    } else {
+                        loadMoreContainer.classList.add('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading comments:', error);
+                    if (page === 1) {
+                        loadingEl.innerHTML = '<p class="text-red-500">Failed to load comments. Please refresh the page.</p>';
+                    }
+                })
+                .finally(() => {
+                    isLoading = false;
+                });
+        }
+
+        function renderComments(comments) {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <div class="text-4xl mb-2">💬</div>
+                        <p>No comments yet. Be the first to share your thoughts!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            comments.forEach(comment => {
+                commentsList.appendChild(createCommentElement(comment));
+            });
+        }
+
+        function appendComments(comments) {
+            const commentsList = document.getElementById('comments-list');
+            comments.forEach(comment => {
+                commentsList.appendChild(createCommentElement(comment));
+            });
+        }
+
+        function createCommentElement(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'border-b border-gray-100 pb-4';
+            commentDiv.setAttribute('data-comment-id', comment.id);
+            
+            const isEdited = comment.is_edited ? 
+                `<span class="text-xs text-gray-400 ml-2">(edited)</span>` : '';
+                
+            commentDiv.innerHTML = `
+                <div class="flex space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium">${comment.user.name[0].toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <p class="text-sm font-medium text-gray-900">${comment.user.name}</p>
+                            <p class="text-xs text-gray-500">${formatDate(comment.created_at)}</p>
+                            ${isEdited}
+                        </div>
+                        <div class="mt-1">
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap" data-comment-content="${comment.id}">
+                                ${comment.content}
+                            </p>
+                        </div>
+                        <div class="mt-2 flex items-center space-x-4">
+                            @auth
+                            <button onclick="startReply(${comment.id}, '${comment.user.name}')" 
+                                class="text-xs text-blue-600 hover:underline">
+                                Reply
+                            </button>
+                            ${comment.user.id === {{ auth()->id() ?? 0 }} ? `
+                                <button onclick="editComment(${comment.id})" 
+                                    class="text-xs text-gray-600 hover:underline">
+                                    Edit
+                                </button>
+                                <button onclick="deleteComment(${comment.id})" 
+                                    class="text-xs text-red-600 hover:underline">
+                                    Delete
+                                </button>
+                            ` : ''}
+                            @endauth
+                        </div>
+                        
+                        <!-- Replies -->
+                        ${comment.replies && comment.replies.length > 0 ? `
+                            <div class="mt-4 pl-4 border-l-2 border-gray-100 space-y-3">
+                                ${comment.replies.map(reply => createReplyHTML(reply)).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            return commentDiv;
+        }
+
+        function createReplyHTML(reply) {
+            const isEdited = reply.is_edited ? 
+                `<span class="text-xs text-gray-400 ml-2">(edited)</span>` : '';
+                
+            return `
+                <div class="flex space-x-3" data-comment-id="${reply.id}">
+                    <div class="flex-shrink-0">
+                        <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span class="text-xs font-medium">${reply.user.name[0].toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <p class="text-sm font-medium text-gray-900">${reply.user.name}</p>
+                            <p class="text-xs text-gray-500">${formatDate(reply.created_at)}</p>
+                            ${isEdited}
+                        </div>
+                        <div class="mt-1">
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap" data-comment-content="${reply.id}">
+                                ${reply.content}
+                            </p>
+                        </div>
+                        <div class="mt-2 flex items-center space-x-4">
+                            @auth
+                            ${reply.user.id === {{ auth()->id() ?? 0 }} ? `
+                                <button onclick="editComment(${reply.id})" 
+                                    class="text-xs text-gray-600 hover:underline">
+                                    Edit
+                                </button>
+                                <button onclick="deleteComment(${reply.id})" 
+                                    class="text-xs text-red-600 hover:underline">
+                                    Delete
+                                </button>
+                            ` : ''}
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupCommentForm() {
+            const form = document.getElementById('comment-form');
+            if (!form) return;
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitComment();
+            });
+        }
+
+        function setupCharacterCounter() {
+            const textarea = document.getElementById('comment-content');
+            const counter = document.getElementById('char-count');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (!textarea) return;
+            
+            textarea.addEventListener('input', function() {
+                const length = this.value.length;
+                counter.textContent = length;
+                submitBtn.disabled = length === 0 || length > 2000;
+            });
+        }
+
+        function submitComment() {
+            const form = document.getElementById('comment-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const loading = document.getElementById('loading');
+            
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            const formData = new FormData(form);
+            
+            fetch('{{ route('comments.store') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    form.reset();
+                    document.getElementById('char-count').textContent = '0';
+                    cancelReply();
+                    loadComments(); // Reload comments
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message || 'Failed to add comment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting comment:', error);
+                showMessage('Failed to add comment. Please try again.', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            });
+        }
+
+        function startReply(commentId, username) {
+            document.getElementById('parent_id').value = commentId;
+            document.getElementById('reply-username').textContent = username;
+            document.getElementById('reply-info').classList.remove('hidden');
+            document.getElementById('comment-content').focus();
+            document.getElementById('submit-text').textContent = 'Reply';
+        }
+
+        function cancelReply() {
+            document.getElementById('parent_id').value = '';
+            document.getElementById('reply-info').classList.add('hidden');
+            document.getElementById('submit-text').textContent = 'Add Comment';
+        }
+
+        function loadMoreComments() {
+            loadComments(currentPage + 1);
+        }
+
+        function editComment(commentId) {
+            // Implementation for editing comments
+            console.log('Edit comment:', commentId);
+        }
+
+        function deleteComment(commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) return;
+            
+            fetch(`/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadComments(); // Reload comments
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message || 'Failed to delete comment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting comment:', error);
+                showMessage('Failed to delete comment. Please try again.', 'error');
+            });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function showMessage(message, type) {
+            const div = document.createElement('div');
+            div.className = `fixed top-4 right-4 px-6 py-3 rounded-md shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            div.textContent = `${type === 'success' ? '✅' : '❌'} ${message}`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
         }
 
         // Show success/error messages
