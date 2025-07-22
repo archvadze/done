@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acumen Craft - Login</title>
+    <title>Acumen Craft - Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Acumen Craft</h1>
-            <p class="text-gray-600">შენი ინტელექტი, შენი ხელოვნება, შენი სივრცე</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Join Acumen Craft</h1>
+            <p class="text-gray-600">შექმენი ანგარიში და დაიწყე შენი შემოქმედებითი მოგზაურობა</p>
         </div>
 
         @if (session('success'))
@@ -24,6 +24,16 @@
         @if (session('error'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -85,49 +95,58 @@
                 </div>
             @endif
 
-            <!-- Email/Password Form -->
-            <form class="space-y-4">
+            <!-- Registration Form -->
+            <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 @enderror"
+                        placeholder="Your name">
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @enderror"
                         placeholder="your@email.com">
+                    @error('email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
+                
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 @enderror"
                         placeholder="Password">
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-500">
+                        Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.
+                    </p>
                 </div>
+                
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Confirm password">
+                </div>
+                
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
-                    disabled>
-                    Sign In (Coming Soon)
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                    Create Account
                 </button>
             </form>
 
             <div class="text-center text-sm text-gray-600">
-                <p>Don't have an account? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Sign up</a></p>
-                <p><a href="#" class="text-blue-600 hover:underline">Forgot password?</a></p>
+                <p>Already have an account? <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Sign in</a></p>
             </div>
-
-            @if (app()->environment('local'))
-                <!-- Development Quick Login -->
-                <div class="mt-8 pt-6 border-t border-gray-300">
-                    <h3 class="text-center text-sm font-medium text-gray-900 mb-4">Development Quick Login</h3>
-                    <div class="space-y-2">
-                        <a href="/dev-login/test@acumencraft.com"
-                            class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
-                            👤 test@acumencraft.com (with password)
-                        </a>
-                        <a href="/dev-login/oauth@acumencraft.com"
-                            class="w-full block text-center bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 text-sm border">
-                            🔐 oauth@acumencraft.com (OAuth user)
-                        </a>
-                    </div>
-                    <p class="text-xs text-gray-500 text-center mt-2">Only available in development</p>
-                </div>
-            @endif
         </div>
     </div>
 </body>

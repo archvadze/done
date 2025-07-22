@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ArtworkController;
 
 Route::get('/', function () {
@@ -14,6 +15,10 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+
+// Registration routes
+Route::get('/register', [RegisterController::class, 'show'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
 
 // Artwork routes
 Route::resource('artworks', ArtworkController::class);

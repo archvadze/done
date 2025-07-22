@@ -26,7 +26,19 @@ class SocialAuthController extends Controller
             return redirect()->route('login')->with('error', 'Unsupported provider');
         }
 
-        return Socialite::driver($provider)->redirect();
+        // Check if OAuth provider is configured
+        $clientId = config("services.{$provider}.client_id");
+        $clientSecret = config("services.{$provider}.client_secret");
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return redirect()->route('login')->with('error', ucfirst($provider) . ' OAuth is not configured. Please contact administrator.');
+        }
+
+        try {
+            return Socialite::driver($provider)->redirect();
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'OAuth configuration error. Please contact administrator.');
+        }
     }
 
     /**
@@ -36,6 +48,14 @@ class SocialAuthController extends Controller
     {
         if (!in_array($provider, self::SUPPORTED_PROVIDERS)) {
             return redirect()->route('login')->with('error', 'Unsupported provider');
+        }
+
+        // Check if OAuth provider is configured
+        $clientId = config("services.{$provider}.client_id");
+        $clientSecret = config("services.{$provider}.client_secret");
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return redirect()->route('login')->with('error', ucfirst($provider) . ' OAuth is not configured. Please contact administrator.');
         }
 
         try {
