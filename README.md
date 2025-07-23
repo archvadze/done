@@ -146,9 +146,9 @@
 ## მონაცემთა მოდელი (სქემა/მიგრაციები)
 
 **იხილეთ:**  
-- [db.sql](./docs/docs/db.sql) – სრული SQL/ERD  
-- [DB.html](./docs/docs/DB.html) – ვიზუალური დიაგრამა  
-- [TECHNICAL_SPEC_COPYRIGHT_MODULE.md](./docs/docs/TECHNICAL_SPEC_COPYRIGHT_MODULE.md) – საავტორო უფლებები
+- [db.sql](./docs/db.sql) – სრული SQL/ERD  
+- [DB.html](./docs/DB.html) – ვიზუალური დიაგრამა  
+- [TECHNICAL_SPEC_COPYRIGHT_MODULE.md](./docs/TECHNICAL_SPEC_COPYRIGHT_MODULE.md) – საავტორო უფლებები
 
 ---
 
@@ -156,18 +156,18 @@
 
 - **RESTful API:** ყველა მოდულისათვის, versioned (/api/v1)
 - **Public/Partner API:** OAuth2, API Keys, Webhooks
-- **OpenAPI Spec:** [swagger.yaml](./docs/docs/swagger.yaml)
-- **Webhook Docs:** [WEBHOOKS.md](./docs/docs/WEBHOOKS.md)
+- **OpenAPI Spec:** [swagger.yaml](./docs/swagger.yaml)
+- **Webhook Docs:** [WEBHOOKS.md](./docs/WEBHOOKS.md)
 - **Postman Collection:** (მალე)
 
 ---
 
 ## UI/UX სტანდარტები და Mobile
 
-- **Responsive/Adaptive Design:** TailwindCSS, Mobile-first
+- **Responsive/Adaptive Design:** TailwindCSS, Mobile - [STYLE_GUIDE.md](./docs/STYLE_GUIDE.md)
 - **PWA:** Offline mode, installable, push notifications
-- **Mobile App:** (Flutter/React Native) – [MOBILE_GUIDE.md](./docs/docs/MOBILE_GUIDE.md)
-- **UI Mockups:** [branding.pdf](./docs/docs/branding.pdf), [UI_MOCKUPS.md](./docs/docs/UI_MOCKUPS.md)
+- **Mobile App:** (Flutter/React Native) – [MOBILE_GUIDE.md](./docs/MOBILE_GUIDE.md)
+- **UI Mockups:** [branding.pdf](./docs/branding.pdf), [UI_MOCKUPS.md](./docs/UI_MOCKUPS.md)
 - **Onboarding Tour:** Shepherd.js/Intro.js
 
 ---
@@ -184,7 +184,7 @@
 
 ## მონაცემთა დაცვა და შესაბამისობა
 
-- **Privacy Policy:** [PRIVACY.md](./docs/docs/PRIVACY.md)
+- **Privacy Policy:** [PRIVACY.md](./docs/PRIVACY.md)
 - **Security Guide:** [SECURITY.md](./docs/SECURITY.md)
 - **Cookie consent, Terms of Use, Data portability**
 
@@ -246,7 +246,7 @@
 - [ ] ყველა UI ტექსტი resources/lang-ში (i18n)
 - [ ] ყველა ცვლილება CHANGELOG.md-ში
 
-> ყოველთვის გამოიყენეთ [ADVANCED_FEATURES_TECH_SPEC.md](./docs/docs/ADVANCED_FEATURES_TECH_SPEC.md),  
+> ყოველთვის გამოიყენეთ [ADVANCED_FEATURES_TECH_SPEC.md](./docs/ADVANCED_FEATURES_TECH_SPEC.md),  
 > განსაკუთრებით სანამ ფორმალურად დააბრუნებთ თქვენს გადაწყვეტილებას ან პასუხს.
 
 ---
