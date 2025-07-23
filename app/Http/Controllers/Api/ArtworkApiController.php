@@ -10,15 +10,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Services\FileUploadService;
+use App\Services\CacheService;
 use Exception;
 
 class ArtworkApiController extends Controller
 {
     private FileUploadService $fileUploadService;
+    private CacheService $cacheService;
 
-    public function __construct(FileUploadService $fileUploadService)
+    public function __construct(FileUploadService $fileUploadService, CacheService $cacheService)
     {
         $this->fileUploadService = $fileUploadService;
+        $this->cacheService = $cacheService;
     }
 
     /**
@@ -26,54 +29,16 @@ class ArtworkApiController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Artwork::with(['user:id,name,avatar_path'])->published();
-
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.en')) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.ka')) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.en')) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.ka')) LIKE ?", ["%{$search}%"])
-                    ->orWhere('category', 'like', "%{$search}%")
-                    ->orWhere('subcategory', 'like', "%{$search}%");
-            });
-        }
-
-        // Category filter
-        if ($request->filled('category')) {
-            $query->where('category', $request->input('category'));
-        }
-
-        // AI generated filter
-        if ($request->boolean('ai_generated')) {
-            $query->where('is_ai_generated', true);
-        }
-
-        // Sorting
-        $sort = $request->input('sort', 'newest');
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'most_liked':
-                $query->withCount('likes')->orderBy('likes_count', 'desc');
-                break;
-            case 'highest_acq':
-                $query->whereNotNull('acq_score')->orderBy('acq_score', 'desc');
-                break;
-            case 'title':
-                $query->orderByRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.en')) ASC");
-                break;
-            case 'newest':
-            default:
-                $query->orderBy('created_at', 'desc');
-                break;
-        }
-
-        $perPage = min($request->input('per_page', 15), 50); // Max 50 per page
-        $artworks = $query->paginate($perPage);
+        $filters = [
+            'search' => $request->input('search'),
+            'category' => $request->input('category'),
+            'ai_generated' => $request->boolean('ai_generated')
+        ];
+        
+        $page = $request->input('page', 1);
+        $perPage = min($request->input('per_page', 15), 100); // Max 100 per page
+        
+        $artworks = $this->cacheService->getArtworkList($filters, $page, $perPage);
 
         return response()->json([
             'success' => true,
@@ -196,48 +161,55 @@ class ArtworkApiController extends Controller
             ], 404);
         }
 
-        // Load relationships
-        $artwork->load([
-            'user:id,name,avatar_path,created_at',
-            'evaluations' => function ($query) {
-                $query->where('status', 'approved')
-                    ->with('evaluator:id,name')
-                    ->latest()
-                    ->limit(5);
-            }
-        ]);
-
+        // Get cached artwork details
+        $cachedArtwork = $this->cacheService->getArtworkDetails($artwork->id);
+        
+        // Get cached ACQ score
+        $acqScore = $this->cacheService->getArtworkAcqScore($artwork->id);
+        
         // Increment view count (API calls also count as views)
         $artwork->incrementViewCount();
 
         return response()->json([
             'success' => true,
             'data' => [
-                'id' => $artwork->id,
-                'title' => $artwork->getTitle(),
-                'description' => $artwork->getDescription(),
-                'file_url' => $artwork->getFileUrl(),
-                'thumbnail_url' => $artwork->getThumbnailUrl(),
-                'category' => $artwork->category,
-                'subcategory' => $artwork->subcategory,
-                'tags' => $artwork->tags,
-                'license_type' => $artwork->license_type,
-                'copyright_notice' => $artwork->copyright_notice,
-                'is_ai_generated' => $artwork->is_ai_generated,
-                'ai_tools_used' => $artwork->ai_tools_used,
-                'visibility' => $artwork->visibility,
-                'status' => $artwork->status,
-                'acq_score' => $artwork->acq_score,
-                'evaluation_count' => $artwork->evaluation_count,
-                'view_count' => $artwork->view_count,
-                'like_count' => $artwork->like_count,
-                'comment_count' => $artwork->comment_count,
-                'created_at' => $artwork->created_at,
-                'published_at' => $artwork->published_at,
-                'user' => $artwork->user,
-                'recent_evaluations' => $artwork->evaluations,
-                'is_liked' => Auth::check() ? $artwork->isLikedBy(Auth::user()) : false,
-                'can_edit' => Auth::check() && Auth::id() === $artwork->user_id,
+                'id' => $cachedArtwork->id,
+                'title_en' => $cachedArtwork->title_en,
+                'title_ka' => $cachedArtwork->title_ka,
+                'description_en' => $cachedArtwork->description_en,
+                'description_ka' => $cachedArtwork->description_ka,
+                'file_path' => $cachedArtwork->file_path,
+                'category' => $cachedArtwork->category,
+                'tags' => $cachedArtwork->tags,
+                'license_type' => $cachedArtwork->license_type,
+                'is_ai_generated' => $cachedArtwork->is_ai_generated,
+                'visibility' => $cachedArtwork->visibility,
+                'status' => $cachedArtwork->status,
+                'acq_score' => $acqScore,
+                'likes_count' => $cachedArtwork->likes_count,
+                'user' => [
+                    'id' => $cachedArtwork->user->id,
+                    'name' => $cachedArtwork->user->name,
+                    'avatar_path' => $cachedArtwork->user->avatar_path
+                ],
+                'evaluations' => $cachedArtwork->evaluations->map(function($evaluation) {
+                    return [
+                        'id' => $evaluation->id,
+                        'originality_score' => $evaluation->originality_score,
+                        'technical_score' => $evaluation->technical_score,
+                        'aesthetic_score' => $evaluation->aesthetic_score,
+                        'concept_score' => $evaluation->concept_score,
+                        'overall_score' => $evaluation->overall_score,
+                        'comment' => $evaluation->comment,
+                        'created_at' => $evaluation->created_at,
+                        'user' => [
+                            'id' => $evaluation->user->id,
+                            'name' => $evaluation->user->name
+                        ]
+                    ];
+                }),
+                'created_at' => $cachedArtwork->created_at,
+                'updated_at' => $cachedArtwork->updated_at
             ]
         ]);
     }

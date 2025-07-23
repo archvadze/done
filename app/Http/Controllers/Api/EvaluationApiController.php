@@ -9,10 +9,17 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Services\CacheService;
 use Exception;
 
 class EvaluationApiController extends Controller
 {
+    private CacheService $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
     /**
      * Display evaluations for an artwork
      */
@@ -260,41 +267,28 @@ class EvaluationApiController extends Controller
      */
     public function leaderboard(Request $request): JsonResponse
     {
-        $timeframe = $request->get('timeframe', 'all'); // all, week, month, year
-
-        $query = Artwork::where('status', 'published')
-            ->whereNotNull('acq_score')
-            ->where('evaluation_count', '>', 0)
-            ->with(['user:id,name,avatar_path']);
-
-        // Apply timeframe filter
-        switch ($timeframe) {
-            case 'week':
-                $query->where('created_at', '>=', now()->subWeek());
-                break;
-            case 'month':
-                $query->where('created_at', '>=', now()->subMonth());
-                break;
-            case 'year':
-                $query->where('created_at', '>=', now()->subYear());
-                break;
-        }
-
-        $perPage = min($request->input('per_page', 20), 50);
-        $topArtworks = $query->orderBy('acq_score', 'desc')
-            ->paginate($perPage);
+        $limit = min($request->input('limit', 20), 50);
+        
+        $topArtworks = $this->cacheService->getLeaderboard($limit);
 
         return response()->json([
             'success' => true,
-            'timeframe' => $timeframe,
-            'data' => $topArtworks->items(),
-            'pagination' => [
-                'current_page' => $topArtworks->currentPage(),
-                'last_page' => $topArtworks->lastPage(),
-                'per_page' => $topArtworks->perPage(),
-                'total' => $topArtworks->total(),
-                'has_more' => $topArtworks->hasMorePages(),
-            ]
+            'data' => $topArtworks->map(function($artwork) {
+                return [
+                    'id' => $artwork->id,
+                    'title_en' => $artwork->title_en,
+                    'title_ka' => $artwork->title_ka,
+                    'acq_score' => $artwork->acq_score,
+                    'likes_count' => $artwork->likes_count,
+                    'file_path' => $artwork->file_path,
+                    'user' => [
+                        'id' => $artwork->user->id,
+                        'name' => $artwork->user->name,
+                        'avatar_path' => $artwork->user->avatar_path
+                    ],
+                    'created_at' => $artwork->created_at
+                ];
+            })
         ]);
     }
 }

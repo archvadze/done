@@ -9,24 +9,26 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Services\CacheService;
 use Exception;
 
 class UserApiController extends Controller
 {
+    private CacheService $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
     /**
      * Get current authenticated user's profile
      */
     public function me(): JsonResponse
     {
         $user = Auth::user();
-
-        // Load artworks count statistics
-        $totalArtworks = $user->artworks()->count();
-        $publishedArtworks = $user->artworks()->where('status', 'published')->count();
-        $draftArtworks = $user->artworks()->where('status', 'draft')->count();
-        $avgAcqScore = $user->artworks()->where('acq_score', '>', 0)->avg('acq_score');
-        $totalLikes = $user->artworks()->sum('like_count');
-        $totalViews = $user->artworks()->sum('view_count');
+        
+        // Get cached user profile data
+        $profileData = $this->cacheService->getUserProfile($user->id);
 
         return response()->json([
             'success' => true,
@@ -40,12 +42,10 @@ class UserApiController extends Controller
                 'website' => $user->website,
                 'created_at' => $user->created_at,
                 'stats' => [
-                    'total_artworks' => $totalArtworks,
-                    'published_artworks' => $publishedArtworks,
-                    'draft_artworks' => $draftArtworks,
-                    'average_acq_score' => round($avgAcqScore, 2),
-                    'total_likes' => $totalLikes,
-                    'total_views' => $totalViews,
+                    'artworks_count' => $profileData['artworks_count'],
+                    'evaluations_count' => $profileData['evaluations_count'],
+                    'average_acq_score' => round($profileData['average_acq_score'] ?? 0, 2),
+                    'total_likes' => $profileData['total_likes'],
                 ]
             ]
         ]);
