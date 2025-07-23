@@ -36,17 +36,34 @@ class ArtworkFactory extends Factory
                 'format' => 'JPEG'
             ]),
             'license_type' => $this->faker->randomElement([
-                'all_rights_reserved', 'creative_commons_by', 'creative_commons_by_sa', 
-                'creative_commons_by_nc', 'creative_commons_by_nc_sa', 'public_domain'
+                'all_rights_reserved',
+                'creative_commons_by',
+                'creative_commons_by_sa',
+                'creative_commons_by_nc',
+                'creative_commons_by_nc_sa',
+                'public_domain'
             ]),
             'watermark_enabled' => $this->faker->boolean(70),
             'category' => $this->faker->randomElement([
-                'digital-art', 'painting', 'photography', 'sculpture', 
-                'music', 'video', 'mixed-media'
+                'digital-art',
+                'painting',
+                'photography',
+                'sculpture',
+                'music',
+                'video',
+                'mixed-media'
             ]),
             'tags' => json_encode($this->faker->randomElements([
-                'abstract', 'landscape', 'portrait', 'digital', 'traditional',
-                'colorful', 'minimalist', 'nature', 'urban', 'fantasy'
+                'abstract',
+                'landscape',
+                'portrait',
+                'digital',
+                'traditional',
+                'colorful',
+                'minimalist',
+                'nature',
+                'urban',
+                'fantasy'
             ], $this->faker->numberBetween(1, 4))),
             'creative_process' => $this->faker->paragraph(),
             'status' => $this->faker->randomElement(['draft', 'published', 'pending']),
@@ -62,21 +79,21 @@ class ArtworkFactory extends Factory
 
     public function published(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'published',
         ]);
     }
 
     public function draft(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'draft',
         ]);
     }
 
     public function forSale(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'is_for_sale' => true,
             'price' => $this->faker->randomFloat(2, 50, 2000),
         ]);
@@ -84,7 +101,7 @@ class ArtworkFactory extends Factory
 
     public function featured(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'featured' => true,
         ]);
     }
