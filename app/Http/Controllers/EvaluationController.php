@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class EvaluationController extends Controller
@@ -57,9 +58,7 @@ class EvaluationController extends Controller
 
         // Don't allow self-evaluation
         if ($artwork->user_id === Auth::id()) {
-            return redirect()
-                ->route('artworks.show', $artwork)
-                ->with('error', 'You cannot evaluate your own artwork.');
+            abort(403, 'You cannot evaluate your own artwork.');
         }
 
         return view('evaluations.create', compact('artwork'));
@@ -70,8 +69,10 @@ class EvaluationController extends Controller
      */
     public function store(Request $request, Artwork $artwork)
     {
-        // Validate request
-        $validated = $request->validate(Evaluation::validationRules());
+        // Validate request (exclude artwork_id since it comes from route)
+        $rules = Evaluation::validationRules();
+        unset($rules['artwork_id']); // Remove artwork_id validation since it's from route
+        $validated = $request->validate($rules);
 
         // Check for existing evaluation
         $existingEvaluation = Evaluation::where('artwork_id', $artwork->id)
@@ -86,9 +87,7 @@ class EvaluationController extends Controller
 
         // Don't allow self-evaluation
         if ($artwork->user_id === Auth::id()) {
-            throw ValidationException::withMessages([
-                'artwork' => 'You cannot evaluate your own artwork.'
-            ]);
+            abort(403, 'You cannot evaluate your own artwork.');
         }
 
         try {
@@ -126,6 +125,13 @@ class EvaluationController extends Controller
                 ->with('success', 'Thank you for your evaluation!');
         } catch (\Exception $e) {
             DB::rollback();
+            
+            // Log the actual error for debugging
+            Log::error('Failed to submit evaluation: ' . $e->getMessage(), [
+                'exception' => $e,
+                'artwork_id' => $artwork->id,
+                'user_id' => Auth::id(),
+            ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -135,7 +141,7 @@ class EvaluationController extends Controller
             }
 
             return back()
-                ->withErrors(['error' => 'Failed to submit evaluation.'])
+                ->withErrors(['error' => 'Failed to submit evaluation: ' . $e->getMessage()])
                 ->withInput();
         }
     }
@@ -173,7 +179,10 @@ class EvaluationController extends Controller
             abort(403, 'Unauthorized to edit this evaluation.');
         }
 
-        $validated = $request->validate(Evaluation::validationRules());
+        // Validate request (exclude artwork_id and source since they come from context)
+        $rules = Evaluation::validationRules();
+        unset($rules['artwork_id'], $rules['source']); // Remove fields that come from context
+        $validated = $request->validate($rules);
 
         try {
             DB::beginTransaction();

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\EvaluationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,6 +39,27 @@ Route::middleware('auth')->group(function () {
 
 // Public comments routes
 Route::get('artworks/{artwork}/comments', [CommentController::class, 'getComments'])->name('comments.get');
+
+// Evaluation routes
+Route::middleware('auth')->group(function () {
+    Route::get('artworks/{artwork}/evaluations/create', [EvaluationController::class, 'create'])->name('evaluations.create');
+    Route::post('artworks/{artwork}/evaluations', [EvaluationController::class, 'store'])->name('evaluations.store');
+    Route::get('artworks/{artwork}/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('artworks/{artwork}/evaluations/{evaluation}/edit', [EvaluationController::class, 'edit'])->name('evaluations.edit');
+    Route::put('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'update'])->name('evaluations.update');
+    Route::delete('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'destroy'])->name('evaluations.destroy');
+    Route::get('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'show'])->name('evaluations.show');
+});
+
+// Public evaluation routes
+Route::get('leaderboard', [EvaluationController::class, 'leaderboard'])->name('leaderboard');
+
+// User profile routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', function () {
+        return view('users.profile', ['user' => Auth::user()]);
+    })->name('users.profile');
+});
 
 // Load development routes only in local environment
 if (app()->environment('local')) {

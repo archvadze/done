@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class Artwork extends Model
 {
@@ -218,6 +218,14 @@ class Artwork extends Model
         return $this->likes()->where('user_id', $user->id)->exists();
     }
 
+    /**
+     * Evaluation relationship
+     */
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
     public function incrementViewCount()
     {
         $this->increment('view_count');
@@ -225,20 +233,35 @@ class Artwork extends Model
 
     public function calculateAcqScore()
     {
-        // Placeholder for ACQ scoring algorithm
-        // This would be implemented based on specific requirements
-        $baseScore = 0;
+        // Get all approved evaluations for this artwork
+        $evaluations = $this->evaluations()->where('status', 'approved')->get();
+        
+        if ($evaluations->isEmpty()) {
+            $this->acq_score = null;
+            $this->save();
+            return $this->acq_score;
+        }
 
-        // Factor in likes
-        $baseScore += $this->getLikesCount() * 2;
-
-        // Factor in views
-        $baseScore += $this->view_count * 0.1;
-
-        // Factor in user reputation (if implemented)
-        // $baseScore += $this->user->reputation * 0.5;
-
-        $this->acq_score = round($baseScore, 2);
+        // Calculate average score from all evaluation categories
+        $totalScore = 0;
+        $evaluationCount = $evaluations->count();
+        
+        foreach ($evaluations as $evaluation) {
+            // Average the four evaluation criteria for each evaluation
+            $evaluationAverage = (
+                $evaluation->score_technique + 
+                $evaluation->score_composition + 
+                $evaluation->score_originality + 
+                $evaluation->score_impact
+            ) / 4;
+            
+            $totalScore += $evaluationAverage;
+        }
+        
+        // Calculate overall average
+        $acqScore = $totalScore / $evaluationCount;
+        
+        $this->acq_score = round($acqScore, 2);
         $this->save();
 
         return $this->acq_score;
