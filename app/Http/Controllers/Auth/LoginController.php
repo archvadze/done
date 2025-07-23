@@ -55,7 +55,6 @@ class LoginController extends Controller
             return redirect()->back()
                 ->withErrors(['email' => 'The provided credentials do not match our records.'])
                 ->withInput($request->except('password'));
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withErrors(['email' => 'Login error: ' . $e->getMessage()])

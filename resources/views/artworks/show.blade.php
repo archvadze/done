@@ -27,25 +27,20 @@
     <style>
         .artwork-main {
             max-height: 80vh;
+            max-width: 100%;
             object-fit: contain;
         }
 
         .zoom-container {
-            overflow: hidden;
-            cursor: zoom-in;
-            position: relative;
-        }
-
-        .zoom-container.zoomed {
-            cursor: zoom-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
         }
 
         .zoom-container img {
-            transition: transform 0.3s ease;
-        }
-
-        .zoom-container.zoomed img {
-            transform: scale(2);
+            max-width: 100%;
+            height: auto;
         }
 
         .metadata-card {
@@ -59,6 +54,13 @@
         .tag-badge:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Fix for responsive images */
+        .artwork-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -101,13 +103,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Artwork Display -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden artwork-container">
                         @if ($artwork->file_path)
                             @if (Str::startsWith($artwork->file_type, 'image/'))
                                 <!-- Image -->
-                                <div class="zoom-container" onclick="toggleZoom(this)">
-                                    <img src="{{ Storage::url($artwork->file_path) }}"
-                                        alt="{{ $artwork->getTitle() }}" class="artwork-main w-full">
+                                <div class="zoom-container">
+                                    <img src="{{ $artwork->getThumbnailUrl() }}" alt="{{ $artwork->getTitle() }}"
+                                        class="artwork-main cursor-pointer"
+                                        onclick="openFileModal('{{ Storage::url($artwork->file_path) }}', '{{ $artwork->getTitle() }}')">
                                 </div>
                             @elseif(Str::startsWith($artwork->file_type, 'video/'))
                                 <!-- Video -->
@@ -119,7 +122,16 @@
                             @elseif(Str::startsWith($artwork->file_type, 'audio/'))
                                 <!-- Audio with Cover -->
                                 <div class="bg-gray-100 p-8 text-center">
-                                    <div class="text-8xl mb-4">🎵</div>
+                                    @if ($artwork->thumbnail_path)
+                                        <div class="mb-4">
+                                            <img src="{{ $artwork->getThumbnailUrl() }}"
+                                                alt="{{ $artwork->getTitle() }}"
+                                                class="mx-auto rounded-lg shadow-lg max-w-xs max-h-64 object-cover cursor-pointer"
+                                                onclick="openFileModal('{{ Storage::url($artwork->file_path) }}', '{{ $artwork->getTitle() }}')">
+                                        </div>
+                                    @else
+                                        <div class="text-8xl mb-4">🎵</div>
+                                    @endif
                                     <h3 class="text-xl font-semibold mb-4">{{ $artwork->getTitle() }}</h3>
                                     <audio controls class="w-full max-w-md mx-auto">
                                         <source src="{{ Storage::url($artwork->file_path) }}"
@@ -129,11 +141,54 @@
                                 </div>
                             @else
                                 <!-- Other File Types -->
-                                <div class="bg-gray-100 p-8 text-center">
-                                    <div class="text-8xl mb-4">📄</div>
-                                    <h3 class="text-xl font-semibold mb-4">{{ $artwork->getTitle() }}</h3>
-                                    <a href="{{ Storage::url($artwork->file_path) }}" target="_blank"
-                                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                @php
+                                    $fileExtension = pathinfo($artwork->file_path, PATHINFO_EXTENSION);
+                                    $fileIcon = match (strtolower($fileExtension)) {
+                                        'pdf' => '📄',
+                                        'doc', 'docx' => '📝',
+                                        'txt', 'md' => '📋',
+                                        'zip', 'rar', '7z' => '🗜️',
+                                        'exe', 'app' => '⚙️',
+                                        'json', 'xml', 'csv' => '📊',
+                                        default => '📎',
+                                    };
+                                    $fileTypeLabel = match (strtolower($fileExtension)) {
+                                        'pdf' => 'PDF Document',
+                                        'doc', 'docx' => 'Word Document',
+                                        'txt' => 'Text File',
+                                        'md' => 'Markdown File',
+                                        'zip', 'rar', '7z' => 'Archive File',
+                                        'exe', 'app' => 'Application',
+                                        'json' => 'JSON Data',
+                                        'xml' => 'XML Data',
+                                        'csv' => 'CSV Data',
+                                        default => strtoupper($fileExtension) . ' File',
+                                    };
+                                @endphp
+                                <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-8 text-center">
+                                    @if ($artwork->thumbnail_path)
+                                        <div class="mb-4">
+                                            <img src="{{ $artwork->getThumbnailUrl() }}"
+                                                alt="{{ $artwork->getTitle() }}"
+                                                class="mx-auto rounded-lg shadow-lg max-w-xs max-h-64 object-cover cursor-pointer"
+                                                onclick="openFileModal('{{ Storage::url($artwork->file_path) }}', '{{ $artwork->getTitle() }}')">
+                                        </div>
+                                    @else
+                                        <div class="text-8xl mb-4">{{ $fileIcon }}</div>
+                                    @endif
+                                    <h3 class="text-xl font-semibold mb-2">{{ $artwork->getTitle() }}</h3>
+                                    <p class="text-gray-600 mb-4">{{ $fileTypeLabel }}</p>
+                                    <a href="#"
+                                        onclick="openFileModal('{{ Storage::url($artwork->file_path) }}', '{{ $artwork->getTitle() }}')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors inline-flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                            </path>
+                                        </svg>
                                         View File
                                     </a>
                                 </div>
@@ -152,7 +207,7 @@
                         <div class="flex items-center space-x-6">
                             <!-- Like Button -->
                             @auth
-                                <form method="POST" action="{{ route('artworks.toggle-like', $artwork) }}" class="inline">
+                                <form method="POST" action="{{ route('artworks.like', $artwork) }}" class="inline">
                                     @csrf
                                     <button type="submit"
                                         class="flex items-center space-x-2 {{ $artwork->isLikedBy(auth()->user()) ? 'text-red-500' : 'text-gray-600 hover:text-red-500' }} transition-colors">
@@ -392,10 +447,14 @@
                                             </button>
                                         </form>
                                     @else
-                                        <button onclick="unpublishArtwork()"
-                                            class="w-full bg-yellow-600 text-white py-2 rounded-md hover:bg-yellow-700 transition-colors">
-                                            Unpublish
-                                        </button>
+                                        <form method="POST" action="{{ route('artworks.unpublish', $artwork) }}"
+                                            class="block">
+                                            @csrf
+                                            <button type="submit"
+                                                class="w-full bg-yellow-600 text-white py-2 rounded-md hover:bg-yellow-700 transition-colors">
+                                                Unpublish
+                                            </button>
+                                        </form>
                                     @endif
 
                                     <button onclick="deleteArtwork()"
@@ -422,8 +481,7 @@
                         <input type="hidden" name="artwork_id" value="{{ $artwork->id }}">
                         <input type="hidden" name="parent_id" value="" id="parent_id">
                         <div class="mb-4">
-                            <textarea name="content" id="comment-content" rows="3" 
-                                placeholder="Share your thoughts about this artwork..."
+                            <textarea name="content" id="comment-content" rows="3" placeholder="Share your thoughts about this artwork..."
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required maxlength="2000"></textarea>
                             <div class="text-right text-sm text-gray-500 mt-1">
@@ -433,7 +491,8 @@
                         <div class="flex items-center justify-between">
                             <div id="reply-info" class="hidden text-sm text-gray-600">
                                 Replying to <span id="reply-username" class="font-medium"></span>
-                                <button type="button" onclick="cancelReply()" class="text-blue-600 hover:underline ml-2">Cancel</button>
+                                <button type="button" onclick="cancelReply()"
+                                    class="text-blue-600 hover:underline ml-2">Cancel</button>
                             </div>
                             <button type="submit" id="submit-btn"
                                 class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -464,7 +523,7 @@
 
                 <!-- Load More Button -->
                 <div id="load-more-container" class="hidden text-center mt-6">
-                    <button id="load-more-btn" onclick="loadMoreComments()" 
+                    <button id="load-more-btn" onclick="loadMoreComments()"
                         class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors">
                         Load More Comments
                     </button>
@@ -496,10 +555,6 @@
     </div>
 
     <script>
-        function toggleZoom(container) {
-            container.classList.toggle('zoomed');
-        }
-
         function shareArtwork() {
             if (navigator.share) {
                 navigator.share({
@@ -519,24 +574,6 @@
             if (confirm('Are you sure you want to report this artwork?')) {
                 // Implement reporting functionality
                 alert('Thank you for your report. We will review this artwork.');
-            }
-        }
-
-        function unpublishArtwork() {
-            if (confirm('Are you sure you want to unpublish this artwork? It will no longer be visible to other users.')) {
-                // Implement unpublish functionality
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '#';
-
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = '{{ csrf_token() }}';
-                form.appendChild(csrfToken);
-
-                document.body.appendChild(form);
-                form.submit();
             }
         }
 
@@ -576,40 +613,86 @@
 
         function loadComments(page = 1) {
             if (isLoading) return;
-            
+
             isLoading = true;
             const loadingEl = document.getElementById('comments-loading');
-            
-            if (page === 1) {
-                loadingEl.style.display = 'block';
+
+            // Create or show loading element
+            const commentsList = document.getElementById('comments-list');
+            if (!commentsList) {
+                console.error('Comments list element not found');
+                isLoading = false;
+                return;
             }
 
-            fetch(`{{ route('comments.get', $artwork) }}?page=${page}`)
-                .then(response => response.json())
+            if (page === 1) {
+                // If loading element doesn't exist, create it
+                if (!loadingEl) {
+                    const newLoadingEl = document.createElement('div');
+                    newLoadingEl.id = 'comments-loading';
+                    newLoadingEl.className = 'text-center text-gray-500 py-8';
+                    newLoadingEl.innerHTML = `
+                        <div class="text-4xl mb-2">⏳</div>
+                        <p>Loading comments...</p>
+                    `;
+                    commentsList.innerHTML = '';
+                    commentsList.appendChild(newLoadingEl);
+                } else {
+                    loadingEl.style.display = 'block';
+                }
+            }
+
+            fetch(`{{ route('comments.get', $artwork) }}?page=${page}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    console.log('Comments response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Comments data received:', data);
                     if (page === 1) {
                         renderComments(data.comments.data);
-                        loadingEl.style.display = 'none';
+                        // Hide or remove loading element
+                        const currentLoadingEl = document.getElementById('comments-loading');
+                        if (currentLoadingEl) {
+                            currentLoadingEl.style.display = 'none';
+                        }
                     } else {
                         appendComments(data.comments.data);
                     }
-                    
+
                     // Update comments count
-                    document.getElementById('comments-count').textContent = data.total_comments;
-                    
+                    const commentsCountEl = document.getElementById('comments-count');
+                    if (commentsCountEl) {
+                        commentsCountEl.textContent = data.total_comments;
+                    }
+
                     // Show/hide load more button
                     const loadMoreContainer = document.getElementById('load-more-container');
-                    if (data.comments.next_page_url) {
+                    if (loadMoreContainer && data.comments.next_page_url) {
                         loadMoreContainer.classList.remove('hidden');
                         currentPage = page;
-                    } else {
+                    } else if (loadMoreContainer) {
                         loadMoreContainer.classList.add('hidden');
                     }
                 })
                 .catch(error => {
                     console.error('Error loading comments:', error);
                     if (page === 1) {
-                        loadingEl.innerHTML = '<p class="text-red-500">Failed to load comments. Please refresh the page.</p>';
+                        const currentLoadingEl = document.getElementById('comments-loading');
+                        if (currentLoadingEl) {
+                            currentLoadingEl.innerHTML =
+                                '<p class="text-red-500">Failed to load comments. Please refresh the page.</p>';
+                        }
                     }
                 })
                 .finally(() => {
@@ -619,8 +702,14 @@
 
         function renderComments(comments) {
             const commentsList = document.getElementById('comments-list');
+
+            if (!commentsList) {
+                console.error('Comments list element not found');
+                return;
+            }
+
             commentsList.innerHTML = '';
-            
+
             if (comments.length === 0) {
                 commentsList.innerHTML = `
                     <div class="text-center text-gray-500 py-8">
@@ -632,7 +721,14 @@
             }
 
             comments.forEach(comment => {
-                commentsList.appendChild(createCommentElement(comment));
+                try {
+                    const commentElement = createCommentElement(comment);
+                    if (commentElement) {
+                        commentsList.appendChild(commentElement);
+                    }
+                } catch (error) {
+                    console.error('Error creating comment element:', error);
+                }
             });
         }
 
@@ -647,10 +743,10 @@
             const commentDiv = document.createElement('div');
             commentDiv.className = 'border-b border-gray-100 pb-4';
             commentDiv.setAttribute('data-comment-id', comment.id);
-            
-            const isEdited = comment.is_edited ? 
+
+            const isEdited = comment.is_edited ?
                 `<span class="text-xs text-gray-400 ml-2">(edited)</span>` : '';
-                
+
             commentDiv.innerHTML = `
                 <div class="flex space-x-3">
                     <div class="flex-shrink-0">
@@ -671,40 +767,40 @@
                         </div>
                         <div class="mt-2 flex items-center space-x-4">
                             @auth
-                            <button onclick="startReply(${comment.id}, '${comment.user.name}')" 
+                            <button onclick="startReply(${comment.id}, '${comment.user.name}')"
                                 class="text-xs text-blue-600 hover:underline">
                                 Reply
                             </button>
                             ${comment.user.id === {{ auth()->id() ?? 0 }} ? `
-                                <button onclick="editComment(${comment.id})" 
-                                    class="text-xs text-gray-600 hover:underline">
-                                    Edit
-                                </button>
-                                <button onclick="deleteComment(${comment.id})" 
-                                    class="text-xs text-red-600 hover:underline">
-                                    Delete
-                                </button>
-                            ` : ''}
+                                        <button onclick="editComment(${comment.id})"
+                                            class="text-xs text-gray-600 hover:underline">
+                                            Edit
+                                        </button>
+                                        <button onclick="deleteComment(${comment.id})"
+                                            class="text-xs text-red-600 hover:underline">
+                                            Delete
+                                        </button>
+                                    ` : ''}
                             @endauth
                         </div>
-                        
+
                         <!-- Replies -->
                         ${comment.replies && comment.replies.length > 0 ? `
-                            <div class="mt-4 pl-4 border-l-2 border-gray-100 space-y-3">
-                                ${comment.replies.map(reply => createReplyHTML(reply)).join('')}
-                            </div>
-                        ` : ''}
+                                    <div class="mt-4 pl-4 border-l-2 border-gray-100 space-y-3">
+                                        ${comment.replies.map(reply => createReplyHTML(reply)).join('')}
+                                    </div>
+                                ` : ''}
                     </div>
                 </div>
             `;
-            
+
             return commentDiv;
         }
 
         function createReplyHTML(reply) {
-            const isEdited = reply.is_edited ? 
+            const isEdited = reply.is_edited ?
                 `<span class="text-xs text-gray-400 ml-2">(edited)</span>` : '';
-                
+
             return `
                 <div class="flex space-x-3" data-comment-id="${reply.id}">
                     <div class="flex-shrink-0">
@@ -726,15 +822,15 @@
                         <div class="mt-2 flex items-center space-x-4">
                             @auth
                             ${reply.user.id === {{ auth()->id() ?? 0 }} ? `
-                                <button onclick="editComment(${reply.id})" 
-                                    class="text-xs text-gray-600 hover:underline">
-                                    Edit
-                                </button>
-                                <button onclick="deleteComment(${reply.id})" 
-                                    class="text-xs text-red-600 hover:underline">
-                                    Delete
-                                </button>
-                            ` : ''}
+                                        <button onclick="editComment(${reply.id})"
+                                            class="text-xs text-gray-600 hover:underline">
+                                            Edit
+                                        </button>
+                                        <button onclick="deleteComment(${reply.id})"
+                                            class="text-xs text-red-600 hover:underline">
+                                            Delete
+                                        </button>
+                                    ` : ''}
                             @endauth
                         </div>
                     </div>
@@ -745,7 +841,7 @@
         function setupCommentForm() {
             const form = document.getElementById('comment-form');
             if (!form) return;
-            
+
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitComment();
@@ -756,9 +852,9 @@
             const textarea = document.getElementById('comment-content');
             const counter = document.getElementById('char-count');
             const submitBtn = document.getElementById('submit-btn');
-            
+
             if (!textarea) return;
-            
+
             textarea.addEventListener('input', function() {
                 const length = this.value.length;
                 counter.textContent = length;
@@ -771,42 +867,62 @@
             const submitBtn = document.getElementById('submit-btn');
             const submitText = document.getElementById('submit-text');
             const loading = document.getElementById('loading');
-            
+
+            // Disable form immediately
             submitBtn.disabled = true;
             submitText.classList.add('hidden');
             loading.classList.remove('hidden');
-            
+
             const formData = new FormData(form);
-            
+
             fetch('{{ route('comments.store') }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    form.reset();
-                    document.getElementById('char-count').textContent = '0';
-                    cancelReply();
-                    loadComments(); // Reload comments
-                    showMessage(data.message, 'success');
-                } else {
-                    showMessage(data.message || 'Failed to add comment', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting comment:', error);
-                showMessage('Failed to add comment. Please try again.', 'error');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitText.classList.remove('hidden');
-                loading.classList.add('hidden');
-            });
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(async response => {
+                    console.log('Submit comment response status:', response.status);
+                    const data = await response.json();
+                    console.log('Submit comment data:', data);
+
+                    if (response.ok && data.success) {
+                        // Reset form immediately
+                        form.reset();
+                        document.getElementById('char-count').textContent = '0';
+                        cancelReply();
+
+                        // Show success message
+                        showMessage(data.message || 'Comment added successfully!', 'success');
+
+                        // Wait a moment then reload comments to ensure database consistency
+                        setTimeout(() => {
+                            loadComments(); // Reload comments
+                        }, 100);
+
+                    } else {
+                        // Handle validation errors
+                        if (data.errors) {
+                            const errorMessages = Object.values(data.errors).flat();
+                            showMessage(errorMessages.join(', '), 'error');
+                        } else {
+                            showMessage(data.message || 'Failed to add comment', 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting comment:', error);
+                    showMessage('Failed to add comment. Please try again.', 'error');
+                })
+                .finally(() => {
+                    // Re-enable form
+                    submitBtn.disabled = false;
+                    submitText.classList.remove('hidden');
+                    loading.classList.add('hidden');
+                });
         }
 
         function startReply(commentId, username) {
@@ -834,27 +950,40 @@
 
         function deleteComment(commentId) {
             if (!confirm('Are you sure you want to delete this comment?')) return;
-            
+
             fetch(`/comments/${commentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadComments(); // Reload comments
-                    showMessage(data.message, 'success');
-                } else {
-                    showMessage(data.message || 'Failed to delete comment', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting comment:', error);
-                showMessage('Failed to delete comment. Please try again.', 'error');
-            });
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(async response => {
+                    console.log('Delete comment response status:', response.status);
+                    const data = await response.json();
+                    console.log('Delete comment data:', data);
+
+                    if (response.ok && data.success) {
+                        showMessage(data.message || 'Comment deleted successfully!', 'success');
+                        // Wait a moment then reload comments to ensure database consistency
+                        setTimeout(() => {
+                            loadComments(); // Reload comments
+                        }, 100);
+                    } else {
+                        if (data.errors) {
+                            const errorMessages = Object.values(data.errors).flat();
+                            showMessage(errorMessages.join(', '), 'error');
+                        } else {
+                            showMessage(data.message || 'Failed to delete comment', 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting comment:', error);
+                    showMessage('Failed to delete comment. Please try again.', 'error');
+                });
         }
 
         function formatDate(dateString) {
@@ -864,12 +993,12 @@
             const diffMins = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMs / 3600000);
             const diffDays = Math.floor(diffMs / 86400000);
-            
+
             if (diffMins < 1) return 'just now';
             if (diffMins < 60) return `${diffMins}m ago`;
             if (diffHours < 24) return `${diffHours}h ago`;
             if (diffDays < 7) return `${diffDays}d ago`;
-            
+
             return date.toLocaleDateString();
         }
 
@@ -900,19 +1029,156 @@
             setTimeout(() => errorDiv.remove(), 5000);
         @endif
 
-        // Update view count after 3 seconds
-        setTimeout(() => {
-            fetch('{{ route('artworks.show', $artwork) }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    track_view: true
-                })
-            });
-        }, 3000);
+        // Update view count after 3 seconds - REMOVED because it's causing 405 errors
+        // setTimeout(() => {
+        //     fetch('{{ route('artworks.show', $artwork) }}', {
+        //         method: 'POST',
+        //         headers: {
+        //             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             track_view: true
+        //         })
+        //     });
+        // }, 3000);
+
+        // File Modal Function - Enhanced for Moderation/Evaluation
+        function openFileModal(fileUrl, title) {
+            // Determine file type from URL
+            const fileExtension = fileUrl.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileExtension);
+            const isVideo = ['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(fileExtension);
+            const isAudio = ['mp3', 'wav', 'ogg', 'aac', 'm4a'].includes(fileExtension);
+            const isText = ['txt', 'md', 'json', 'csv', 'xml'].includes(fileExtension);
+            const isPdf = fileExtension === 'pdf';
+
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 p-2';
+            modal.onclick = () => modal.remove();
+
+            // Create modal content - larger for better moderation
+            const content = document.createElement('div');
+            content.className = 'bg-white p-6 rounded-xl max-w-7xl w-full max-h-[98vh] overflow-auto shadow-2xl';
+            content.onclick = (e) => e.stopPropagation();
+
+            let mediaContent = '';
+
+            if (isImage) {
+                mediaContent = `
+                    <div class="text-center">
+                        <img src="${fileUrl}" alt="${title}" class="max-w-full max-h-[85vh] mx-auto rounded-lg shadow-lg object-contain bg-gray-50">
+                    </div>`;
+            } else if (isVideo) {
+                mediaContent = `
+                    <div class="text-center">
+                        <video controls class="max-w-full max-h-[80vh] mx-auto rounded-lg shadow-lg">
+                            <source src="${fileUrl}" type="video/${fileExtension}">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>`;
+            } else if (isAudio) {
+                mediaContent = `
+                    <div class="text-center bg-gradient-to-br from-purple-100 to-blue-100 p-12 rounded-lg">
+                        <div class="text-9xl mb-8">🎵</div>
+                        <h3 class="text-2xl font-semibold mb-6 text-gray-800">${title}</h3>
+                        <audio controls class="w-full max-w-lg mx-auto shadow-lg rounded-lg">
+                            <source src="${fileUrl}" type="audio/${fileExtension}">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>`;
+            } else if (isPdf) {
+                mediaContent = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">📄</div>
+                        <p class="text-gray-600 mb-4 text-lg font-medium">PDF Document</p>
+                        <iframe src="${fileUrl}" class="w-full h-[80vh] border rounded-lg shadow-inner bg-gray-50"></iframe>
+                    </div>`;
+            } else if (isText) {
+                // For text files, we'll show a preview
+                mediaContent = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">📝</div>
+                        <p class="text-gray-600 mb-4 text-lg font-medium">Text File</p>
+                        <div class="bg-gray-50 p-6 rounded-lg text-left max-h-[70vh] overflow-auto border shadow-inner">
+                            <pre id="text-content" class="text-sm text-gray-800 whitespace-pre-wrap">Loading content...</pre>
+                        </div>
+                    </div>`;
+            } else {
+                mediaContent = `
+                    <div class="text-center">
+                        <div class="text-8xl mb-6">📎</div>
+                        <p class="text-gray-600 mb-4 text-xl">File: ${fileExtension.toUpperCase()}</p>
+                        <p class="text-gray-500">Use the download button below to view this file</p>
+                    </div>`;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-800">${title}</h3>
+                        <p class="text-sm text-gray-500 mt-1">File Type: ${fileExtension.toUpperCase()}</p>
+                    </div>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mb-8">
+                    ${mediaContent}
+                </div>
+                <div class="flex justify-center space-x-4 pt-4 border-t">
+                    <a href="${fileUrl}" download class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center shadow-lg">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Download
+                    </a>
+                    <a href="${fileUrl}" target="_blank" class="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors flex items-center shadow-lg">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Open in New Tab
+                    </a>
+                    <button onclick="this.closest('.fixed').remove()" class="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition-colors shadow-lg">
+                        Close
+                    </button>
+                </div>
+            `;
+
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+
+            // Add keyboard event listener to close modal with Escape key
+            const closeModal = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', closeModal);
+                }
+            };
+            document.addEventListener('keydown', closeModal);
+
+            // Load text content if it's a text file
+            if (isText) {
+                fetch(fileUrl)
+                    .then(response => response.text())
+                    .then(text => {
+                        const textContent = document.getElementById('text-content');
+                        if (textContent) {
+                            textContent.textContent = text.substring(0, 5000) + (text.length > 5000 ?
+                                '\n\n... (truncated)' : '');
+                        }
+                    })
+                    .catch(error => {
+                        const textContent = document.getElementById('text-content');
+                        if (textContent) {
+                            textContent.textContent = 'Error loading file content.';
+                        }
+                    });
+            }
+        }
     </script>
 </body>
 

@@ -188,8 +188,8 @@
                             <!-- Artwork Image -->
                             <a href="{{ route('artworks.show', $artwork) }}" class="block">
                                 @if ($artwork->file_path)
-                                    <img src="{{ Storage::url($artwork->file_path) }}"
-                                        alt="{{ $artwork->getTitle() }}" class="artwork-image" loading="lazy">
+                                    <img src="{{ $artwork->getThumbnailUrl() }}" alt="{{ $artwork->getTitle() }}"
+                                        class="artwork-image" loading="lazy">
                                 @else
                                     <div class="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
                                         <div class="text-center text-gray-500">
@@ -198,9 +198,7 @@
                                         </div>
                                     </div>
                                 @endif
-                            </a>
-
-                            <!-- Artwork Info -->
+                            </a> <!-- Artwork Info -->
                             <div class="p-4">
                                 <!-- Title -->
                                 <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
@@ -260,7 +258,7 @@
                                 <div class="flex items-center justify-between">
                                     <!-- Like Button -->
                                     @auth
-                                        <form method="POST" action="{{ route('artworks.toggle-like', $artwork) }}"
+                                        <form method="POST" action="{{ route('artworks.like', $artwork) }}"
                                             class="inline">
                                             @csrf
                                             <button type="submit"

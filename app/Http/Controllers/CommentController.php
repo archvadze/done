@@ -22,7 +22,7 @@ class CommentController extends Controller
         ]);
 
         $artwork = Artwork::findOrFail($request->artwork_id);
-        
+
         // Check if user can comment on this artwork
         if ($artwork->privacy_setting === 'private' && $artwork->user_id !== Auth::id()) {
             throw ValidationException::withMessages([

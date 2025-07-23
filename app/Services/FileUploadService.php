@@ -79,7 +79,8 @@ class FileUploadService
             'visibility' => $metadata['visibility'] ?? 'public',
             'comments_enabled' => $metadata['comments_enabled'] ?? true,
             'downloads_enabled' => $metadata['downloads_enabled'] ?? false,
-            'status' => 'draft', // Start as draft, can be published later
+            'status' => ($metadata['visibility'] ?? 'public') === 'public' ? 'published' : 'draft',
+            'published_at' => ($metadata['visibility'] ?? 'public') === 'public' ? now() : null,
         ]);
 
         return $artwork;

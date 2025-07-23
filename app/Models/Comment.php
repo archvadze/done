@@ -67,8 +67,8 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')
-                    ->where('status', 'active')
-                    ->orderBy('created_at');
+            ->where('status', 'active')
+            ->orderBy('created_at');
     }
 
     /**
@@ -77,9 +77,9 @@ class Comment extends Model
     public function allReplies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')
-                    ->where('status', 'active')
-                    ->with('allReplies')
-                    ->orderBy('created_at');
+            ->where('status', 'active')
+            ->with('allReplies')
+            ->orderBy('created_at');
     }
 
     /**
@@ -98,7 +98,7 @@ class Comment extends Model
         if ($this->content_translations && isset($this->content_translations[$lang])) {
             return $this->content_translations[$lang];
         }
-        
+
         return $this->content;
     }
 

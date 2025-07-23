@@ -114,12 +114,10 @@ class ArtworkController extends Controller
             (object)['slug' => 'mixed-media', 'name' => ['en' => 'Mixed Media', 'ka' => 'შერეული მედია']],
         ]);
 
-        // Add getName method to each category object
+        // Add display_name to each category object
         $categories = $categories->map(function ($category) {
-            $category->getName = function () use ($category) {
-                $locale = app()->getLocale();
-                return $category->name[$locale] ?? $category->name['en'];
-            };
+            $locale = app()->getLocale();
+            $category->display_name = $category->name[$locale] ?? $category->name['en'];
             return $category;
         });
 
@@ -148,7 +146,7 @@ class ArtworkController extends Controller
             'description_en' => 'nullable|string|max:2000',
             'description_ka' => 'nullable|string|max:2000',
             'file' => 'required|file|max:102400', // 100MB
-            'category' => 'nullable|string|exists:artwork_categories,slug',
+            'category' => 'required|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
             'license_type' => 'required|in:' . implode(',', array_keys(Artwork::getLicenseTypes())),
             'copyright_notice' => 'nullable|string|max:500',
@@ -338,7 +336,7 @@ class ArtworkController extends Controller
             'title_ka' => 'nullable|string|max:255',
             'description_en' => 'nullable|string|max:2000',
             'description_ka' => 'nullable|string|max:2000',
-            'category' => 'nullable|string|exists:artwork_categories,slug',
+            'category' => 'nullable|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
             'license_type' => 'required|in:' . implode(',', array_keys(Artwork::getLicenseTypes())),
             'copyright_notice' => 'nullable|string|max:500',
@@ -428,17 +426,14 @@ class ArtworkController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Artwork deleted successfully!'
-            ]);
+            return redirect()
+                ->route('artworks.index')
+                ->with('success', 'Artwork deleted successfully!');
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Delete failed: ' . $e->getMessage()
-            ], 500);
+            return back()
+                ->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 
@@ -488,15 +483,12 @@ class ArtworkController extends Controller
     /**
      * Publish a draft artwork
      */
-    public function publish(Artwork $artwork): JsonResponse
+    public function publish(Artwork $artwork): RedirectResponse
     {
         $this->authorize('update', $artwork);
 
         if ($artwork->status !== 'draft') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only draft artworks can be published'
-            ], 400);
+            return back()->with('error', 'Only draft artworks can be published');
         }
 
         try {
@@ -505,16 +497,32 @@ class ArtworkController extends Controller
                 'published_at' => now()
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Artwork published successfully!',
-                'published_at' => $artwork->published_at->format('M j, Y')
-            ]);
+            return back()->with('success', 'Artwork published successfully!');
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to publish artwork'
-            ], 500);
+            return back()->with('error', 'Failed to publish artwork');
+        }
+    }
+
+    /**
+     * Unpublish a published artwork (make it draft)
+     */
+    public function unpublish(Artwork $artwork): RedirectResponse
+    {
+        $this->authorize('update', $artwork);
+
+        if ($artwork->status !== 'published') {
+            return back()->with('error', 'Only published artworks can be unpublished');
+        }
+
+        try {
+            $artwork->update([
+                'status' => 'draft',
+                'published_at' => null
+            ]);
+
+            return back()->with('success', 'Artwork unpublished successfully!');
+        } catch (Exception $e) {
+            return back()->with('error', 'Failed to unpublish artwork');
         }
     }
 

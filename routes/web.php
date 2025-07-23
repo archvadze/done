@@ -26,6 +26,7 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::resource('artworks', ArtworkController::class);
 Route::post('artworks/{artwork}/like', [ArtworkController::class, 'toggleLike'])->name('artworks.like');
 Route::post('artworks/{artwork}/publish', [ArtworkController::class, 'publish'])->name('artworks.publish');
+Route::post('artworks/{artwork}/unpublish', [ArtworkController::class, 'unpublish'])->name('artworks.unpublish');
 Route::get('upload-progress', [ArtworkController::class, 'uploadProgress'])->name('artworks.upload-progress');
 
 // Comments routes (protected by auth middleware)

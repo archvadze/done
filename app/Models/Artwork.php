@@ -17,44 +17,69 @@ class Artwork extends Model
         'user_id',
         'title',
         'description',
-        'category_id',
-        'status',
-        'privacy_setting',
+        'media_type',
         'file_path',
+        'file_url',
         'thumbnail_path',
-        'file_type',
+        'original_filename',
+        'file_hash',
         'file_size',
-        'metadata',
-        'tags',
-        'creative_process',
-        'techniques_used',
-        'materials_used',
-        'dimensions',
-        'creation_year',
-        'price',
-        'is_for_sale',
-        'allow_downloads',
+        'mime_type',
+        'file_metadata',
         'license_type',
-        'acq_score',
+        'copyright_notice',
+        'watermark_enabled',
+        'blockchain_timestamp',
+        'blockchain_hash',
+        'tags',
+        'category',
+        'subcategory',
+        'is_ai_generated',
+        'ai_tools_used',
+        'visibility',
+        'comments_enabled',
+        'downloads_enabled',
+        'is_featured',
         'view_count',
-        'featured',
-        'content_en',
-        'content_ka'
+        'like_count',
+        'comment_count',
+        'download_count',
+        'acq_score',
+        'acq_breakdown',
+        'evaluation_count',
+        'status',
+        'rejection_reason',
+        'published_at',
+        'archived_at',
+        'is_nft',
+        'nft_contract_address',
+        'nft_token_id',
+        'blockchain_network',
     ];
 
     protected $casts = [
-        'metadata' => 'array',
+        'title' => 'array',
+        'description' => 'array',
+        'file_metadata' => 'array',
         'tags' => 'array',
-        'featured' => 'boolean',
-        'is_for_sale' => 'boolean',
-        'allow_downloads' => 'boolean',
-        'content_en' => 'array',
-        'content_ka' => 'array',
+        'ai_tools_used' => 'array',
+        'acq_breakdown' => 'array',
+        'is_ai_generated' => 'boolean',
+        'watermark_enabled' => 'boolean',
+        'comments_enabled' => 'boolean',
+        'downloads_enabled' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_nft' => 'boolean',
         'acq_score' => 'decimal:2',
-        'price' => 'decimal:2',
         'file_size' => 'integer',
         'view_count' => 'integer',
-        'creation_year' => 'integer'
+        'like_count' => 'integer',
+        'comment_count' => 'integer',
+        'download_count' => 'integer',
+        'evaluation_count' => 'integer',
+        'blockchain_timestamp' => 'datetime',
+        'published_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     /**
@@ -78,16 +103,16 @@ class Artwork extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class)
-                    ->where('status', 'active')
-                    ->whereNull('parent_id') // Only root comments, replies are loaded separately
-                    ->with(['user', 'replies.user'])
-                    ->latest();
+            ->where('status', 'active')
+            ->whereNull('parent_id') // Only root comments, replies are loaded separately
+            ->with(['user', 'replies.user'])
+            ->latest();
     }
 
     public function allComments(): HasMany
     {
         return $this->hasMany(Comment::class)
-                    ->where('status', 'active');
+            ->where('status', 'active');
     }
 
     /**
@@ -119,32 +144,31 @@ class Artwork extends Model
     }
 
     /**
-     * Accessors & Mutators
+     * Get localized title
      */
-    public function getTitleAttribute($value)
+    public function getTitle()
     {
-        if (app()->getLocale() === 'ka' && !empty($this->content_ka['title'])) {
-            return $this->content_ka['title'];
+        $locale = app()->getLocale();
+
+        if (is_array($this->title)) {
+            return $this->title[$locale] ?? $this->title['en'] ?? 'Untitled';
         }
 
-        if (!empty($this->content_en['title'])) {
-            return $this->content_en['title'];
-        }
-
-        return $value;
+        return $this->title ?? 'Untitled';
     }
 
-    public function getDescriptionAttribute($value)
+    /**
+     * Get localized description
+     */
+    public function getDescription()
     {
-        if (app()->getLocale() === 'ka' && !empty($this->content_ka['description'])) {
-            return $this->content_ka['description'];
+        $locale = app()->getLocale();
+
+        if (is_array($this->description)) {
+            return $this->description[$locale] ?? $this->description['en'] ?? null;
         }
 
-        if (!empty($this->content_en['description'])) {
-            return $this->content_en['description'];
-        }
-
-        return $value;
+        return $this->description;
     }
 
     /**

@@ -237,7 +237,7 @@
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->slug }}"
                                             {{ old('category', $artwork->category) == $category->slug ? 'selected' : '' }}>
-                                            {{ $category->getName() }}
+                                            {{ $category->display_name ?? $category->name['en'] }}
                                         </option>
                                     @endforeach
                                 </select>
