@@ -451,6 +451,14 @@ class ArtworkController extends Controller
             ], 401);
         }
 
+        // Users cannot like their own artwork
+        if ($artwork->user_id === $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot like your own artwork'
+            ], 403);
+        }
+
         try {
             $liked = $artwork->likes()->where('user_id', $user->id)->exists();
 
