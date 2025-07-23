@@ -229,7 +229,8 @@ class EvaluationSystemTest extends TestCase
             'score_technique' => 8,
             'score_composition' => 7,
             'score_originality' => 9,
-            'score_impact' => 6
+            'score_impact' => 6,
+            'status' => 'approved'
         ]);
 
         $anotherUser = User::factory()->create();
@@ -239,7 +240,8 @@ class EvaluationSystemTest extends TestCase
             'score_technique' => 6,
             'score_composition' => 8,
             'score_originality' => 7,
-            'score_impact' => 9
+            'score_impact' => 9,
+            'status' => 'approved'
         ]);
 
         // Trigger ACQ calculation
@@ -256,15 +258,27 @@ class EvaluationSystemTest extends TestCase
         $topArtwork = Artwork::factory()->create([
             'user_id' => $this->artist->id,
             'acq_score' => 9.5,
-            'status' => 'published'
+            'status' => 'published',
+            'evaluation_count' => 2
         ]);
 
         // Create artwork with lower ACQ score
         $lowerArtwork = Artwork::factory()->create([
             'user_id' => $this->artist->id,
             'acq_score' => 6.0,
-            'status' => 'published'
+            'status' => 'published',
+            'evaluation_count' => 1
         ]);
+
+        $response = $this->get(route('leaderboard'));
+
+        $response->assertStatus(200)
+            ->assertSee('ACQ Leaderboard')
+            ->assertSee('Acumen Craft Quotient');
+
+        // Refresh models to ensure casting works
+        $topArtwork = $topArtwork->fresh();
+        $lowerArtwork = $lowerArtwork->fresh();
 
         $response = $this->get(route('leaderboard'));
 
@@ -274,9 +288,14 @@ class EvaluationSystemTest extends TestCase
 
         // Check that higher scored artwork appears first
         $content = $response->getContent();
-        $topPos = strpos($content, $topArtwork->getTitle());
-        $lowerPos = strpos($content, $lowerArtwork->getTitle());
-
+        $topTitle = $topArtwork->getTitle();
+        $lowerTitle = $lowerArtwork->getTitle();
+        
+        $topPos = strpos($content, $topTitle);
+        $lowerPos = strpos($content, $lowerTitle);
+        
+        $this->assertTrue($topPos !== false, 'Top artwork title should be found in content');
+        $this->assertTrue($lowerPos !== false, 'Lower artwork title should be found in content');
         $this->assertTrue($topPos < $lowerPos, 'Top rated artwork should appear before lower rated ones');
     }
 
@@ -296,7 +315,7 @@ class EvaluationSystemTest extends TestCase
             'feedback_text' => 'Second evaluation'
         ]);
 
-        $response = $this->get(route('evaluations.index', $this->artwork));
+        $response = $this->actingAs($this->user)->get(route('evaluations.index', $this->artwork));
 
         $response->assertStatus(200)
             ->assertSee('First evaluation')

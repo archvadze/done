@@ -163,11 +163,18 @@ class Artwork extends Model
     {
         $locale = app()->getLocale();
 
-        if (is_array($this->title)) {
-            return $this->title[$locale] ?? $this->title['en'] ?? 'Untitled';
+        $title = $this->title;
+        
+        // If title is JSON string, decode it
+        if (is_string($title) && (str_starts_with($title, '{') || str_starts_with($title, '['))) {
+            $title = json_decode($title, true);
         }
 
-        return $this->title ?? 'Untitled';
+        if (is_array($title)) {
+            return $title[$locale] ?? $title['en'] ?? 'Untitled';
+        }
+
+        return $title ?? 'Untitled';
     }
 
     /**

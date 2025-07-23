@@ -83,19 +83,19 @@
             <div class="bg-white rounded-lg shadow-sm border p-4 mb-8">
                 <div class="flex flex-wrap gap-2">
                     <span class="text-sm font-medium text-gray-700 mr-4">Filter by:</span>
-                    <a href="{{ route('evaluations.leaderboard', ['timeframe' => 'all']) }}"
+                    <a href="{{ route('leaderboard', ['timeframe' => 'all']) }}"
                         class="px-3 py-1 rounded-md text-sm {{ $timeframe === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         All Time
                     </a>
-                    <a href="{{ route('evaluations.leaderboard', ['timeframe' => 'year']) }}"
+                    <a href="{{ route('leaderboard', ['timeframe' => 'year']) }}"
                         class="px-3 py-1 rounded-md text-sm {{ $timeframe === 'year' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         This Year
                     </a>
-                    <a href="{{ route('evaluations.leaderboard', ['timeframe' => 'month']) }}"
+                    <a href="{{ route('leaderboard', ['timeframe' => 'month']) }}"
                         class="px-3 py-1 rounded-md text-sm {{ $timeframe === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         This Month
                     </a>
-                    <a href="{{ route('evaluations.leaderboard', ['timeframe' => 'week']) }}"
+                    <a href="{{ route('leaderboard', ['timeframe' => 'week']) }}"
                         class="px-3 py-1 rounded-md text-sm {{ $timeframe === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         This Week
                     </a>
@@ -144,8 +144,7 @@
                                     </h3>
 
                                     <p class="text-sm text-gray-600 text-center mb-2">
-                                        by <a href="{{ route('users.show', $artwork->user) }}"
-                                            class="hover:text-blue-600">{{ $artwork->user->name }}</a>
+                                        by <span class="text-gray-600">{{ $artwork->user->name }}</span>
                                     </p>
 
                                     <div class="text-xs text-gray-500 text-center">
@@ -203,8 +202,7 @@
                                             </a>
                                         </h3>
                                         <p class="text-sm text-gray-600">
-                                            by <a href="{{ route('users.show', $artwork->user) }}"
-                                                class="hover:text-blue-600">{{ $artwork->user->name }}</a>
+                                            by <span class="text-gray-600">{{ $artwork->user->name }}</span>
                                         </p>
                                         <div class="text-xs text-gray-500 mt-1">
                                             {{ $artwork->evaluation_count }} evaluations •
