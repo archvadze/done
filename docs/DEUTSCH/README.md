@@ -7,7 +7,7 @@ Acumen Craft ist eine moderne Webplattform für Kreativität, Bewertung und Mone
 ## 🌟 Hauptfunktionen
 
 - **Hochladen und Teilen von Werken** – Unterstützung für Kunst, Musik, Fotografie, Video und KI-generierte Inhalte
-- **Community- und KI-Bewertungen** – Bewertung nach Technik, Originalität, Komposition und Wirkung (IAQ-Score)
+- **Community- und KI-Bewertungen** – Bewertung nach Technik, Originalität, Komposition und Wirkung (ACQ-Score)
 - **NFT-Minting & Blockchain-Integration** – Schutz und Monetarisierung von Werken auf Ethereum/Polygon
 - **Monetarisierung & Zahlungen** – Spenden, Verkauf, Stripe, PayPal und Kryptowährungen
 - **Datenschutz & Sicherheit** – Schutz der Daten (DSGVO/CCPA-Konformität, 2FA), Lizenzverwaltung und Urheberrechtsschutz
@@ -28,7 +28,7 @@ Acumen Craft ist eine moderne Webplattform für Kreativität, Bewertung und Mone
 ### Schnellstart
 
 ```bash
-git clone https://github.com/acumencraft/acumencraft.git
+git clone https://github.com/acumencraft/done.git
 cd acumencraft
 cp .env.example .env   # .env Datei konfigurieren
 composer install
@@ -84,7 +84,7 @@ Drittanbieter-Lizenzen: [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)
 ## 📞 Support und Kontakt
 
 - support@acumencraft.com — Technischer Support und Anfragen
-- [GitHub Issues](https://github.com/acumencraft/acumencraft/issues) — Bug-Reports und Feature Requests
+- [GitHub Issues](https://github.com/acumencraft/done/issues) — Bug-Reports und Feature Requests
 
 ---
 

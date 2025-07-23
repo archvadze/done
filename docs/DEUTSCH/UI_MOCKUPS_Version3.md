@@ -35,7 +35,7 @@ Für detaillierte visuelle Mockups siehe das `/design/`-Verzeichnis oder Figma-L
 ## 3. Werk-Detailseite
 
 - **Werk-Präsentation:** Großes Bild/Player, Titel, Künstler:in, Tags
-- **Interaktionen:** Like, Bewertung (IAQ), Teilen, NFT-Status
+- **Interaktionen:** Like, Bewertung (ACQ), Teilen, NFT-Status
 - **Beschreibung & Metadaten:** Text, Kategorie, Blockchain, Datum
 - **Kommentare:** Threaded, mit Melde-Button
 - **Kauf-/Spenden-Button:** Für Monetarisierung

@@ -148,6 +148,9 @@
 **იხილეთ:**  
 - [db.sql](./docs/db.sql) – სრული SQL/ERD  
 - [DB.html](./docs/DB.html) – ვიზუალური დიაგრამა  
+- [DATABASE.md](./docs/DATABASE.md) – მონაცემთა ბაზის სტრუქტურა და გზამკვლევი
+- [TECHNICAL_SPEC_ACUMEN_CRAFT.md](./docs/TECHNICAL_SPEC_ACUMEN_CRAFT.md) – ძირითადი ტექნიკური სპეციფიკაცია
+- [TECH_SPEC_MODULAR_FEATURES.md](./docs/TECH_SPEC_MODULAR_FEATURES.md) – მოდულური ფუნქციონალი (ACQ, Subscriptions, Communities)
 - [TECHNICAL_SPEC_COPYRIGHT_MODULE.md](./docs/TECHNICAL_SPEC_COPYRIGHT_MODULE.md) – საავტორო უფლებები
 
 ---
@@ -158,6 +161,7 @@
 - **Public/Partner API:** OAuth2, API Keys, Webhooks
 - **OpenAPI Spec:** [swagger.yaml](./docs/swagger.yaml)
 - **Webhook Docs:** [WEBHOOKS.md](./docs/WEBHOOKS.md)
+- **Internationalization & AI Integration:** [INTERNATIONALIZATION_AI_WEB_ARCH.md](./docs/INTERNATIONALIZATION_AI_WEB_ARCH.md)
 - **Postman Collection:** (მალე)
 
 ---
@@ -194,6 +198,7 @@
 
 - **Agile/Scrum:** Sprint planning, review, retrospective
 - **Roadmap:** [Roadmap.md](./docs/Roadmap.md)
+- **Detailed Roadmap & Annexes:** [ROADMAP_AND_ANNEXES.md](./docs/ROADMAP_AND_ANNEXES.md)
 - **Issue/PR Management:** GitHub Issues, Projects, Wiki
 - **Documentation Driven Development:** CHANGELOG, Wiki, Guides
 

@@ -57,7 +57,7 @@ Das tatsächliche Schema kann je nach Version oder Deployment leicht variieren.
 | id           | BIGINT      | Primärschlüssel                      |
 | artwork_id   | BIGINT      | Verweis auf Werk                     |
 | user_id      | BIGINT      | Verweis auf Nutzer                   |
-| aiq_score    | FLOAT       | IAQ-Score (AI/Community)             |
+| aiq_score    | FLOAT       | ACQ-Score (AI/Community)             |
 | technique    | TINYINT     | 1-10 (Technik)                       |
 | originality  | TINYINT     | 1-10 (Originalität)                  |
 | composition  | TINYINT     | 1-10 (Komposition)                   |

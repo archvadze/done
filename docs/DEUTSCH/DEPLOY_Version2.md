@@ -26,8 +26,8 @@ _Letztes Update: 22.07.2025_
 
 1. **Repository klonen**
    ```bash
-   git clone https://github.com/acumencraft/acumencraft.git
-   cd acumencraft
+   git clone https://github.com/acumencraft/done.git
+   cd done
    ```
 
 2. **Umgebungsvariablen kopieren und anpassen**
@@ -145,7 +145,7 @@ _Letztes Update: 22.07.2025_
 
 Probleme oder Fragen?  
 - Siehe [FAQ.md](./FAQ.md)
-- Erstelle ein [GitHub Issue](https://github.com/acumencraft/acumencraft/issues)
+- Erstelle ein [GitHub Issue](https://github.com/acumencraft/done/issues)
 - Kontaktiere das Team: support@acumencraft.com
 
 ---

@@ -29,7 +29,7 @@ _Letztes Update: 22.07.2025_
 ### Hinzugefügt
 - Mobile App Veröffentlichung (iOS & Android)
 - Unterstützung für KI-generierte Inhalte
-- Integrierte AI-Bewertung (IAQ-Score)
+- Integrierte AI-Bewertung (ACQ-Score)
 
 ### Geändert
 - Verbesserte UI/UX für Desktop und Mobile

@@ -146,9 +146,12 @@
 ## მონაცემთა მოდელი (სქემა/მიგრაციები)
 
 **იხილეთ:**  
-- [db.sql](./docs/db.sql) – სრული SQL/ERD  
-- [DB.html](./docs/DB.html) – ვიზუალური დიაგრამა  
-- [TECHNICAL_SPEC_COPYRIGHT_MODULE.md](./docs/TECHNICAL_SPEC_COPYRIGHT_MODULE.md) – საავტორო უფლებები
+- [db.sql](./db.sql) – სრული SQL/ERD  
+- [DB.html](./DB.html) – ვიზუალური დიაგრამა  
+- [DATABASE.md](./DATABASE.md) – მონაცემთა ბაზის სტრუქტურა და გზამკვლევი
+- [TECHNICAL_SPEC_ACUMEN_CRAFT.md](./TECHNICAL_SPEC_ACUMEN_CRAFT.md) – ძირითადი ტექნიკური სპეციფიკაცია
+- [TECH_SPEC_MODULAR_FEATURES.md](./TECH_SPEC_MODULAR_FEATURES.md) – მოდულური ფუნქციონალი (ACQ, Subscriptions, Communities)
+- [TECHNICAL_SPEC_COPYRIGHT_MODULE.md](./TECHNICAL_SPEC_COPYRIGHT_MODULE.md) – საავტორო უფლებები
 
 ---
 
@@ -156,8 +159,9 @@
 
 - **RESTful API:** ყველა მოდულისათვის, versioned (/api/v1)
 - **Public/Partner API:** OAuth2, API Keys, Webhooks
-- **OpenAPI Spec:** [swagger.yaml](./docs/swagger.yaml)
-- **Webhook Docs:** [WEBHOOKS.md](./docs/WEBHOOKS.md)
+- **OpenAPI Spec:** [swagger.yaml](./swagger.yaml)
+- **Webhook Docs:** [WEBHOOKS.md](./WEBHOOKS.md)
+- **Internationalization & AI Integration:** [INTERNATIONALIZATION_AI_WEB_ARCH.md](./INTERNATIONALIZATION_AI_WEB_ARCH.md)
 - **Postman Collection:** (მალე)
 
 ---
@@ -166,8 +170,8 @@
 
 - **Responsive/Adaptive Design:** TailwindCSS, Mobile-first
 - **PWA:** Offline mode, installable, push notifications
-- **Mobile App:** (Flutter/React Native) – [MOBILE_GUIDE.md](./docs/MOBILE_GUIDE.md)
-- **UI Mockups:** [branding.pdf](./docs/branding.pdf), [UI_MOCKUPS.md](./docs/UI_MOCKUPS.md)
+- **Mobile App:** (Flutter/React Native) – [MOBILE_GUIDE.md](./MOBILE_GUIDE.md)
+- **UI Mockups:** [branding.pdf](./branding.pdf), [UI_MOCKUPS.md](./UI_MOCKUPS.md)
 - **Onboarding Tour:** Shepherd.js/Intro.js
 
 ---
@@ -193,7 +197,8 @@
 ## მოქმედების გეგმა და მართვა
 
 - **Agile/Scrum:** Sprint planning, review, retrospective
-- **Roadmap:** [Roadmap.md](./docs/Roadmap.md)
+- **Roadmap:** [Roadmap.md](./Roadmap.md)
+- **Detailed Roadmap & Annexes:** [ROADMAP_AND_ANNEXES.md](./ROADMAP_AND_ANNEXES.md)
 - **Issue/PR Management:** GitHub Issues, Projects, Wiki
 - **Documentation Driven Development:** CHANGELOG, Wiki, Guides
 
@@ -201,22 +206,22 @@
 
 ## დანართები და ბმულები
 
-- [მონაცემთა მოდელი (db.sql)](./docs/db.sql)
-- [ERD დიაგრამა (DB.html)](./docs/DB.html)
-- [Mermaid დიაგრამების სრული რენდერისთვის გამოიყენეთ Mermaid Live Editor ან შესაბამისი VS Code Extension](./docs/ADVANCED_MODULES_ERD_UI.md) 
-- [საავტორო უფლებები და კონტენტის მართვა](./docs/USER_COPYRIGHT.md)
-- [დახმარების ცენტრი და FAQ](./docs/HELPDESK.md)
-- [API დოკუმენტაცია (swagger.yaml)](./docs/swagger.yaml)
-- [Webhook Integration](./docs/WEBHOOKS.md)
-- [მობილური აპის გზამკვლევი](./docs/MOBILE_GUIDE.md)
-- [ბრენდინგი და UI ნიმუშები](./docs/branding.pdf)
-- [UI Mockups](./docs/UI_MOCKUPS.md)
-- [Security Guide](./docs/SECURITY.md)
-- [Privacy Policy](./docs/PRIVACY.md)
-- [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
-- [LICENSE.md](./docs/LICENSE.md)
-- [CHANGELOG.md](./docs/CHANGELOG.md)
-- [Roadmap.md](./docs/Roadmap.md)
+- [მონაცემთა მოდელი (db.sql)](./db.sql)
+- [ERD დიაგრამა (DB.html)](./DB.html)
+- [Mermaid დიაგრამების სრული რენდერისთვის გამოიყენეთ Mermaid Live Editor ან შესაბამისი VS Code Extension](./ADVANCED_MODULES_ERD_UI.md) 
+- [საავტორო უფლებები და კონტენტის მართვა](./USER_COPYRIGHT.md)
+- [დახმარების ცენტრი და FAQ](./HELPDESK.md)
+- [API დოკუმენტაცია (swagger.yaml)](./swagger.yaml)
+- [Webhook Integration](./WEBHOOKS.md)
+- [მობილური აპის გზამკვლევი](./MOBILE_GUIDE.md)
+- [ბრენდინგი და UI ნიმუშები](./branding.pdf)
+- [UI Mockups](./UI_MOCKUPS.md)
+- [Security Guide](./SECURITY.md)
+- [Privacy Policy](./PRIVACY.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [LICENSE.md](./LICENSE.md)
+- [CHANGELOG.md](./CHANGELOG.md)
+- [Roadmap.md](./Roadmap.md)
 
 ---
 
@@ -246,7 +251,7 @@
 - [ ] ყველა UI ტექსტი resources/lang-ში (i18n)
 - [ ] ყველა ცვლილება CHANGELOG.md-ში
 
-> ყოველთვის გამოიყენეთ [ADVANCED_FEATURES_TECH_SPEC.md](./docs/ADVANCED_FEATURES_TECH_SPEC.md),  
+> ყოველთვის გამოიყენეთ [ADVANCED_FEATURES_TECH_SPEC.md](./ADVANCED_FEATURES_TECH_SPEC.md),  
 > განსაკუთრებით სანამ ფორმალურად დააბრუნებთ თქვენს გადაწყვეტილებას ან პასუხს.
 
 ---

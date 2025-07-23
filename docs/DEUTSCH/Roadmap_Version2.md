@@ -62,7 +62,7 @@ Diese Roadmap listet die wichtigsten Entwicklungsphasen, geplante Features sowie
 
 ## 6. Phase 6 – KI & Innovation
 
-- KI-basierte Werkbewertungen (IAQ 2.0)
+- KI-basierte Werkbewertungen (ACQ 2.0)
 - AI-Bildgeneratoren & Tools
 - Automatisierte Content-Moderation
 - Personalisierte Feed-Algorithmen

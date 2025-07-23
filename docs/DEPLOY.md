@@ -45,7 +45,7 @@ This guide describes the recommended process for deploying Acumen Craft across d
 3. **Clone Repo & App Setup:**
    ```bash
    git clone https://github.com/acumencraft/done.git
-   cd acumencraft
+   cd done
    cp .env.example .env
    # Edit .env for DB, APP_URL, MAIL, etc.
    composer install --no-dev --optimize-autoloader
@@ -87,7 +87,7 @@ This guide describes the recommended process for deploying Acumen Craft across d
      ```
    - Set up cron for scheduler:
      ```
-     * * * * * cd /path/to/acumencraft && php artisan schedule:run >> /dev/null 2>&1
+     * * * * * cd /path/to/done && php artisan schedule:run >> /dev/null 2>&1
      ```
 
 ---
@@ -99,7 +99,7 @@ This guide describes the recommended process for deploying Acumen Craft across d
   server {
       listen 80;
       server_name yourdomain.com;
-      root /path/to/acumencraft/public;
+      root /path/to/done/public;
       index index.php index.html;
 
       location / {

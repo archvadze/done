@@ -1,6 +1,10 @@
 # Acumen Craft – Häufig gestellte Fragen (FAQ)
 
-_Letztes Update: 22.07.2025_
+_Letztes Upd**Wie funktioniert die Bewertung?**  
+Community- und KI-basierte Bewertung (ACQ-Score) nach Kriterien wie Technik, Originalität, Komposition und Wirkung.
+
+**Was ist der ACQ-Score?**  
+Der „Acumen Craftsmanship Quotient"-Score ist ein AI- und Community-basierter Qualitätswert für Werke.22.07.2025_
 
 ---
 

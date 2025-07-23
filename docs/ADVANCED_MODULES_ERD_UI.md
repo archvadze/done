@@ -380,7 +380,7 @@ erDiagram
 
 - **User Dashboard:**  
   - My Uploads  
-  - My IAQ  
+  - My ACQ  
   - My Financials
 
 ---

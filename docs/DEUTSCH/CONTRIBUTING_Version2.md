@@ -15,7 +15,7 @@ Wir freuen uns über Pull Requests, Bug Reports, Vorschläge und jede andere For
 
 ### 1. Fehler melden / Feature vorschlagen
 
-- Öffne ein [GitHub Issue](https://github.com/acumencraft/acumencraft/issues).
+- Öffne ein [GitHub Issue](https://github.com/acumencraft/done/issues).
 - Beschreibe das Problem oder den Vorschlag so detailliert wie möglich.
 - Füge Screenshots, Fehlermeldungen oder Beispiel-Code bei, falls möglich.
 
