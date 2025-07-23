@@ -125,7 +125,7 @@ class EvaluationController extends Controller
                 ->with('success', 'Thank you for your evaluation!');
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             // Log the actual error for debugging
             Log::error('Failed to submit evaluation: ' . $e->getMessage(), [
                 'exception' => $e,

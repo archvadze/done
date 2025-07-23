@@ -290,10 +290,10 @@ class EvaluationSystemTest extends TestCase
         $content = $response->getContent();
         $topTitle = $topArtwork->getTitle();
         $lowerTitle = $lowerArtwork->getTitle();
-        
+
         $topPos = strpos($content, $topTitle);
         $lowerPos = strpos($content, $lowerTitle);
-        
+
         $this->assertTrue($topPos !== false, 'Top artwork title should be found in content');
         $this->assertTrue($lowerPos !== false, 'Lower artwork title should be found in content');
         $this->assertTrue($topPos < $lowerPos, 'Top rated artwork should appear before lower rated ones');

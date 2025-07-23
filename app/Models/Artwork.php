@@ -164,7 +164,7 @@ class Artwork extends Model
         $locale = app()->getLocale();
 
         $title = $this->title;
-        
+
         // If title is JSON string, decode it
         if (is_string($title) && (str_starts_with($title, '{') || str_starts_with($title, '['))) {
             $title = json_decode($title, true);
@@ -242,7 +242,7 @@ class Artwork extends Model
     {
         // Get all approved evaluations for this artwork
         $evaluations = $this->evaluations()->where('status', 'approved')->get();
-        
+
         if ($evaluations->isEmpty()) {
             $this->acq_score = null;
             $this->save();
@@ -252,22 +252,22 @@ class Artwork extends Model
         // Calculate average score from all evaluation categories
         $totalScore = 0;
         $evaluationCount = $evaluations->count();
-        
+
         foreach ($evaluations as $evaluation) {
             // Average the four evaluation criteria for each evaluation
             $evaluationAverage = (
-                $evaluation->score_technique + 
-                $evaluation->score_composition + 
-                $evaluation->score_originality + 
+                $evaluation->score_technique +
+                $evaluation->score_composition +
+                $evaluation->score_originality +
                 $evaluation->score_impact
             ) / 4;
-            
+
             $totalScore += $evaluationAverage;
         }
-        
+
         // Calculate overall average
         $acqScore = $totalScore / $evaluationCount;
-        
+
         $this->acq_score = round($acqScore, 2);
         $this->save();
 
