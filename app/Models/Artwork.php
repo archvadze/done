@@ -199,6 +199,46 @@ class Artwork extends Model
     }
 
     /**
+     * Get title for a specific language
+     */
+    public function getTitleForLanguage($languageCode)
+    {
+        $title = $this->title;
+
+        // If title is JSON string, decode it
+        if (is_string($title) && (str_starts_with($title, '{') || str_starts_with($title, '['))) {
+            $title = json_decode($title, true);
+        }
+
+        if (is_array($title)) {
+            return $title[$languageCode] ?? '';
+        }
+
+        // If it's a string and we're asking for English, return it
+        return ($languageCode === 'en') ? ($title ?? '') : '';
+    }
+
+    /**
+     * Get description for a specific language
+     */
+    public function getDescriptionForLanguage($languageCode)
+    {
+        $description = $this->description;
+
+        // If description is JSON string, decode it
+        if (is_string($description) && (str_starts_with($description, '{') || str_starts_with($description, '['))) {
+            $description = json_decode($description, true);
+        }
+
+        if (is_array($description)) {
+            return $description[$languageCode] ?? '';
+        }
+
+        // If it's a string and we're asking for English, return it
+        return ($languageCode === 'en') ? ($description ?? '') : '';
+    }
+
+    /**
      * Helper methods
      */
     public function getFileUrl()

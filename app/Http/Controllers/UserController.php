@@ -17,7 +17,7 @@ class UserController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        
+
         // Get user statistics with real data
         try {
             $artworksCount = $user->artworks()->count();
@@ -33,13 +33,13 @@ class UserController extends Controller
             $avgAcqScore = null;
             $totalLikes = 0;
         }
-        
+
         return view('users.profile', compact(
-            'user', 
-            'artworksCount', 
-            'publishedArtworksCount', 
-            'evaluationsCount', 
-            'avgAcqScore', 
+            'user',
+            'artworksCount',
+            'publishedArtworksCount',
+            'evaluationsCount',
+            'avgAcqScore',
             'totalLikes'
         ));
     }
@@ -58,7 +58,7 @@ class UserController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
@@ -75,7 +75,7 @@ class UserController extends Controller
             if (!$request->filled('current_password')) {
                 return back()->withErrors(['current_password' => 'Current password is required to change password.']);
             }
-            
+
             if (!Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Current password is incorrect.']);
             }
@@ -87,7 +87,7 @@ class UserController extends Controller
             if ($user->avatar_path && Storage::exists('public/' . $user->avatar_path)) {
                 Storage::delete('public/' . $user->avatar_path);
             }
-            
+
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
             $user->avatar_path = $avatarPath;
         }
@@ -98,11 +98,11 @@ class UserController extends Controller
         $user->bio = $request->bio;
         $user->location = $request->location;
         $user->website = $request->website;
-        
+
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        
+
         $user->save();
 
         return redirect()->route('users.profile')->with('success', 'Profile updated successfully!');
@@ -120,7 +120,7 @@ class UserController extends Controller
             ->latest()
             ->limit(6)
             ->get();
-            
+
         // Get user statistics
         $stats = [
             'artworks_count' => $user->artworks()
@@ -147,31 +147,31 @@ class UserController extends Controller
     {
         // Build artworks query
         $query = $user->artworks();
-        
+
         // Apply category filter
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
-        
+
         // Apply search filter
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.en')) LIKE ?", ["%{$search}%"])
-                  ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.ka')) LIKE ?", ["%{$search}%"])
-                  ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.en')) LIKE ?", ["%{$search}%"])
-                  ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.ka')) LIKE ?", ["%{$search}%"]);
+                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(title, '$.ka')) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.en')) LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(description, '$.ka')) LIKE ?", ["%{$search}%"]);
             });
         }
-        
+
         // For other users, only show published artworks
         if (Auth::id() !== $user->id) {
             $query->where('status', 'published');
         }
-        
+
         // Get paginated artworks
         $artworks = $query->latest()->paginate(12);
-        
+
         // Calculate user statistics
         $stats = [
             'artworks_count' => $user->artworks()->count(),
@@ -180,7 +180,7 @@ class UserController extends Controller
             'total_likes' => $user->artworks()->sum('like_count'),
             'avg_acq_score' => $user->artworks()->whereNotNull('acq_score')->avg('acq_score'),
         ];
-        
+
         if ($request->expectsJson()) {
             return response()->json([
                 'artworks' => $artworks->items(),
@@ -192,7 +192,7 @@ class UserController extends Controller
                 'stats' => $stats
             ]);
         }
-        
+
         return view('users.artworks', compact('user', 'artworks', 'stats'));
     }
 
@@ -202,14 +202,14 @@ class UserController extends Controller
     public function toggleFollow(User $user)
     {
         $currentUser = Auth::user();
-        
+
         if (!$currentUser) {
             return response()->json([
                 'success' => false,
                 'message' => 'Authentication required'
             ], 401);
         }
-        
+
         // Prevent self-following
         if ($currentUser->id === $user->id) {
             return response()->json([
@@ -217,10 +217,10 @@ class UserController extends Controller
                 'message' => 'You cannot follow yourself'
             ], 403);
         }
-        
+
         try {
             $isFollowing = $currentUser->isFollowing($user);
-            
+
             if ($isFollowing) {
                 $currentUser->unfollow($user);
                 $action = 'unfollowed';
@@ -228,14 +228,13 @@ class UserController extends Controller
                 $currentUser->follow($user);
                 $action = 'followed';
             }
-            
+
             return response()->json([
                 'success' => true,
                 'action' => $action,
                 'is_following' => !$isFollowing,
                 'followers_count' => $user->fresh()->followers_count
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -253,7 +252,7 @@ class UserController extends Controller
             ->withPivot('created_at')
             ->orderBy('pivot_created_at', 'desc')
             ->paginate(20);
-            
+
         return view('users.followers', compact('user', 'followers'));
     }
 
@@ -266,7 +265,7 @@ class UserController extends Controller
             ->withPivot('created_at')
             ->orderBy('pivot_created_at', 'desc')
             ->paginate(20);
-            
+
         return view('users.following', compact('user', 'following'));
     }
 }

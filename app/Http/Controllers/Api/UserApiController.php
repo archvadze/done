@@ -26,7 +26,7 @@ class UserApiController extends Controller
     public function me(): JsonResponse
     {
         $user = Auth::user();
-        
+
         // Get cached user profile data
         $profileData = $this->cacheService->getUserProfile($user->id);
 

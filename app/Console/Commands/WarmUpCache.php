@@ -10,7 +10,7 @@ class WarmUpCache extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'cache:warmup 
+    protected $signature = 'cache:warmup
                             {--clear : Clear existing cache before warming up}';
 
     /**
@@ -45,7 +45,7 @@ class WarmUpCache extends Command
         // Show cache statistics
         $this->info('📊 Cache Statistics:');
         $stats = $this->cacheService->getCacheStats();
-        
+
         if (isset($stats['status'])) {
             $this->warn($stats['status']);
         } else {
@@ -62,7 +62,7 @@ class WarmUpCache extends Command
         }
 
         $this->info('✅ Cache warm-up completed successfully!');
-        
+
         return Command::SUCCESS;
     }
 }

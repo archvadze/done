@@ -19,13 +19,13 @@ class LocalizationMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Get locale from URL parameter, session, or default
-        $locale = $request->get('lang') 
-            ?? Session::get('locale') 
+        $locale = $request->get('lang')
+            ?? Session::get('locale')
             ?? config('app.locale');
 
         // Get supported locales from active languages
         $supportedLocales = Language::supportedLocales();
-        
+
         // Fallback to default if no active languages
         if (empty($supportedLocales)) {
             $supportedLocales = [config('app.locale')];

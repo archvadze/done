@@ -7,7 +7,7 @@
     <!-- Language Settings Overview -->
     <div class="admin-stats-card mb-6">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Multilingual System Overview</h3>
-        
+
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <div class="flex items-start">
                 <div class="flex-shrink-0">
@@ -17,10 +17,13 @@
                     <h4 class="text-sm font-medium text-blue-900">How Multilingual Content Works</h4>
                     <div class="mt-2 text-sm text-blue-700">
                         <ul class="list-disc list-inside space-y-1">
-                            <li>When you <strong>activate</strong> a language, it becomes available throughout the platform</li>
+                            <li>When you <strong>activate</strong> a language, it becomes available throughout the platform
+                            </li>
                             <li>Users will see language switcher options for all active languages</li>
-                            <li>When adding artworks, users must provide content in <strong>all active languages</strong></li>
-                            <li>Content is stored in JSON format: <code>{"en": "Title", "ka": "სათაური", "de": "Titel"}</code></li>
+                            <li>When adding artworks, users must provide content in <strong>all active languages</strong>
+                            </li>
+                            <li>Content is stored in JSON format: <code>{"en": "Title", "ka": "სათაური", "de":
+                                    "Titel"}</code></li>
                             <li>The system automatically displays content in the user's selected language</li>
                         </ul>
                     </div>
@@ -34,11 +37,12 @@
                     <span class="text-green-600 text-2xl mr-3">✅</span>
                     <div>
                         <div class="text-sm font-medium text-green-900">Active Languages</div>
-                        <div class="text-2xl font-bold text-green-600">{{ $languages->where('is_active', true)->count() }}</div>
+                        <div class="text-2xl font-bold text-green-600">{{ $languages->where('is_active', true)->count() }}
+                        </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <div class="flex items-center">
                     <span class="text-gray-600 text-2xl mr-3">⭐</span>
@@ -50,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div class="flex items-center">
                     <span class="text-blue-600 text-2xl mr-3">🌍</span>
@@ -67,14 +71,14 @@
     <div class="admin-stats-card">
         <div class="mb-4 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-900">Available Languages</h3>
-            <button type="button" 
-                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                    onclick="addLanguage()">
+            <button type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                onclick="addLanguage()">
                 Add Language
             </button>
         </div>
 
-        @if($languages->count() > 0)
+        @if ($languages->count() > 0)
             <div class="overflow-x-auto">
                 <table class="admin-table">
                     <thead class="bg-gray-50">
@@ -88,14 +92,15 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($languages as $language)
+                        @foreach ($languages as $language)
                             <tr>
                                 <!-- Language Info -->
                                 <td>
                                     <div class="flex items-center space-x-3">
                                         <span class="text-2xl">{{ $language->flag_emoji }}</span>
                                         <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $language->native_name }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $language->native_name }}
+                                            </div>
                                             <div class="text-sm text-gray-500">{{ $language->name }}</div>
                                         </div>
                                     </div>
@@ -108,7 +113,7 @@
 
                                 <!-- Status -->
                                 <td>
-                                    @if($language->is_active)
+                                    @if ($language->is_active)
                                         <span class="admin-badge admin-badge-success">Active</span>
                                     @else
                                         <span class="admin-badge admin-badge-danger">Inactive</span>
@@ -117,7 +122,7 @@
 
                                 <!-- Default -->
                                 <td>
-                                    @if($language->is_default)
+                                    @if ($language->is_default)
                                         <span class="admin-badge admin-badge-warning">Default</span>
                                     @else
                                         <span class="text-gray-400 text-sm">—</span>
@@ -133,10 +138,10 @@
                                 <td>
                                     <div class="flex items-center space-x-2">
                                         <!-- Toggle Active Status -->
-                                        @if($language->is_active)
-                                            @if(!$language->is_default)
+                                        @if ($language->is_active)
+                                            @if (!$language->is_default)
                                                 <button class="text-red-600 hover:text-red-700 text-sm"
-                                                        onclick="toggleLanguage({{ $language->id }}, false, '{{ $language->name }}')">
+                                                    onclick="toggleLanguage({{ $language->id }}, false, '{{ $language->name }}')">
                                                     Deactivate
                                                 </button>
                                             @else
@@ -144,15 +149,15 @@
                                             @endif
                                         @else
                                             <button class="text-green-600 hover:text-green-700 text-sm"
-                                                    onclick="toggleLanguage({{ $language->id }}, true, '{{ $language->name }}')">
+                                                onclick="toggleLanguage({{ $language->id }}, true, '{{ $language->name }}')">
                                                 Activate
                                             </button>
                                         @endif
 
                                         <!-- Set as Default -->
-                                        @if($language->is_active && !$language->is_default)
+                                        @if ($language->is_active && !$language->is_default)
                                             <button class="text-blue-600 hover:text-blue-700 text-sm"
-                                                    onclick="setDefault({{ $language->id }}, '{{ $language->name }}')">
+                                                onclick="setDefault({{ $language->id }}, '{{ $language->name }}')">
                                                 Set Default
                                             </button>
                                         @endif
@@ -173,7 +178,7 @@
     </div>
 
     <!-- Content Migration Notice -->
-    @if($languages->where('is_active', true)->count() > 1)
+    @if ($languages->where('is_active', true)->count() > 1)
         <div class="admin-stats-card mt-6">
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                 <div class="flex items-start">
@@ -198,69 +203,73 @@
 @endsection
 
 @push('scripts')
-<script>
-function toggleLanguage(languageId, isActive, languageName) {
-    const action = isActive ? 'activate' : 'deactivate';
-    if (confirm(`Are you sure you want to ${action} "${languageName}"? This will affect content display across the platform.`)) {
-        // Create and submit form
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/languages/${languageId}/status`;
-        
-        // Add CSRF token
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = '{{ csrf_token() }}';
-        form.appendChild(csrfInput);
-        
-        // Add method spoofing
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'PATCH';
-        form.appendChild(methodInput);
-        
-        // Add status
-        const statusInput = document.createElement('input');
-        statusInput.type = 'hidden';
-        statusInput.name = 'is_active';
-        statusInput.value = isActive ? '1' : '0';
-        form.appendChild(statusInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
+    <script>
+        function toggleLanguage(languageId, isActive, languageName) {
+            const action = isActive ? 'activate' : 'deactivate';
+            if (confirm(
+                    `Are you sure you want to ${action} "${languageName}"? This will affect content display across the platform.`
+                    )) {
+                // Create and submit form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/languages/${languageId}/status`;
 
-function setDefault(languageId, languageName) {
-    if (confirm(`Set "${languageName}" as the default language? This will be the fallback language for all content.`)) {
-        // Create and submit form
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/languages/${languageId}/default`;
-        
-        // Add CSRF token
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = '{{ csrf_token() }}';
-        form.appendChild(csrfInput);
-        
-        // Add method spoofing
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'PATCH';
-        form.appendChild(methodInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
 
-function addLanguage() {
-    alert('Add language functionality will be implemented soon. For now, languages can be added via database seeding.');
-}
-</script>
+                // Add method spoofing
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'PATCH';
+                form.appendChild(methodInput);
+
+                // Add status
+                const statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'is_active';
+                statusInput.value = isActive ? '1' : '0';
+                form.appendChild(statusInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function setDefault(languageId, languageName) {
+            if (confirm(
+                    `Set "${languageName}" as the default language? This will be the fallback language for all content.`)) {
+                // Create and submit form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/languages/${languageId}/default`;
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                // Add method spoofing
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'PATCH';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function addLanguage() {
+            alert(
+                'Add language functionality will be implemented soon. For now, languages can be added via database seeding.');
+        }
+    </script>
 @endpush

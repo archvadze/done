@@ -88,12 +88,12 @@ if (app()->environment('local')) {
 // Dashboard - redirect admins to admin panel, others to user dashboard
 Route::get('/dashboard', function () {
     $user = Auth::user();
-    
+
     // Redirect admins to admin panel
     if ($user->role === 'admin') {
         return redirect()->route('admin.dashboard');
     }
-    
+
     // For regular users, show simple dashboard
     $twoFaStatus = $user->twofa_enabled ? 'enabled' : 'disabled';
     return "

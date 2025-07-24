@@ -10,7 +10,8 @@
             <div class="flex flex-wrap items-center gap-4">
                 <div>
                     <label for="log-level" class="block text-sm font-medium text-gray-700 mb-1">Log Level</label>
-                    <select id="log-level" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="log-level"
+                        class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Levels</option>
                         <option value="debug">Debug</option>
                         <option value="info">Info</option>
@@ -19,10 +20,11 @@
                         <option value="critical">Critical</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label for="log-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select id="log-category" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="log-category"
+                        class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Categories</option>
                         <option value="auth">Authentication</option>
                         <option value="evaluation">Evaluations</option>
@@ -31,16 +33,17 @@
                         <option value="system">System</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label for="log-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" id="log-date" value="{{ date('Y-m-d') }}" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="date" id="log-date" value="{{ date('Y-m-d') }}"
+                        class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
-                
+
                 <div class="pt-6">
-                    <button type="button" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                            onclick="filterLogs()">
+                    <button type="button"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                        onclick="filterLogs()">
                         Filter Logs
                     </button>
                 </div>
@@ -86,7 +89,8 @@
                     </div>
                     <div class="ml-4">
                         <dt class="text-sm font-medium text-gray-500 truncate">Memory Usage</dt>
-                        <dd class="text-lg font-semibold text-gray-900">{{ round(memory_get_usage(true) / 1024 / 1024, 1) }}MB</dd>
+                        <dd class="text-lg font-semibold text-gray-900">
+                            {{ round(memory_get_usage(true) / 1024 / 1024, 1) }}MB</dd>
                     </div>
                 </div>
             </div>
@@ -110,9 +114,7 @@
         <div class="admin-stats-card">
             <div class="mb-4 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900">Recent System Logs</h3>
-                <button type="button" 
-                        class="text-sm text-blue-600 hover:text-blue-700"
-                        onclick="refreshLogs()">
+                <button type="button" class="text-sm text-blue-600 hover:text-blue-700" onclick="refreshLogs()">
                     Refresh
                 </button>
             </div>
@@ -149,7 +151,8 @@
                         </div>
                         <span class="text-xs text-gray-500">{{ now()->subMinutes(5)->format('H:i:s') }}</span>
                     </div>
-                    <div class="text-xs text-gray-600 mt-1">Memory: {{ round(memory_get_usage(true) / 1024 / 1024, 1) }}MB / 128MB</div>
+                    <div class="text-xs text-gray-600 mt-1">Memory: {{ round(memory_get_usage(true) / 1024 / 1024, 1) }}MB /
+                        128MB</div>
                 </div>
 
                 <div class="log-entry border-l-4 border-green-400 bg-green-50 p-3 rounded-r">
@@ -177,9 +180,7 @@
 
             <!-- Load More -->
             <div class="mt-4 text-center">
-                <button type="button" 
-                        class="text-sm text-blue-600 hover:text-blue-700"
-                        onclick="loadMoreLogs()">
+                <button type="button" class="text-sm text-blue-600 hover:text-blue-700" onclick="loadMoreLogs()">
                     Load More Logs
                 </button>
             </div>
@@ -188,23 +189,23 @@
         <!-- Error Summary -->
         <div class="admin-stats-card">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Error Summary (Last 24 Hours)</h3>
-            
+
             <div class="space-y-3">
                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                     <span class="text-sm font-medium text-gray-900">Critical Errors</span>
                     <span class="admin-badge admin-badge-danger">0</span>
                 </div>
-                
+
                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                     <span class="text-sm font-medium text-gray-900">Errors</span>
                     <span class="admin-badge admin-badge-warning">2</span>
                 </div>
-                
+
                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                     <span class="text-sm font-medium text-gray-900">Warnings</span>
                     <span class="admin-badge admin-badge-info">5</span>
                 </div>
-                
+
                 <div class="flex justify-between items-center py-2">
                     <span class="text-sm font-medium text-gray-900">Info Messages</span>
                     <span class="admin-badge admin-badge-success">142</span>
@@ -215,17 +216,17 @@
 @endsection
 
 @push('scripts')
-<script>
-function filterLogs() {
-    alert('Log filtering functionality will be implemented soon.');
-}
+    <script>
+        function filterLogs() {
+            alert('Log filtering functionality will be implemented soon.');
+        }
 
-function refreshLogs() {
-    alert('Log refresh functionality will be implemented soon.');
-}
+        function refreshLogs() {
+            alert('Log refresh functionality will be implemented soon.');
+        }
 
-function loadMoreLogs() {
-    alert('Load more logs functionality will be implemented soon.');
-}
-</script>
+        function loadMoreLogs() {
+            alert('Load more logs functionality will be implemented soon.');
+        }
+    </script>
 @endpush

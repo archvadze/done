@@ -52,9 +52,9 @@ class AdminController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -73,8 +73,8 @@ class AdminController extends Controller
         }
 
         $users = $query->withCount(['artworks', 'evaluations'])
-                      ->latest()
-                      ->paginate(20);
+            ->latest()
+            ->paginate(20);
 
         return view('admin.users.index', compact('users'));
     }
@@ -89,12 +89,12 @@ class AdminController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($userQuery) use ($search) {
-                      $userQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -104,8 +104,8 @@ class AdminController extends Controller
         }
 
         $artworks = $query->withCount(['evaluations'])
-                          ->latest()
-                          ->paginate(20);
+            ->latest()
+            ->paginate(20);
 
         return view('admin.artworks.index', compact('artworks'));
     }
@@ -122,13 +122,13 @@ class AdminController extends Controller
             $query->where('source', $request->source);
         }
 
-        // Status filter  
+        // Status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         $evaluations = $query->latest()
-                            ->paginate(20);
+            ->paginate(20);
 
         return view('admin.evaluations.index', compact('evaluations'));
     }

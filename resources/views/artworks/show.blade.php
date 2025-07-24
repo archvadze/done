@@ -811,24 +811,24 @@
                                 Reply
                             </button>
                             ${comment.user.id === {{ auth()->id() ?? 0 }} ? `
-                                            <button onclick="editComment(${comment.id})"
-                                                class="text-xs text-gray-600 hover:underline">
-                                                Edit
-                                            </button>
-                                            <button onclick="deleteComment(${comment.id})"
-                                                class="text-xs text-red-600 hover:underline">
-                                                Delete
-                                            </button>
-                                        ` : ''}
+                                                <button onclick="editComment(${comment.id})"
+                                                    class="text-xs text-gray-600 hover:underline">
+                                                    Edit
+                                                </button>
+                                                <button onclick="deleteComment(${comment.id})"
+                                                    class="text-xs text-red-600 hover:underline">
+                                                    Delete
+                                                </button>
+                                            ` : ''}
                             @endauth
                         </div>
 
                         <!-- Replies -->
                         ${comment.replies && comment.replies.length > 0 ? `
-                                        <div class="mt-4 pl-4 border-l-2 border-gray-100 space-y-3">
-                                            ${comment.replies.map(reply => createReplyHTML(reply)).join('')}
-                                        </div>
-                                    ` : ''}
+                                            <div class="mt-4 pl-4 border-l-2 border-gray-100 space-y-3">
+                                                ${comment.replies.map(reply => createReplyHTML(reply)).join('')}
+                                            </div>
+                                        ` : ''}
                     </div>
                 </div>
             `;
@@ -861,15 +861,15 @@
                         <div class="mt-2 flex items-center space-x-4">
                             @auth
                             ${reply.user.id === {{ auth()->id() ?? 0 }} ? `
-                                            <button onclick="editComment(${reply.id})"
-                                                class="text-xs text-gray-600 hover:underline">
-                                                Edit
-                                            </button>
-                                            <button onclick="deleteComment(${reply.id})"
-                                                class="text-xs text-red-600 hover:underline">
-                                                Delete
-                                            </button>
-                                        ` : ''}
+                                                <button onclick="editComment(${reply.id})"
+                                                    class="text-xs text-gray-600 hover:underline">
+                                                    Edit
+                                                </button>
+                                                <button onclick="deleteComment(${reply.id})"
+                                                    class="text-xs text-red-600 hover:underline">
+                                                    Delete
+                                                </button>
+                                            ` : ''}
                             @endauth
                         </div>
                     </div>

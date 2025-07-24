@@ -26,13 +26,20 @@ class Language extends Model
     ];
 
     /**
-     * Get only active languages
+     * Get only active languages (scope)
      */
-    public static function active()
+    public function scopeActive($query)
     {
-        return static::where('is_active', true)
-                    ->orderBy('sort_order')
-                    ->get();
+        return $query->where('is_active', true)
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * Get active languages collection
+     */
+    public static function getActive()
+    {
+        return static::active()->get();
     }
 
     /**
@@ -49,8 +56,8 @@ class Language extends Model
     public static function supportedLocales()
     {
         return static::active()
-                    ->pluck('code')
-                    ->toArray();
+            ->pluck('code')
+            ->toArray();
     }
 
     /**
@@ -59,8 +66,8 @@ class Language extends Model
     public static function isSupported($code)
     {
         return static::where('code', $code)
-                    ->where('is_active', true)
-                    ->exists();
+            ->where('is_active', true)
+            ->exists();
     }
 
     /**

@@ -5,35 +5,32 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) conventions, da
 
 ---
 
+# Acumen Craft – Changelog
+
+All notable changes to this project will be documented in this file.  
+Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) conventions, date format: YYYY-MM-DD.
+
+---
+
 ## [Unreleased]
 
 ### Added
-- Initial structure for modular API (artworks, evaluation, payments, NFT, chat, helpdesk, notifications, analytics, admin, AI)
-- Swagger/OpenAPI 3.0 spec (`swagger.yaml`)
-- Webhook documentation (`WEBHOOKS.md`)
-- Mobile app development guide for Flutter/React Native (`MOBILE_GUIDE.md`)
-- UI mockups in Markdown and PDF (`UI_MOCKUPS.md`, `branding.pdf`)
-- Privacy, Security, and License policies (`PRIVACY.md`, `SECURITY.md`, `LICENSE.md`)
-- Product roadmap (`Roadmap.md`)
-- Contribution guidelines (`CONTRIBUTING.md`)
-- Initial database schema scripts (see `db.sql`)
-- Admin dashboard & moderation interface (MVP)
-- Community & group chat modules
+- **Automatic Language Detection Service**: New `LanguageDetectionService` for auto-detecting content language (Georgian, German, English) and auto-translation to all active languages
+- **Simplified Multilingual UI**: Replaced complex Facebook-style language tabs with single form + auto-detection banner for better UX
+- **Moderator Role Restrictions**: Added policy restrictions preventing moderators from creating/editing artworks and evaluations (ACQ)
 
 ### Changed
-- N/A
+- **Multilingual Forms Redesign**: Simplified artwork creation/editing forms from multiple language tabs to single title/description fields with automatic translation
+- **ArtworkController**: Updated to use auto-language detection instead of manual language selection
+- **Validation Rules**: Removed `content_language` required validation in favor of auto-detection
+- **User Experience**: Eliminated overwhelming multiple input fields per language as requested by users
 
 ### Fixed
-- N/A
-
-### Deprecated
-- N/A
-
-### Removed
-- N/A
+- **File Upload Issue**: Fixed artwork file upload failure caused by missing `content_language` validation after UI simplification
+- **Syntax Errors**: Resolved PHP syntax errors in ArtworkController validation arrays
 
 ### Security
-- N/A
+- **Role-based Access Control**: Enhanced policies to ensure moderators cannot create content or provide evaluations
 
 ---
 

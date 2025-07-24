@@ -34,10 +34,10 @@ class ArtworkApiController extends Controller
             'category' => $request->input('category'),
             'ai_generated' => $request->boolean('ai_generated')
         ];
-        
+
         $page = $request->input('page', 1);
         $perPage = min($request->input('per_page', 15), 100); // Max 100 per page
-        
+
         $artworks = $this->cacheService->getArtworkList($filters, $page, $perPage);
 
         return response()->json([
@@ -163,10 +163,10 @@ class ArtworkApiController extends Controller
 
         // Get cached artwork details
         $cachedArtwork = $this->cacheService->getArtworkDetails($artwork->id);
-        
+
         // Get cached ACQ score
         $acqScore = $this->cacheService->getArtworkAcqScore($artwork->id);
-        
+
         // Increment view count (API calls also count as views)
         $artwork->incrementViewCount();
 
@@ -192,7 +192,7 @@ class ArtworkApiController extends Controller
                     'name' => $cachedArtwork->user->name,
                     'avatar_path' => $cachedArtwork->user->avatar_path
                 ],
-                'evaluations' => $cachedArtwork->evaluations->map(function($evaluation) {
+                'evaluations' => $cachedArtwork->evaluations->map(function ($evaluation) {
                     return [
                         'id' => $evaluation->id,
                         'originality_score' => $evaluation->originality_score,

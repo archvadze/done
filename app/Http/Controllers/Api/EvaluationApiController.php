@@ -268,12 +268,12 @@ class EvaluationApiController extends Controller
     public function leaderboard(Request $request): JsonResponse
     {
         $limit = min($request->input('limit', 20), 50);
-        
+
         $topArtworks = $this->cacheService->getLeaderboard($limit);
 
         return response()->json([
             'success' => true,
-            'data' => $topArtworks->map(function($artwork) {
+            'data' => $topArtworks->map(function ($artwork) {
                 return [
                     'id' => $artwork->id,
                     'title_en' => $artwork->title_en,

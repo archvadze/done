@@ -16,14 +16,14 @@ class LocaleController extends Controller
     {
         // Get supported locales from active languages
         $supportedLocales = Language::supportedLocales();
-        
+
         if (!in_array($locale, $supportedLocales)) {
             abort(404, 'Language not supported or inactive');
         }
 
         // Set locale in session
         Session::put('locale', $locale);
-        
+
         // Redirect back to previous page
         return redirect()->back();
     }
@@ -34,11 +34,11 @@ class LocaleController extends Controller
     public function current()
     {
         $locale = App::getLocale();
-        
+
         // Get active languages from database
-        $activeLanguages = Language::active();
+        $activeLanguages = Language::active()->get();
         $locales = [];
-        
+
         foreach ($activeLanguages as $language) {
             $locales[$language->code] = [
                 'name' => $language->name,

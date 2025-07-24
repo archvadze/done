@@ -107,7 +107,7 @@ class User extends Authenticatable
     public function following()
     {
         return $this->belongsToMany(User::class, 'user_follows', 'follower_id', 'following_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -116,7 +116,7 @@ class User extends Authenticatable
     public function followers()
     {
         return $this->belongsToMany(User::class, 'user_follows', 'following_id', 'follower_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -145,17 +145,17 @@ class User extends Authenticatable
     public function follow($user)
     {
         $userId = is_object($user) ? $user->id : $user;
-        
+
         // Prevent self-following
         if ($userId === $this->id) {
             return false;
         }
-        
+
         // Check if already following
         if ($this->isFollowing($userId)) {
             return false;
         }
-        
+
         $this->following()->attach($userId);
         return true;
     }
@@ -207,7 +207,7 @@ class User extends Authenticatable
                 return asset('storage/avatars/' . $this->avatar_path);
             }
         }
-        
+
         return $this->oauth_avatar;
     }
 

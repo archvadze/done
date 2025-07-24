@@ -20,7 +20,7 @@ return new class extends Migration
             // Indexes for performance
             $table->index(['follower_id', 'following_id']);
             $table->index(['following_id', 'follower_id']);
-            
+
             // Ensure unique follow relationships
             $table->unique(['follower_id', 'following_id']);
         });
