@@ -178,282 +178,271 @@
                     <div class="p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">📝 Artwork Details</h2>
 
-                        <div class="grid grid-cols-1 gap-6">
-                            <!-- Multilingual Fields with Tabs -->
-                            <div class="md:col-span-2">
-                                <!-- Language Tabs -->
-                                <div class="mb-4">
-                                    <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-                                        @foreach(\App\Models\Language::active()->get() as $index => $language)
-                                            <button type="button" 
-                                                    class="language-tab flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors {{ $index === 0 ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}"
-                                                    data-language="{{ $language->code }}">
-                                                {{ $language->flag_emoji }} {{ $language->native_name }}
-                                                @if($language->is_default)
-                                                    <span class="text-xs text-blue-500">*</span>
-                                                @endif
-                                            </button>
+                        <div class="grid grid-cols-1 gap-6 mb-8">
+                            <!-- Auto Language Detection Info -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-blue-800">🌍 Automatic Language Detection</h4>
+                                        <p class="text-sm text-blue-700 mt-1">
+                                            Just write naturally! The system will automatically detect your language and translate to all active languages.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <div>
+                                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Title <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="title" name="title"
+                                    value="{{ old('title', $artwork->getTitle()) }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter artwork title" required>
+                                @error('title')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Description -->
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Description
+                                </label>
+                                <textarea id="description" name="description" rows="4"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Describe your artwork, inspiration, techniques used...">{{ old('description', $artwork->getDescription()) }}</textarea>
+                                @error('description')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
+
+                                <!-- Category -->
+                                <div>
+                                    <label for="category"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <select id="category" name="category"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Select a category</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->slug }}"
+                                                {{ old('category', $artwork->category) == $category->slug ? 'selected' : '' }}>
+                                                {{ $category->display_name ?? $category->name['en'] }}
+                                            </option>
                                         @endforeach
+                                    </select>
+                                    @error('category')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Subcategory -->
+                                <div>
+                                    <label for="subcategory"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+                                    <input type="text" id="subcategory" name="subcategory"
+                                        value="{{ old('subcategory', $artwork->subcategory) }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="e.g., Portrait, Landscape">
+                                    @error('subcategory')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Tags -->
+                                <div class="md:col-span-2">
+                                    <label for="tags-input"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                                    <input type="text" id="tags-input"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Press Enter to add tags">
+                                    <div id="tags-container" class="flex flex-wrap gap-2 mt-2">
+                                        <!-- Existing tags will be loaded here -->
+                                    </div>
+                                    @error('tags')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI & Copyright -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">🤖 AI & Copyright</h2>
+
+                            <div class="space-y-4">
+                                <!-- AI Generated -->
+                                <div class="flex items-start">
+                                    <input type="checkbox" id="is_ai_generated" name="is_ai_generated"
+                                        value="1"
+                                        {{ old('is_ai_generated', $artwork->is_ai_generated) ? 'checked' : '' }}
+                                        class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <div class="ml-3">
+                                        <label for="is_ai_generated" class="text-sm font-medium text-gray-700">This is
+                                            AI-generated content</label>
+                                        <p class="text-sm text-gray-500">Check this if AI tools were used to create
+                                            this
+                                            artwork</p>
                                     </div>
                                 </div>
 
-                                <!-- Language Content Panels -->
-                                @foreach(\App\Models\Language::active()->get() as $index => $language)
-                                    <div class="language-content {{ $index === 0 ? 'block' : 'hidden' }}" data-language="{{ $language->code }}">
-                                        <!-- Title for this language -->
-                                        <div class="mb-4">
-                                            <label for="title_{{ $language->code }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                                Title ({{ $language->native_name }})
-                                                @if($language->is_default)
-                                                    <span class="text-red-500">*</span>
-                                                @endif
-                                            </label>
-                                            <input type="text" 
-                                                   id="title_{{ $language->code }}" 
-                                                   name="title_{{ $language->code }}"
-                                                   value="{{ old('title_' . $language->code, $artwork->title[$language->code] ?? '') }}"
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                   placeholder="Enter artwork title"
-                                                   @if($language->is_default) required @endif>
-                                            @error('title_' . $language->code)
-                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Description for this language -->
-                                        <div class="mb-4">
-                                            <label for="description_{{ $language->code }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                                Description ({{ $language->native_name }})
-                                            </label>
-                                            <textarea id="description_{{ $language->code }}" 
-                                                      name="description_{{ $language->code }}" 
-                                                      rows="3"
-                                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                      placeholder="Describe your artwork, inspiration, techniques used...">{{ old('description_' . $language->code, $artwork->description[$language->code] ?? '') }}</textarea>
-                                            @error('description_' . $language->code)
-                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                            @enderror
-                                        </div>
+                                <!-- AI Tools -->
+                                <div id="ai-tools-section" class="{{ $artwork->is_ai_generated ? '' : 'hidden' }}">
+                                    <label for="ai-tools-input"
+                                        class="block text-sm font-medium text-gray-700 mb-1">AI
+                                        Tools Used</label>
+                                    <input type="text" id="ai-tools-input"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Press Enter to add AI tools">
+                                    <div id="ai-tools-container" class="flex flex-wrap gap-2 mt-2">
+                                        <!-- Existing AI tools will be loaded here -->
                                     </div>
-                                @endforeach
-                            </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                            <!-- Category -->
-                            <div>
-                                <label for="category"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select id="category" name="category"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="">Select a category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->slug }}"
-                                            {{ old('category', $artwork->category) == $category->slug ? 'selected' : '' }}>
-                                            {{ $category->display_name ?? $category->name['en'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('category')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Subcategory -->
-                            <div>
-                                <label for="subcategory"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
-                                <input type="text" id="subcategory" name="subcategory"
-                                    value="{{ old('subcategory', $artwork->subcategory) }}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., Portrait, Landscape">
-                                @error('subcategory')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Tags -->
-                            <div class="md:col-span-2">
-                                <label for="tags-input"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                                <input type="text" id="tags-input"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Press Enter to add tags">
-                                <div id="tags-container" class="flex flex-wrap gap-2 mt-2">
-                                    <!-- Existing tags will be loaded here -->
-                                </div>
-                                @error('tags')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI & Copyright -->
-                <div class="bg-white rounded-lg shadow-sm border">
-                    <div class="p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">🤖 AI & Copyright</h2>
-
-                        <div class="space-y-4">
-                            <!-- AI Generated -->
-                            <div class="flex items-start">
-                                <input type="checkbox" id="is_ai_generated" name="is_ai_generated" value="1"
-                                    {{ old('is_ai_generated', $artwork->is_ai_generated) ? 'checked' : '' }}
-                                    class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <div class="ml-3">
-                                    <label for="is_ai_generated" class="text-sm font-medium text-gray-700">This is
-                                        AI-generated content</label>
-                                    <p class="text-sm text-gray-500">Check this if AI tools were used to create this
-                                        artwork</p>
-                                </div>
-                            </div>
-
-                            <!-- AI Tools -->
-                            <div id="ai-tools-section" class="{{ $artwork->is_ai_generated ? '' : 'hidden' }}">
-                                <label for="ai-tools-input" class="block text-sm font-medium text-gray-700 mb-1">AI
-                                    Tools Used</label>
-                                <input type="text" id="ai-tools-input"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Press Enter to add AI tools">
-                                <div id="ai-tools-container" class="flex flex-wrap gap-2 mt-2">
-                                    <!-- Existing AI tools will be loaded here -->
-                                </div>
-                            </div>
-
-                            <!-- License -->
-                            <div>
-                                <label for="license_type" class="block text-sm font-medium text-gray-700 mb-1">License
-                                    *</label>
-                                <select id="license_type" name="license_type" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    @foreach ($licenseTypes as $key => $name)
-                                        <option value="{{ $key }}"
-                                            {{ old('license_type', $artwork->license_type ?? 'all_rights_reserved') == $key ? 'selected' : '' }}>
-                                            {{ $name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('license_type')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Copyright Notice -->
-                            <div>
-                                <label for="copyright_notice"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Copyright Notice</label>
-                                <textarea id="copyright_notice" name="copyright_notice" rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="© 2025 Your Name. All rights reserved.">{{ old('copyright_notice', $artwork->copyright_notice) }}</textarea>
-                                @error('copyright_notice')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings -->
-                <div class="bg-white rounded-lg shadow-sm border">
-                    <div class="p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">⚙️ Settings</h2>
-
-                        <div class="space-y-4">
-                            <!-- Visibility -->
-                            <div>
-                                <label for="visibility"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Visibility *</label>
-                                <select id="visibility" name="visibility" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="public"
-                                        {{ old('visibility', $artwork->visibility ?? 'public') == 'public' ? 'selected' : '' }}>
-                                        Public - Anyone can see</option>
-                                    <option value="unlisted"
-                                        {{ old('visibility', $artwork->visibility) == 'unlisted' ? 'selected' : '' }}>
-                                        Unlisted - Only with link</option>
-                                    <option value="private"
-                                        {{ old('visibility', $artwork->visibility) == 'private' ? 'selected' : '' }}>
-                                        Private - Only you</option>
-                                </select>
-                                @error('visibility')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Options -->
-                            <div class="space-y-3">
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="watermark_enabled" name="watermark_enabled"
-                                        value="1"
-                                        {{ old('watermark_enabled', $artwork->watermark_enabled ?? true) ? 'checked' : '' }}
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <label for="watermark_enabled" class="ml-2 text-sm text-gray-700">Enable watermark
-                                        protection</label>
                                 </div>
 
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="comments_enabled" name="comments_enabled"
-                                        value="1"
-                                        {{ old('comments_enabled', $artwork->comments_enabled ?? true) ? 'checked' : '' }}
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <label for="comments_enabled" class="ml-2 text-sm text-gray-700">Allow
-                                        comments</label>
+                                <!-- License -->
+                                <div>
+                                    <label for="license_type"
+                                        class="block text-sm font-medium text-gray-700 mb-1">License
+                                        *</label>
+                                    <select id="license_type" name="license_type" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        @foreach ($licenseTypes as $key => $name)
+                                            <option value="{{ $key }}"
+                                                {{ old('license_type', $artwork->license_type ?? 'all_rights_reserved') == $key ? 'selected' : '' }}>
+                                                {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('license_type')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="downloads_enabled" name="downloads_enabled"
-                                        value="1"
-                                        {{ old('downloads_enabled', $artwork->downloads_enabled) ? 'checked' : '' }}
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <label for="downloads_enabled" class="ml-2 text-sm text-gray-700">Allow
-                                        downloads</label>
+                                <!-- Copyright Notice -->
+                                <div>
+                                    <label for="copyright_notice"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Copyright Notice</label>
+                                    <textarea id="copyright_notice" name="copyright_notice" rows="2"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="© 2025 Your Name. All rights reserved.">{{ old('copyright_notice', $artwork->copyright_notice) }}</textarea>
+                                    @error('copyright_notice')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Submit Buttons -->
-                <div class="flex justify-between">
-                    <div class="flex space-x-4">
-                        <a href="{{ route('artworks.show', $artwork) }}"
-                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                            Cancel
-                        </a>
+                    <!-- Settings -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">⚙️ Settings</h2>
+
+                            <div class="space-y-4">
+                                <!-- Visibility -->
+                                <div>
+                                    <label for="visibility"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Visibility *</label>
+                                    <select id="visibility" name="visibility" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="public"
+                                            {{ old('visibility', $artwork->visibility ?? 'public') == 'public' ? 'selected' : '' }}>
+                                            Public - Anyone can see</option>
+                                        <option value="unlisted"
+                                            {{ old('visibility', $artwork->visibility) == 'unlisted' ? 'selected' : '' }}>
+                                            Unlisted - Only with link</option>
+                                        <option value="private"
+                                            {{ old('visibility', $artwork->visibility) == 'private' ? 'selected' : '' }}>
+                                            Private - Only you</option>
+                                    </select>
+                                    @error('visibility')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Options -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="watermark_enabled" name="watermark_enabled"
+                                            value="1"
+                                            {{ old('watermark_enabled', $artwork->watermark_enabled ?? true) ? 'checked' : '' }}
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="watermark_enabled" class="ml-2 text-sm text-gray-700">Enable
+                                            watermark
+                                            protection</label>
+                                    </div>
+
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="comments_enabled" name="comments_enabled"
+                                            value="1"
+                                            {{ old('comments_enabled', $artwork->comments_enabled ?? true) ? 'checked' : '' }}
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="comments_enabled" class="ml-2 text-sm text-gray-700">Allow
+                                            comments</label>
+                                    </div>
+
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="downloads_enabled" name="downloads_enabled"
+                                            value="1"
+                                            {{ old('downloads_enabled', $artwork->downloads_enabled) ? 'checked' : '' }}
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="downloads_enabled" class="ml-2 text-sm text-gray-700">Allow
+                                            downloads</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex space-x-4">
-                        @if ($artwork->status === 'published')
-                            <button type="submit" name="action" value="save_draft"
-                                class="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                Save as Draft
+                    <!-- Submit Buttons -->
+                    <div class="flex justify-between">
+                        <div class="flex space-x-4">
+                            <a href="{{ route('artworks.show', $artwork) }}"
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                Cancel
+                            </a>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            @if ($artwork->status === 'published')
+                                <button type="submit" name="action" value="save_draft"
+                                    class="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    Save as Draft
+                                </button>
+                            @endif
+
+                            <button type="submit" name="action" value="save" id="save-btn"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <span id="save-btn-text">Save Changes</span>
+                                <span id="save-spinner" class="hidden">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                </span>
                             </button>
-                        @endif
 
-                        <button type="submit" name="action" value="save" id="save-btn"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <span id="save-btn-text">Save Changes</span>
-                            <span id="save-spinner" class="hidden">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                            </span>
-                        </button>
-
-                        @if ($artwork->status === 'draft')
-                            <button type="submit" name="action" value="publish"
-                                class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                Save & Publish
-                            </button>
-                        @endif
+                            @if ($artwork->status === 'draft')
+                                <button type="submit" name="action" value="publish"
+                                    class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    Save & Publish
+                                </button>
+                            @endif
+                        </div>
                     </div>
-                </div>
             </form>
         </div>
     </div>
@@ -686,37 +675,6 @@
 
         // Initialize the form with existing data
         initializeExistingData();
-
-        // Language tab switching functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const languageTabs = document.querySelectorAll('.language-tab');
-            const languageContents = document.querySelectorAll('.language-content');
-            
-            languageTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const targetLanguage = this.getAttribute('data-language');
-                    
-                    // Update tab styles
-                    languageTabs.forEach(t => {
-                        t.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-                        t.classList.add('text-gray-500', 'hover:text-gray-700');
-                    });
-                    this.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-                    this.classList.remove('text-gray-500', 'hover:text-gray-700');
-                    
-                    // Show/hide content panels
-                    languageContents.forEach(content => {
-                        if (content.getAttribute('data-language') === targetLanguage) {
-                            content.classList.remove('hidden');
-                            content.classList.add('block');
-                        } else {
-                            content.classList.add('hidden');
-                            content.classList.remove('block');
-                        }
-                    });
-                });
-            });
-        });
 
         // Show success/error messages
         @if (session('success'))

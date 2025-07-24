@@ -34,42 +34,6 @@
         .progress-bar {
             transition: width 0.3s ease;
         }
-
-        /* Language Tabs Styling */
-        .language-tab {
-            border-bottom: 2px solid transparent;
-            color: #6b7280;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: none;
-            background: none;
-        }
-
-        .language-tab:hover {
-            color: #374151;
-            border-bottom-color: #d1d5db;
-        }
-
-        .language-tab.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
-        }
-
-        .language-panel {
-            transition: opacity 0.2s ease;
-        }
-
-        .language-panel.hidden {
-            display: none;
-        }
-
-        .language-panel.active {
-            display: block;
-        }
     </style>
 </head>
 
@@ -166,71 +130,49 @@
                     <div class="p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">📝 Artwork Details</h2>
 
-                        <!-- Language Tabs -->
-                        <div class="mb-6">
-                            <div class="border-b border-gray-200">
-                                <nav class="-mb-px flex space-x-8" aria-label="Languages">
-                                    @foreach(\App\Models\Language::active() as $index => $language)
-                                        <button type="button" 
-                                                onclick="switchLanguageTab('{{ $language->code }}')"
-                                                class="language-tab {{ $index === 0 ? 'active' : '' }}" 
-                                                data-lang="{{ $language->code }}">
-                                            <span class="mr-2">{{ $language->flag_emoji }}</span>
-                                            {{ $language->native_name }}
-                                            @if($language->is_default)
-                                                <span class="ml-1 text-red-500">*</span>
-                                            @endif
-                                        </button>
-                                    @endforeach
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Language Content Panels -->
-                        @foreach(\App\Models\Language::active() as $index => $language)
-                            <div class="language-panel {{ $index === 0 ? 'active' : 'hidden' }}" data-lang="{{ $language->code }}">
-                                <div class="grid grid-cols-1 gap-6">
-                                    <!-- Title for this language -->
+                        <!-- Simple Title and Description -->
+                        <div class="grid grid-cols-1 gap-6 mb-8">
+                            <!-- Auto Language Detection Info -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
                                     <div>
-                                        <label for="title_{{ $language->code }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                            <span class="mr-2">{{ $language->flag_emoji }}</span>
-                                            Title ({{ $language->native_name }})
-                                            @if($language->is_default)
-                                                <span class="text-red-500">*</span>
-                                            @endif
-                                        </label>
-                                        <input type="text" 
-                                               id="title_{{ $language->code }}" 
-                                               name="title_{{ $language->code }}" 
-                                               value="{{ old('title_' . $language->code) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                               placeholder="@if($language->code === 'en')Enter artwork title@elseif($language->code === 'ka')ნამუშევრის სახელი@elseif($language->code === 'de')Kunstwerk Titel@endif"
-                                               @if($language->is_default) required @endif>
-                                        @error('title_' . $language->code)
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Description for this language -->
-                                    <div>
-                                        <label for="description_{{ $language->code }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                            <span class="mr-2">{{ $language->flag_emoji }}</span>
-                                            Description ({{ $language->native_name }})
-                                        </label>
-                                        <textarea id="description_{{ $language->code }}" 
-                                                  name="description_{{ $language->code }}" 
-                                                  rows="4"
-                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                  placeholder="@if($language->code === 'en')Describe your artwork, inspiration, techniques used...@elseif($language->code === 'ka')აღწერეთ თქვენი ნამუშევარი, შთაგონება, გამოყენებული ტექნიკა...@elseif($language->code === 'de')Beschreiben Sie Ihr Kunstwerk, Inspiration, verwendete Techniken...@endif">{{ old('description_' . $language->code) }}</textarea>
-                                        @error('description_' . $language->code)
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
+                                        <h4 class="text-sm font-medium text-blue-800">🌍 Automatic Language Detection</h4>
+                                        <p class="text-sm text-blue-700 mt-1">
+                                            Just write naturally! The system will automatically detect your language and translate to all active languages.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
 
-                        <!-- Other fields (non-multilingual) -->
+                            <!-- Title -->
+                            <div>
+                                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Title <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="title" name="title" value="{{ old('title') }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter artwork title" required>
+                                @error('title')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Description -->
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Description
+                                </label>
+                                <textarea id="description" name="description" rows="4"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Describe your artwork, inspiration, techniques used...">{{ old('description') }}</textarea>
+                                @error('description')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
                             <!-- Category -->
                             <div>
@@ -427,33 +369,6 @@
     </div>
 
     <script>
-        // Language Tab Switching
-        function switchLanguageTab(langCode) {
-            // Hide all panels
-            document.querySelectorAll('.language-panel').forEach(panel => {
-                panel.classList.remove('active');
-                panel.classList.add('hidden');
-            });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.language-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected panel
-            const targetPanel = document.querySelector(`.language-panel[data-lang="${langCode}"]`);
-            if (targetPanel) {
-                targetPanel.classList.remove('hidden');
-                targetPanel.classList.add('active');
-            }
-            
-            // Activate selected tab
-            const targetTab = document.querySelector(`.language-tab[data-lang="${langCode}"]`);
-            if (targetTab) {
-                targetTab.classList.add('active');
-            }
-        }
-
         // File upload handling
         let selectedFile = null;
         let currentTags = [];
@@ -509,7 +424,7 @@
             displayFilePreview(file);
 
             // Auto-populate title if empty
-            const titleInput = document.getElementById('title_en');
+            const titleInput = document.getElementById('title');
             if (!titleInput.value) {
                 const fileName = file.name.split('.').slice(0, -1).join('.');
                 titleInput.value = fileName.charAt(0).toUpperCase() + fileName.slice(1);

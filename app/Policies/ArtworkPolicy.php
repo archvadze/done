@@ -36,8 +36,8 @@ class ArtworkPolicy
      */
     public function create(User $user): bool
     {
-        // Any authenticated user can create artworks
-        return true;
+        // Only artists can create artworks (moderators and admins cannot upload)
+        return $user->isArtist();
     }
 
     /**
@@ -45,8 +45,8 @@ class ArtworkPolicy
      */
     public function update(User $user, Artwork $artwork): bool
     {
-        // Only the owner can update their artwork
-        return $user->id === $artwork->user_id;
+        // Only the owner can update their artwork, and owner must be an artist
+        return $user->id === $artwork->user_id && $user->isArtist();
     }
 
     /**

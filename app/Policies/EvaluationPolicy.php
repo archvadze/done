@@ -29,7 +29,8 @@ class EvaluationPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        // Only moderators and admins can create evaluations (artists cannot rate)
+        return $user->canEvaluate();
     }
 
     /**

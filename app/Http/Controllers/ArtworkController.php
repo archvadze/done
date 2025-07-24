@@ -6,6 +6,7 @@ use App\Models\Artwork;
 use App\Models\ArtworkCategory;
 use App\Models\Language;
 use App\Services\FileUploadService;
+use App\Services\LanguageDetectionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -104,6 +105,8 @@ class ArtworkController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Artwork::class);
+
         // Get available categories for the form
         $categories = collect([
             (object)['slug' => 'digital-art', 'name' => ['en' => 'Digital Art', 'ka' => 'ციფრული ხელოვნება']],
@@ -141,22 +144,12 @@ class ArtworkController extends Controller
      */
     public function store(Request $request): JsonResponse|RedirectResponse
     {
-        // Build dynamic validation rules for active languages
-        $activeLanguages = Language::active()->get();
-        $validationRules = [];
-        
-        // Add language-specific validation rules
-        foreach ($activeLanguages as $language) {
-            $code = $language->code;
-            $isDefault = $language->is_default;
-            
-            // Title is required for default language, optional for others
-            $validationRules["title_{$code}"] = $isDefault ? 'required|string|max:255' : 'nullable|string|max:255';
-            $validationRules["description_{$code}"] = 'nullable|string|max:2000';
-        }
-        
-        // Add non-language validation rules
-        $validationRules = array_merge($validationRules, [
+        $this->authorize('create', Artwork::class);
+
+        // Simple validation rules
+        $validationRules = [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
             'file' => 'required|file|max:102400', // 100MB
             'category' => 'required|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
@@ -171,8 +164,8 @@ class ArtworkController extends Controller
             'visibility' => 'required|in:public,private,unlisted',
             'comments_enabled' => 'boolean',
             'downloads_enabled' => 'boolean',
-        ]);
-        
+        ];
+
         $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
@@ -188,25 +181,20 @@ class ArtworkController extends Controller
         try {
             DB::beginTransaction();
 
-            // Prepare multilingual data dynamically
-            $titleData = [];
-            $descriptionData = [];
-            $hasDescription = false;
+            // Auto-detect language and translate to all active languages
+            $languageService = app(LanguageDetectionService::class);
+            $detectedLanguage = $languageService->detectLanguage($request->title);
             
-            foreach ($activeLanguages as $language) {
-                $code = $language->code;
-                $titleData[$code] = $request->input("title_{$code}");
-                
-                if ($request->filled("description_{$code}")) {
-                    $descriptionData[$code] = $request->input("description_{$code}");
-                    $hasDescription = true;
-                }
-            }
+            // Auto-translate title and description to all active languages
+            $titleTranslations = $languageService->autoTranslate($request->title, $detectedLanguage);
+            $descriptionTranslations = $request->description ? 
+                $languageService->autoTranslate($request->description, $detectedLanguage) : null;
 
             // Prepare metadata for upload service
             $metadata = [
-                'title' => $titleData,
-                'description' => $hasDescription ? $descriptionData : null,
+                'title' => $titleTranslations,
+                'description' => $descriptionTranslations,
+                'content_language' => $detectedLanguage,
                 'license_type' => $request->license_type,
                 'copyright_notice' => $request->copyright_notice,
                 'watermark_enabled' => $request->boolean('watermark_enabled', true),
@@ -354,22 +342,11 @@ class ArtworkController extends Controller
     {
         $this->authorize('update', $artwork);
 
-        // Build dynamic validation rules for active languages
-        $activeLanguages = Language::active()->get();
-        $validationRules = [];
-        
-        // Add language-specific validation rules
-        foreach ($activeLanguages as $language) {
-            $code = $language->code;
-            $isDefault = $language->is_default;
-            
-            // Title is required for default language, optional for others
-            $validationRules["title_{$code}"] = $isDefault ? 'required|string|max:255' : 'nullable|string|max:255';
-            $validationRules["description_{$code}"] = 'nullable|string|max:2000';
-        }
-        
-        // Add non-language validation rules
-        $validationRules = array_merge($validationRules, [
+        // Simple validation rules
+        $validationRules = [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
+            'content_language' => 'required|string|in:en,ka,de',
             'category' => 'nullable|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
             'license_type' => 'required|in:' . implode(',', array_keys(Artwork::getLicenseTypes())),
@@ -383,8 +360,8 @@ class ArtworkController extends Controller
             'visibility' => 'required|in:public,private,unlisted',
             'comments_enabled' => 'boolean',
             'downloads_enabled' => 'boolean',
-        ]);
-        
+        ];
+
         $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
@@ -398,24 +375,19 @@ class ArtworkController extends Controller
         }
 
         try {
-            // Prepare multilingual data dynamically
-            $titleData = [];
-            $descriptionData = [];
-            $hasDescription = false;
+            // Auto-detect language and translate to all active languages
+            $languageService = app(LanguageDetectionService::class);
+            $detectedLanguage = $languageService->detectLanguage($request->title);
             
-            foreach ($activeLanguages as $language) {
-                $code = $language->code;
-                $titleData[$code] = $request->input("title_{$code}");
-                
-                if ($request->filled("description_{$code}")) {
-                    $descriptionData[$code] = $request->input("description_{$code}");
-                    $hasDescription = true;
-                }
-            }
+            // Auto-translate title and description to all active languages
+            $titleTranslations = $languageService->autoTranslate($request->title, $detectedLanguage);
+            $descriptionTranslations = $request->description ? 
+                $languageService->autoTranslate($request->description, $detectedLanguage) : null;
 
             $artwork->update([
-                'title' => $titleData,
-                'description' => $hasDescription ? $descriptionData : null,
+                'title' => $titleTranslations,
+                'description' => $descriptionTranslations,
+                'content_language' => $detectedLanguage,
                 'license_type' => $request->license_type,
                 'copyright_notice' => $request->copyright_notice,
                 'watermark_enabled' => $request->boolean('watermark_enabled'),
