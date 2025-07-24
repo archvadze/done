@@ -122,6 +122,11 @@
                     
                     <hr class="my-4 border-gray-200">
                     
+                    <a href="{{ route('admin.languages') }}" 
+                       class="admin-nav-item {{ request()->routeIs('admin.languages*') ? 'active' : '' }}">
+                        🌍 Languages
+                    </a>
+                    
                     <a href="{{ route('admin.settings') }}" 
                        class="admin-nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
                         ⚙️ Settings

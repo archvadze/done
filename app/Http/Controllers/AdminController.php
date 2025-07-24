@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Artwork;
 use App\Models\Evaluation;
+use App\Models\Language;
 
 class AdminController extends Controller
 {
@@ -17,7 +18,7 @@ class AdminController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!Auth::user()->isAdmin()) {
+            if (Auth::user()->role !== 'admin') {
                 abort(403, 'Access denied. Admin privileges required.');
             }
             return $next($request);
@@ -138,6 +139,56 @@ class AdminController extends Controller
     public function settings()
     {
         return view('admin.settings');
+    }
+
+    /**
+     * Display languages management page
+     */
+    public function languages()
+    {
+        $languages = Language::orderBy('sort_order')->get();
+        return view('admin.languages.index', compact('languages'));
+    }
+
+    /**
+     * Update language status
+     */
+    public function updateLanguageStatus(Request $request, Language $language)
+    {
+        $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        // Prevent disabling the default language
+        if (!$request->is_active && $language->is_default) {
+            return back()->with('error', 'Cannot disable the default language.');
+        }
+
+        $language->update([
+            'is_active' => $request->is_active,
+        ]);
+
+        $status = $request->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "Language '{$language->name}' has been {$status}.");
+    }
+
+    /**
+     * Set default language
+     */
+    public function setDefaultLanguage(Language $language)
+    {
+        // Ensure the language is active
+        if (!$language->is_active) {
+            return back()->with('error', 'Cannot set inactive language as default.');
+        }
+
+        // Remove default from all languages
+        Language::where('is_default', true)->update(['is_default' => false]);
+
+        // Set new default
+        $language->update(['is_default' => true]);
+
+        return back()->with('success', "'{$language->name}' is now the default language.");
     }
 
     /**

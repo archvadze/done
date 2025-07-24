@@ -152,6 +152,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/artworks', [AdminController::class, 'artworks'])->name('artworks');
     Route::get('/evaluations', [AdminController::class, 'evaluations'])->name('evaluations');
+    Route::get('/languages', [AdminController::class, 'languages'])->name('languages');
+    Route::patch('/languages/{language}/status', [AdminController::class, 'updateLanguageStatus'])->name('languages.status');
+    Route::patch('/languages/{language}/default', [AdminController::class, 'setDefaultLanguage'])->name('languages.default');
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
 });

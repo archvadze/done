@@ -1,10 +1,22 @@
 @php
     $currentLocale = app()->getLocale();
-    $supportedLocales = [
-        'en' => ['name' => 'English', 'flag' => '🇺🇸', 'native' => 'English'],
-        'ka' => ['name' => 'Georgian', 'flag' => '🇬🇪', 'native' => 'ქართული'],
-        'de' => ['name' => 'German', 'flag' => '🇩🇪', 'native' => 'Deutsch']
-    ];
+    $activeLanguages = \App\Models\Language::active();
+    $supportedLocales = [];
+    
+    foreach ($activeLanguages as $language) {
+        $supportedLocales[$language->code] = [
+            'name' => $language->name,
+            'flag' => $language->flag_emoji,
+            'native' => $language->native_name
+        ];
+    }
+    
+    // Fallback if no active languages
+    if (empty($supportedLocales)) {
+        $supportedLocales = [
+            'en' => ['name' => 'English', 'flag' => '��', 'native' => 'English']
+        ];
+    }
 @endphp
 
 <div class="relative inline-block text-left">

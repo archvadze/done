@@ -184,11 +184,18 @@ class Artwork extends Model
     {
         $locale = app()->getLocale();
 
-        if (is_array($this->description)) {
-            return $this->description[$locale] ?? $this->description['en'] ?? null;
+        $description = $this->description;
+
+        // If description is JSON string, decode it
+        if (is_string($description) && (str_starts_with($description, '{') || str_starts_with($description, '['))) {
+            $description = json_decode($description, true);
         }
 
-        return $this->description;
+        if (is_array($description)) {
+            return $description[$locale] ?? $description['en'] ?? null;
+        }
+
+        return $description;
     }
 
     /**
