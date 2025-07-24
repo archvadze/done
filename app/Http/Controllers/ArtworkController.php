@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\ArtworkCategory;
+use App\Models\Language;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -140,11 +141,22 @@ class ArtworkController extends Controller
      */
     public function store(Request $request): JsonResponse|RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'title_en' => 'required|string|max:255',
-            'title_ka' => 'nullable|string|max:255',
-            'description_en' => 'nullable|string|max:2000',
-            'description_ka' => 'nullable|string|max:2000',
+        // Build dynamic validation rules for active languages
+        $activeLanguages = Language::active()->get();
+        $validationRules = [];
+        
+        // Add language-specific validation rules
+        foreach ($activeLanguages as $language) {
+            $code = $language->code;
+            $isDefault = $language->is_default;
+            
+            // Title is required for default language, optional for others
+            $validationRules["title_{$code}"] = $isDefault ? 'required|string|max:255' : 'nullable|string|max:255';
+            $validationRules["description_{$code}"] = 'nullable|string|max:2000';
+        }
+        
+        // Add non-language validation rules
+        $validationRules = array_merge($validationRules, [
             'file' => 'required|file|max:102400', // 100MB
             'category' => 'required|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
@@ -160,6 +172,8 @@ class ArtworkController extends Controller
             'comments_enabled' => 'boolean',
             'downloads_enabled' => 'boolean',
         ]);
+        
+        $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
             if ($request->expectsJson()) {
@@ -174,16 +188,25 @@ class ArtworkController extends Controller
         try {
             DB::beginTransaction();
 
+            // Prepare multilingual data dynamically
+            $titleData = [];
+            $descriptionData = [];
+            $hasDescription = false;
+            
+            foreach ($activeLanguages as $language) {
+                $code = $language->code;
+                $titleData[$code] = $request->input("title_{$code}");
+                
+                if ($request->filled("description_{$code}")) {
+                    $descriptionData[$code] = $request->input("description_{$code}");
+                    $hasDescription = true;
+                }
+            }
+
             // Prepare metadata for upload service
             $metadata = [
-                'title' => [
-                    'en' => $request->title_en,
-                    'ka' => $request->title_ka
-                ],
-                'description' => $request->filled('description_en') || $request->filled('description_ka') ? [
-                    'en' => $request->description_en,
-                    'ka' => $request->description_ka
-                ] : null,
+                'title' => $titleData,
+                'description' => $hasDescription ? $descriptionData : null,
                 'license_type' => $request->license_type,
                 'copyright_notice' => $request->copyright_notice,
                 'watermark_enabled' => $request->boolean('watermark_enabled', true),
@@ -331,11 +354,22 @@ class ArtworkController extends Controller
     {
         $this->authorize('update', $artwork);
 
-        $validator = Validator::make($request->all(), [
-            'title_en' => 'required|string|max:255',
-            'title_ka' => 'nullable|string|max:255',
-            'description_en' => 'nullable|string|max:2000',
-            'description_ka' => 'nullable|string|max:2000',
+        // Build dynamic validation rules for active languages
+        $activeLanguages = Language::active()->get();
+        $validationRules = [];
+        
+        // Add language-specific validation rules
+        foreach ($activeLanguages as $language) {
+            $code = $language->code;
+            $isDefault = $language->is_default;
+            
+            // Title is required for default language, optional for others
+            $validationRules["title_{$code}"] = $isDefault ? 'required|string|max:255' : 'nullable|string|max:255';
+            $validationRules["description_{$code}"] = 'nullable|string|max:2000';
+        }
+        
+        // Add non-language validation rules
+        $validationRules = array_merge($validationRules, [
             'category' => 'nullable|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
             'license_type' => 'required|in:' . implode(',', array_keys(Artwork::getLicenseTypes())),
@@ -350,6 +384,8 @@ class ArtworkController extends Controller
             'comments_enabled' => 'boolean',
             'downloads_enabled' => 'boolean',
         ]);
+        
+        $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
             if ($request->expectsJson()) {
@@ -362,15 +398,24 @@ class ArtworkController extends Controller
         }
 
         try {
+            // Prepare multilingual data dynamically
+            $titleData = [];
+            $descriptionData = [];
+            $hasDescription = false;
+            
+            foreach ($activeLanguages as $language) {
+                $code = $language->code;
+                $titleData[$code] = $request->input("title_{$code}");
+                
+                if ($request->filled("description_{$code}")) {
+                    $descriptionData[$code] = $request->input("description_{$code}");
+                    $hasDescription = true;
+                }
+            }
+
             $artwork->update([
-                'title' => [
-                    'en' => $request->title_en,
-                    'ka' => $request->title_ka
-                ],
-                'description' => $request->filled('description_en') || $request->filled('description_ka') ? [
-                    'en' => $request->description_en,
-                    'ka' => $request->description_ka
-                ] : null,
+                'title' => $titleData,
+                'description' => $hasDescription ? $descriptionData : null,
                 'license_type' => $request->license_type,
                 'copyright_notice' => $request->copyright_notice,
                 'watermark_enabled' => $request->boolean('watermark_enabled'),
