@@ -1,42 +1,66 @@
 @php
-    use App\Helpers\LocaleHelper;
-    $supportedLocales = LocaleHelper::getSupportedLocales();
-    $currentLocale = LocaleHelper::getCurrentLocale();
+    $currentLocale = app()->getLocale();
+    $supportedLocales = [
+        'en' => ['name' => 'English', 'flag' => '🇺🇸', 'native' => 'English'],
+        'ka' => ['name' => 'Georgian', 'flag' => '🇬🇪', 'native' => 'ქართული'],
+        'de' => ['name' => 'German', 'flag' => '🇩🇪', 'native' => 'Deutsch']
+    ];
 @endphp
 
-<div class="locale-switcher dropdown">
-    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        <span class="me-1">{{ $currentLocale['flag'] }}</span>
-        <span class="d-none d-md-inline">{{ $currentLocale['native'] }}</span>
-        <span class="d-md-none">{{ $currentLocale['code'] }}</span>
+<div class="relative inline-block text-left">
+    <button onclick="toggleLanguageDropdown()" 
+            class="inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            type="button">
+        <span class="mr-2 text-lg">{{ $supportedLocales[$currentLocale]['flag'] ?? '🌐' }}</span>
+        <span class="hidden sm:inline">{{ $supportedLocales[$currentLocale]['native'] ?? 'Language' }}</span>
+        <span class="sm:hidden">{{ strtoupper($currentLocale) }}</span>
+        <svg class="w-4 h-4 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
     </button>
-    <ul class="dropdown-menu">
-        @foreach ($supportedLocales as $locale)
-            <li>
-                <a class="dropdown-item {{ app()->getLocale() === $locale['code'] ? 'active' : '' }}"
-                    href="{{ route('locale.switch', $locale['code']) }}">
-                    <span class="me-2">{{ $locale['flag'] }}</span>
-                    <span>{{ $locale['native'] }}</span>
-                    <small class="text-muted ms-1">({{ $locale['name'] }})</small>
+    
+    <div id="languageDropdown" 
+         class="hidden absolute right-0 z-50 w-56 mt-2 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+        <div class="py-1">
+            @foreach ($supportedLocales as $code => $locale)
+                <a href="{{ route('locale.switch', $code) }}" 
+                   class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 {{ $currentLocale === $code ? 'bg-blue-50 text-blue-700' : '' }}">
+                    <span class="mr-3 text-lg">{{ $locale['flag'] }}</span>
+                    <div class="flex flex-col">
+                        <span class="font-medium">{{ $locale['native'] }}</span>
+                        <span class="text-xs text-gray-500">{{ $locale['name'] }}</span>
+                    </div>
+                    @if ($currentLocale === $code)
+                        <svg class="w-4 h-4 ml-auto text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    @endif
                 </a>
-            </li>
-        @endforeach
-    </ul>
+            @endforeach
+        </div>
+    </div>
 </div>
 
-<style>
-    .locale-switcher .dropdown-item.active {
-        background-color: var(--bs-primary);
-        color: white;
-    }
+<script>
+function toggleLanguageDropdown() {
+    const dropdown = document.getElementById('languageDropdown');
+    dropdown.classList.toggle('hidden');
+}
 
-    .locale-switcher .dropdown-item:hover {
-        background-color: var(--bs-light);
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('languageDropdown');
+    const button = event.target.closest('button');
+    
+    if (!button || !button.hasAttribute('onclick') || button.getAttribute('onclick') !== 'toggleLanguageDropdown()') {
+        dropdown.classList.add('hidden');
     }
+});
 
-    .locale-switcher .dropdown-item.active:hover {
-        background-color: var(--bs-primary);
-        opacity: 0.9;
+// Close dropdown on escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('languageDropdown').classList.add('hidden');
     }
-</style>
+});
+</script>

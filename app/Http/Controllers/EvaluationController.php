@@ -45,6 +45,20 @@ class EvaluationController extends Controller
      */
     public function create(Artwork $artwork)
     {
+        // Check if user can evaluate artworks (role-based access)
+        if (!Auth::user()->canEvaluate()) {
+            abort(403, 'Only moderators and admins can evaluate artworks.');
+        }
+
+        // Check if user can evaluate this specific artwork
+        if (!Auth::user()->canEvaluateArtwork($artwork)) {
+            if (Auth::id() === $artwork->user_id) {
+                abort(403, 'You cannot evaluate your own artwork.');
+            } else {
+                abort(403, 'You do not have permission to evaluate artworks.');
+            }
+        }
+
         // Check if user already evaluated this artwork
         $existingEvaluation = Evaluation::where('artwork_id', $artwork->id)
             ->where('evaluator_id', Auth::id())
@@ -56,11 +70,6 @@ class EvaluationController extends Controller
                 ->with('error', 'You have already evaluated this artwork.');
         }
 
-        // Don't allow self-evaluation
-        if ($artwork->user_id === Auth::id()) {
-            abort(403, 'You cannot evaluate your own artwork.');
-        }
-
         return view('evaluations.create', compact('artwork'));
     }
 
@@ -69,9 +78,20 @@ class EvaluationController extends Controller
      */
     public function store(Request $request, Artwork $artwork)
     {
-        // Validate request (exclude artwork_id since it comes from route)
+        // Check if user can evaluate artworks (role-based access)
+        if (!Auth::user()->canEvaluate()) {
+            abort(403, 'Only moderators and admins can evaluate artworks.');
+        }
+
+        // Check if user can evaluate this specific artwork
+        if (!Auth::user()->canEvaluateArtwork($artwork)) {
+            abort(403, 'You cannot evaluate this artwork.');
+        }
+
+        // Validate request (exclude artwork_id and source since they come from route/controller)
         $rules = Evaluation::validationRules();
         unset($rules['artwork_id']); // Remove artwork_id validation since it's from route
+        unset($rules['source']); // Remove source validation since it's set automatically by controller
         $validated = $request->validate($rules);
 
         // Check for existing evaluation
@@ -83,11 +103,6 @@ class EvaluationController extends Controller
             throw ValidationException::withMessages([
                 'artwork' => 'You have already evaluated this artwork.'
             ]);
-        }
-
-        // Don't allow self-evaluation
-        if ($artwork->user_id === Auth::id()) {
-            abort(403, 'You cannot evaluate your own artwork.');
         }
 
         try {

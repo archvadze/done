@@ -81,6 +81,7 @@
                         </nav>
                     </div>
                     <div class="flex items-center space-x-4">
+                        <x-locale-switcher />
                         @auth
                             @if (auth()->id() === $artwork->user_id)
                                 <a href="{{ route('artworks.edit', $artwork) }}"
@@ -462,6 +463,44 @@
                                         Delete Artwork
                                     </button>
                                 </div>
+                            </div>
+                        @endif
+                    @endauth
+
+                    <!-- Evaluation Section -->
+                    @auth
+                        @if (auth()->user()->canEvaluate() && auth()->user()->canEvaluateArtwork($artwork))
+                            <div class="bg-white rounded-lg shadow-sm border p-6">
+                                <h3 class="font-semibold text-gray-900 mb-3">🎯 ACQ Evaluation</h3>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    As a moderator, you can evaluate this artwork using our ACQ scoring system.
+                                </p>
+                                <a href="{{ route('evaluations.create', $artwork) }}"
+                                    class="block w-full text-center bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors">
+                                    📊 Evaluate Artwork
+                                </a>
+                            </div>
+                        @elseif (auth()->user()->canEvaluate() && auth()->id() === $artwork->user_id)
+                            <div class="bg-white rounded-lg shadow-sm border p-6">
+                                <h3 class="font-semibold text-gray-900 mb-3">🎯 ACQ Evaluation</h3>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    You cannot evaluate your own artwork.
+                                </p>
+                                <button disabled
+                                    class="block w-full text-center bg-gray-300 text-gray-500 py-2 rounded-md cursor-not-allowed">
+                                    📊 Evaluate Artwork
+                                </button>
+                            </div>
+                        @elseif (!auth()->user()->canEvaluate() && auth()->user()->isArtist())
+                            <div class="bg-white rounded-lg shadow-sm border p-6">
+                                <h3 class="font-semibold text-gray-900 mb-3">🎯 ACQ Evaluation</h3>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Only moderators and admins can evaluate artworks.
+                                </p>
+                                <button disabled
+                                    class="block w-full text-center bg-gray-300 text-gray-500 py-2 rounded-md cursor-not-allowed">
+                                    📊 Evaluate Artwork
+                                </button>
                             </div>
                         @endif
                     @endauth

@@ -9,6 +9,14 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\AdminController;
+use App\Models\User;
+
+// Locale switching routes
+Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
+Route::get('/api/locale/current', [LocaleController::class, 'current'])->name('locale.current');
 
 Route::get('/', function () {
     return view('welcome');
@@ -56,9 +64,20 @@ Route::get('leaderboard', [EvaluationController::class, 'leaderboard'])->name('l
 
 // User profile routes
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', function () {
-        return view('users.profile', ['user' => Auth::user()]);
-    })->name('users.profile');
+    Route::get('/profile', [UserController::class, 'profile'])->name('users.profile');
+    Route::get('/profile/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/profile', [UserController::class, 'update'])->name('users.update');
+});
+
+// Public user profiles
+Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+Route::get('/users/{user}/artworks', [UserController::class, 'artworks'])->name('users.artworks');
+Route::get('/users/{user}/followers', [UserController::class, 'followers'])->name('users.followers');
+Route::get('/users/{user}/following', [UserController::class, 'following'])->name('users.following');
+
+// Follow/Unfollow (requires authentication)
+Route::middleware('auth')->group(function () {
+    Route::post('/users/{user}/follow', [UserController::class, 'toggleFollow'])->name('users.follow');
 });
 
 // Load development routes only in local environment
@@ -66,9 +85,16 @@ if (app()->environment('local')) {
     require __DIR__ . '/dev.php';
 }
 
-// Dashboard (placeholder)
+// Dashboard - redirect admins to admin panel, others to user dashboard
 Route::get('/dashboard', function () {
     $user = Auth::user();
+    
+    // Redirect admins to admin panel
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    
+    // For regular users, show simple dashboard
     $twoFaStatus = $user->twofa_enabled ? 'enabled' : 'disabled';
     return "
     <div style='font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px;'>
@@ -118,4 +144,14 @@ Route::middleware('auth')->prefix('2fa')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::get('/2fa/verify', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
     Route::post('/2fa/verify', [TwoFactorController::class, 'verifyCode'])->name('two-factor.verify.post');
+});
+
+// Admin routes (protected by admin middleware)
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/artworks', [AdminController::class, 'artworks'])->name('artworks');
+    Route::get('/evaluations', [AdminController::class, 'evaluations'])->name('evaluations');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
 });
