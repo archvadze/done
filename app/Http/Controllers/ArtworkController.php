@@ -184,10 +184,10 @@ class ArtworkController extends Controller
             // Auto-detect language and translate to all active languages
             $languageService = app(LanguageDetectionService::class);
             $detectedLanguage = $languageService->detectLanguage($request->title);
-            
+
             // Auto-translate title and description to all active languages
             $titleTranslations = $languageService->autoTranslate($request->title, $detectedLanguage);
-            $descriptionTranslations = $request->description ? 
+            $descriptionTranslations = $request->description ?
                 $languageService->autoTranslate($request->description, $detectedLanguage) : null;
 
             // Prepare metadata for upload service
@@ -378,10 +378,10 @@ class ArtworkController extends Controller
             // Auto-detect language and translate to all active languages
             $languageService = app(LanguageDetectionService::class);
             $detectedLanguage = $languageService->detectLanguage($request->title);
-            
+
             // Auto-translate title and description to all active languages
             $titleTranslations = $languageService->autoTranslate($request->title, $detectedLanguage);
-            $descriptionTranslations = $request->description ? 
+            $descriptionTranslations = $request->description ?
                 $languageService->autoTranslate($request->description, $detectedLanguage) : null;
 
             $artwork->update([
