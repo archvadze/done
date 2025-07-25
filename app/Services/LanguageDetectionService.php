@@ -12,7 +12,8 @@ class LanguageDetectionService
     public function detectLanguage(string $text): string
     {
         // Simple language detection based on character sets
-        if (preg_match('/[\u{10A0}-\u{10FF}]/u', $text)) {
+        // Georgian Unicode range: U+10A0–U+10FF
+        if (preg_match('/[ა-ჿ]/u', $text)) {
             return 'ka'; // Georgian
         }
 

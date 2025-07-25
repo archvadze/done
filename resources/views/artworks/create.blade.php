@@ -151,27 +151,33 @@
                                 </div>
                             </div>
 
-                            <!-- Title -->
+                            <!-- Title with Auto-Detection -->
                             <div>
                                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
                                     Title <span class="text-red-500">*</span>
+                                    <span class="text-xs text-gray-500">(Language will be auto-detected)</span>
                                 </label>
                                 <input type="text" id="title" name="title" value="{{ old('title') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Enter artwork title" required>
+                                    placeholder="Enter artwork title in any language (Georgian, German, English)" 
+                                    onchange="detectLanguage(this, 'title-detection')" required>
+                                <div id="title-detection" class="mt-1 text-xs text-gray-600"></div>
                                 @error('title')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <!-- Description -->
+                            <!-- Description with Auto-Detection -->
                             <div>
                                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
                                     Description
+                                    <span class="text-xs text-gray-500">(Language will be auto-detected)</span>
                                 </label>
                                 <textarea id="description" name="description" rows="4"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Describe your artwork, inspiration, techniques used...">{{ old('description') }}</textarea>
+                                    placeholder="Describe your artwork in any language (Georgian, German, English)..."
+                                    onchange="detectLanguage(this, 'desc-detection')">{{ old('description') }}</textarea>
+                                <div id="desc-detection" class="mt-1 text-xs text-gray-600"></div>
                                 @error('description')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -596,6 +602,52 @@
 
         @if (session('error'))
             alert('❌ {{ session('error') }}');
+        @endif
+
+        // Language Detection Function
+        async function detectLanguage(element, targetId) {
+            const text = element.value.trim();
+            if (text.length < 3) {
+                document.getElementById(targetId).innerHTML = '';
+                return;
+            }
+
+            try {
+                // Simple client-side detection
+                let detectedLanguage = 'en'; // default
+                let languageName = 'English';
+                
+                // Georgian detection
+                if (/[ა-ჿ]/.test(text)) {
+                    detectedLanguage = 'ka';
+                    languageName = 'Georgian';
+                }
+                // German detection
+                else if (/[äöüßÄÖÜ]/.test(text)) {
+                    detectedLanguage = 'de';
+                    languageName = 'German';
+                }
+
+                document.getElementById(targetId).innerHTML = 
+                    `🌐 Detected language: <strong>${languageName}</strong> (${detectedLanguage})`;
+                
+                // Store detected language in hidden field if needed
+                let hiddenField = document.getElementById('detected_language');
+                if (!hiddenField) {
+                    hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'detected_language';
+                    hiddenField.id = 'detected_language';
+                    element.form.appendChild(hiddenField);
+                }
+                hiddenField.value = detectedLanguage;
+
+            } catch (error) {
+                console.error('Language detection error:', error);
+                document.getElementById(targetId).innerHTML = 
+                    '<span class="text-red-500">Detection failed</span>';
+            }
+        }
         @endif
     </script>
 </body>

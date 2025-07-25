@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ArtworkApiController;
 use App\Http\Controllers\Api\EvaluationApiController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,9 @@ use App\Http\Controllers\Api\UserApiController;
 
 // Public API routes
 Route::prefix('v1')->group(function () {
+    // Language Detection API
+    Route::post('detect-language', [LanguageController::class, 'detectLanguage']);
+    
     // Artworks API
     Route::get('artworks', [ArtworkApiController::class, 'index']);
     Route::get('artworks/{artwork}', [ArtworkApiController::class, 'show']);

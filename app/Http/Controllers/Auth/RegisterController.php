@@ -42,6 +42,7 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'artist', // Set default role to artist
         ]);
 
         Auth::login($user);

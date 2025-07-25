@@ -12,6 +12,7 @@ use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\LanguageController;
 use App\Models\User;
 
 // Locale switching routes
