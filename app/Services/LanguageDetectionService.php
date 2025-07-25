@@ -39,11 +39,12 @@ class LanguageDetectionService
 
         foreach ($activeLanguages as $language) {
             if ($language->code === $sourceLanguage) {
+                // Keep original text for source language
                 $translations[$language->code] = $text;
             } else {
-                // For now, just copy the original text
-                // Later we can integrate Google Translate API or similar
-                $translations[$language->code] = $text . ' [Auto-translated to ' . $language->native_name . ']';
+                // For now, keep original text instead of showing translation markers
+                // This prevents "[Auto-translated]" markers from appearing in the database
+                $translations[$language->code] = $text;
             }
         }
 

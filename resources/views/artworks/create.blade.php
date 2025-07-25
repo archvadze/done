@@ -604,7 +604,7 @@
             alert('❌ {{ session('error') }}');
         @endif
 
-        // Language Detection Function
+        // Language Detection Function with API Integration
         async function detectLanguage(element, targetId) {
             const text = element.value.trim();
             if (text.length < 3) {
@@ -612,9 +612,77 @@
                 return;
             }
 
+            // Show loading state
+            document.getElementById(targetId).innerHTML = '🔍 Detecting language...';
+
             try {
-                // Simple client-side detection
-                let detectedLanguage = 'en'; // default
+                // Call the API for language detection
+                const response = await fetch('/api/v1/detect-language', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    },
+                    body: JSON.stringify({
+                        texts: [text]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data); // Debug log
+                
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const detectedLanguage = result.detected || 'en';
+                    const languageNames = {
+                        'ka': 'Georgian',
+                        'de': 'German', 
+                        'en': 'English'
+                    };
+                    const languageName = languageNames[detectedLanguage] || 'English';
+
+                    // Show detection result with translations if available
+                    let displayText = `🌐 Detected: <strong>${languageName}</strong> (${detectedLanguage})`;
+                    
+                    if (result.translations) {
+                        displayText += '<br><small class="text-gray-500">Translations: ';
+                        const translations = [];
+                        Object.entries(result.translations).forEach(([lang, translation]) => {
+                            if (lang !== detectedLanguage && translation.trim()) {
+                                translations.push(`${lang.toUpperCase()}: "${translation}"`);
+                            }
+                        });
+                        if (translations.length > 0) {
+                            displayText += translations.join(' | ');
+                        }
+                        displayText += '</small>';
+                    }
+
+                    document.getElementById(targetId).innerHTML = displayText;
+                    
+                    // Store detected language in hidden field
+                    let hiddenField = document.getElementById('detected_language');
+                    if (!hiddenField) {
+                        hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = 'detected_language';
+                        hiddenField.id = 'detected_language';
+                        element.form.appendChild(hiddenField);
+                    }
+                    hiddenField.value = detectedLanguage;
+                } else {
+                    throw new Error('Invalid API response');
+                }
+
+            } catch (error) {
+                console.error('Language detection API error:', error);
+                
+                // Fallback to client-side detection
+                let detectedLanguage = 'en';
                 let languageName = 'English';
                 
                 // Georgian detection
@@ -629,9 +697,9 @@
                 }
 
                 document.getElementById(targetId).innerHTML = 
-                    `🌐 Detected language: <strong>${languageName}</strong> (${detectedLanguage})`;
+                    `🌐 <strong>${languageName}</strong> (${detectedLanguage}) <small class="text-orange-500">[Fallback]</small>`;
                 
-                // Store detected language in hidden field if needed
+                // Store fallback detection
                 let hiddenField = document.getElementById('detected_language');
                 if (!hiddenField) {
                     hiddenField = document.createElement('input');
@@ -641,11 +709,6 @@
                     element.form.appendChild(hiddenField);
                 }
                 hiddenField.value = detectedLanguage;
-
-            } catch (error) {
-                console.error('Language detection error:', error);
-                document.getElementById(targetId).innerHTML = 
-                    '<span class="text-red-500">Detection failed</span>';
             }
         }
     </script>
