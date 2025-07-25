@@ -648,7 +648,6 @@
                     '<span class="text-red-500">Detection failed</span>';
             }
         }
-        @endif
     </script>
 </body>
 

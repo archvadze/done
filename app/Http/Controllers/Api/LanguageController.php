@@ -9,12 +9,6 @@ use Illuminate\Http\JsonResponse;
 
 class LanguageController extends Controller
 {
-    public function __construct()
-    {
-        // Disable CSRF protection for API routes
-        $this->middleware('api');
-    }
-
     /**
      * Detect language and provide translations
      */
