@@ -438,6 +438,19 @@
                                         Edit Artwork
                                     </a>
 
+                                    <!-- NFT Mint Button -->
+                                    @if($artwork->nft)
+                                        <a href="{{ route('nft.show', $artwork->nft) }}"
+                                            class="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-md hover:from-purple-700 hover:to-blue-700 transition-colors">
+                                            🎨 View NFT
+                                        </a>
+                                    @else
+                                        <a href="{{ route('nft.mint', $artwork) }}"
+                                            class="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-md hover:from-purple-700 hover:to-blue-700 transition-colors">
+                                            🎨 Mint as NFT
+                                        </a>
+                                    @endif
+
                                     @if ($artwork->status === 'draft')
                                         <form method="POST" action="{{ route('artworks.publish', $artwork) }}"
                                             class="block">

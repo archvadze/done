@@ -39,6 +39,10 @@ class User extends Authenticatable
         'status',
         'balance',
         'balance_currency',
+        'wallet_address',
+        'wallet_type',
+        'wallet_connected_at',
+        'wallet_metadata',
         'twofa_enabled',
         'twofa_backup_codes',
     ];
@@ -94,6 +98,22 @@ class User extends Authenticatable
     public function withdrawals()
     {
         return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
+     * Get NFTs owned by this user
+     */
+    public function nfts()
+    {
+        return $this->hasMany(NftOwnership::class);
+    }
+
+    /**
+     * Get crypto payments for this user
+     */
+    public function cryptoPayments()
+    {
+        return $this->hasMany(CryptoPayment::class);
     }
 
     /**

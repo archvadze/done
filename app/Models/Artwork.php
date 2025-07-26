@@ -129,6 +129,14 @@ class Artwork extends Model
     }
 
     /**
+     * Get NFT ownership for this artwork
+     */
+    public function nft()
+    {
+        return $this->hasOne(NftOwnership::class);
+    }
+
+    /**
      * Scopes
      */
     public function scopePublished($query)

@@ -14,6 +14,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\NftController;
 use App\Models\User;
 
 // Locale switching routes
@@ -181,3 +182,18 @@ Route::middleware('auth')->prefix('payments')->name('payments.')->group(function
 
 // Stripe webhook (no auth needed)
 Route::post('/webhook/stripe', [PaymentController::class, 'webhook'])->name('webhook.stripe');
+
+// NFT routes
+Route::middleware('auth')->prefix('nft')->name('nft.')->group(function () {
+    Route::get('/mint/{artwork}', [NftController::class, 'mint'])->name('mint');
+    Route::post('/mint/{artwork}', [NftController::class, 'processMint'])->name('process-mint');
+    Route::get('/show/{nft}', [NftController::class, 'show'])->name('show');
+    Route::get('/collection/{user?}', [NftController::class, 'collection'])->name('collection');
+    Route::post('/connect-wallet', [NftController::class, 'connectWallet'])->name('connect-wallet');
+    Route::post('/disconnect-wallet', [NftController::class, 'disconnectWallet'])->name('disconnect-wallet');
+});
+
+// NFT API routes (for AJAX calls)
+Route::middleware('auth')->prefix('api/nft')->name('api.nft.')->group(function () {
+    Route::get('/ownership/{artwork}', [NftController::class, 'ownership'])->name('ownership');
+});
