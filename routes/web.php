@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\PaymentController;
 use App\Models\User;
 
 // Locale switching routes
@@ -169,3 +170,14 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
 });
+
+// Payment routes
+Route::middleware('auth')->prefix('payments')->name('payments.')->group(function () {
+    Route::get('/', [PaymentController::class, 'show'])->name('show');
+    Route::post('/checkout', [PaymentController::class, 'createCheckout'])->name('checkout');
+    Route::get('/success', [PaymentController::class, 'success'])->name('success');
+    Route::get('/history', [PaymentController::class, 'history'])->name('history');
+});
+
+// Stripe webhook (no auth needed)
+Route::post('/webhook/stripe', [PaymentController::class, 'webhook'])->name('webhook.stripe');

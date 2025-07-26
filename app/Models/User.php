@@ -37,6 +37,8 @@ class User extends Authenticatable
         'privacy_prefs',
         'role',
         'status',
+        'balance',
+        'balance_currency',
         'twofa_enabled',
         'twofa_backup_codes',
     ];
@@ -76,6 +78,22 @@ class User extends Authenticatable
     public function linkedAccounts()
     {
         return $this->hasMany(LinkedAccount::class);
+    }
+
+    /**
+     * Get payments for this user
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get withdrawals for this user
+     */
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
     }
 
     /**
