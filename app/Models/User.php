@@ -409,4 +409,52 @@ class User extends Authenticatable
     {
         return Conversation::createDirectMessage($this, $otherUser);
     }
+
+    /**
+     * Support tickets created by this user
+     */
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    /**
+     * Support tickets assigned to this user
+     */
+    public function assignedTickets()
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to');
+    }
+
+    /**
+     * Support ticket replies by this user
+     */
+    public function supportTicketReplies()
+    {
+        return $this->hasMany(SupportTicketReply::class);
+    }
+
+    /**
+     * Help articles authored by this user
+     */
+    public function helpArticles()
+    {
+        return $this->hasMany(HelpArticle::class, 'author_id');
+    }
+
+    /**
+     * Check if user can manage support tickets
+     */
+    public function canManageSupport(): bool
+    {
+        return $this->isModerator() || $this->isAdmin();
+    }
+
+    /**
+     * Get open support tickets count for this user
+     */
+    public function getOpenTicketsCount(): int
+    {
+        return $this->supportTickets()->open()->count();
+    }
 }

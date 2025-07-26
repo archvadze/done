@@ -18,6 +18,10 @@ use App\Http\Controllers\NftController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\HelpArticleController;
 use App\Models\User;
 
 // Locale switching routes
@@ -243,6 +247,43 @@ Route::middleware('auth')->prefix('messages')->name('messages.')->group(function
     Route::delete('/message/{message}', [MessageController::class, 'deleteMessage'])->name('message.delete');
     Route::post('/{conversation}/leave', [MessageController::class, 'leave'])->name('leave');
     Route::get('/api/search-users', [MessageController::class, 'searchUsers'])->name('search-users');
+});
+
+// Support & Help routes
+Route::prefix('support')->name('support.')->group(function () {
+    // Main support pages
+    Route::get('/', [SupportController::class, 'index'])->name('index');
+    Route::get('/contact', [SupportController::class, 'contact'])->name('contact');
+    Route::post('/contact', [SupportController::class, 'submitContact'])->name('contact.submit');
+    Route::get('/search', [SupportController::class, 'search'])->name('search');
+    
+    // FAQ routes
+    Route::prefix('faq')->name('faq.')->group(function () {
+        Route::get('/', [FaqController::class, 'index'])->name('index');
+        Route::get('/category/{category}', [FaqController::class, 'category'])->name('category');
+        Route::get('/{faq}', [FaqController::class, 'show'])->name('show');
+        Route::post('/{faq}/helpful', [FaqController::class, 'helpful'])->name('helpful');
+        Route::post('/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('not-helpful');
+    });
+    
+    // Help Articles routes
+    Route::prefix('help')->name('help.')->group(function () {
+        Route::get('/', [HelpArticleController::class, 'index'])->name('index');
+        Route::get('/{article}', [HelpArticleController::class, 'show'])->name('show');
+        Route::post('/{article}/helpful', [HelpArticleController::class, 'helpful'])->name('helpful');
+        Route::post('/{article}/not-helpful', [HelpArticleController::class, 'notHelpful'])->name('not-helpful');
+    });
+    
+    // Support Tickets (authenticated users only)
+    Route::middleware('auth')->prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
+        Route::get('/create', [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('reply');
+        Route::post('/{ticket}/close', [SupportTicketController::class, 'close'])->name('close');
+        Route::post('/{ticket}/reopen', [SupportTicketController::class, 'reopen'])->name('reopen');
+    });
 });
 
 // Community routes
