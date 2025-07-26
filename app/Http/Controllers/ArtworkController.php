@@ -346,7 +346,6 @@ class ArtworkController extends Controller
         $validationRules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
-            'content_language' => 'required|string|in:en,ka,de',
             'category' => 'nullable|string|in:digital-art,painting,photography,sculpture,music,video,mixed-media',
             'subcategory' => 'nullable|string|max:100',
             'license_type' => 'required|in:' . implode(',', array_keys(Artwork::getLicenseTypes())),

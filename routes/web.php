@@ -39,6 +39,9 @@ Route::post('artworks/{artwork}/publish', [ArtworkController::class, 'publish'])
 Route::post('artworks/{artwork}/unpublish', [ArtworkController::class, 'unpublish'])->name('artworks.unpublish');
 Route::get('upload-progress', [ArtworkController::class, 'uploadProgress'])->name('artworks.upload-progress');
 
+// Test route
+Route::get('/test-edit', [\App\Http\Controllers\TestController::class, 'testEdit'])->name('test.edit');
+
 // Comments routes (protected by auth middleware)
 Route::middleware('auth')->group(function () {
     Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
