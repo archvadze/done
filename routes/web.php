@@ -28,6 +28,13 @@ Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// OAuth routes
+Route::prefix('auth')->group(function () {
+    Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.redirect');
+    Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('auth.callback');
+    Route::delete('/{provider}/unlink', [SocialAuthController::class, 'unlinkProvider'])->name('auth.unlink')->middleware('auth');
+});
+
 // Registration routes
 Route::get('/register', [RegisterController::class, 'show'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.store');

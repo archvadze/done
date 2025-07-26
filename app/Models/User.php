@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'provider',
         'provider_id',
+        'avatar',
         'oauth_avatar',
         'oauth_email_verified',
         'avatar_path',
