@@ -15,6 +15,9 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NftController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommunityPostController;
+use App\Http\Controllers\MessageController;
 use App\Models\User;
 
 // Locale switching routes
@@ -196,4 +199,77 @@ Route::middleware('auth')->prefix('nft')->name('nft.')->group(function () {
 // NFT API routes (for AJAX calls)
 Route::middleware('auth')->prefix('api/nft')->name('api.nft.')->group(function () {
     Route::get('/ownership/{artwork}', [NftController::class, 'ownership'])->name('ownership');
+});
+
+// Community routes
+Route::prefix('communities')->name('communities.')->group(function () {
+    Route::get('/', [CommunityController::class, 'index'])->name('index');
+    Route::middleware('auth')->group(function () {
+        Route::get('/create', [CommunityController::class, 'create'])->name('create');
+        Route::post('/', [CommunityController::class, 'store'])->name('store');
+    });
+    
+    Route::get('/{community}', [CommunityController::class, 'show'])->name('show');
+    Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
+    
+    Route::middleware('auth')->group(function () {
+        Route::get('/{community}/edit', [CommunityController::class, 'edit'])->name('edit');
+        Route::patch('/{community}', [CommunityController::class, 'update'])->name('update');
+        Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy');
+        Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join');
+        Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave');
+        
+        // Community posts
+        Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create');
+        Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store');
+        Route::get('/{community}/posts/{post}', [CommunityPostController::class, 'show'])->name('posts.show');
+        Route::get('/{community}/posts/{post}/edit', [CommunityPostController::class, 'edit'])->name('posts.edit');
+        Route::patch('/{community}/posts/{post}', [CommunityPostController::class, 'update'])->name('posts.update');
+        Route::delete('/{community}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('posts.destroy');
+        Route::post('/{community}/posts/{post}/pin', [CommunityPostController::class, 'togglePin'])->name('posts.pin');
+        Route::post('/{community}/posts/{post}/lock', [CommunityPostController::class, 'toggleLock'])->name('posts.lock');
+        Route::post('/{community}/posts/{post}/like', [CommunityPostController::class, 'like'])->name('posts.like');
+    });
+});
+
+// Messaging routes
+Route::middleware('auth')->prefix('messages')->name('messages.')->group(function () {
+    Route::get('/', [MessageController::class, 'index'])->name('index');
+    Route::get('/create', [MessageController::class, 'create'])->name('create');
+    Route::post('/', [MessageController::class, 'store'])->name('store');
+    Route::get('/{conversation}', [MessageController::class, 'show'])->name('show');
+    Route::post('/{conversation}/send', [MessageController::class, 'sendMessage'])->name('send');
+    Route::patch('/message/{message}', [MessageController::class, 'editMessage'])->name('message.edit');
+    Route::delete('/message/{message}', [MessageController::class, 'deleteMessage'])->name('message.delete');
+    Route::post('/{conversation}/leave', [MessageController::class, 'leave'])->name('leave');
+    Route::get('/api/search-users', [MessageController::class, 'searchUsers'])->name('search-users');
+});
+
+// Community routes
+Route::prefix('communities')->name('communities.')->group(function () {
+    Route::get('/', [CommunityController::class, 'index'])->name('index');
+    Route::get('/create', [CommunityController::class, 'create'])->name('create')->middleware('auth');
+    Route::post('/', [CommunityController::class, 'store'])->name('store')->middleware('auth');
+    Route::get('/{community}', [CommunityController::class, 'show'])->name('show');
+    Route::get('/{community}/edit', [CommunityController::class, 'edit'])->name('edit')->middleware('auth');
+    Route::put('/{community}', [CommunityController::class, 'update'])->name('update')->middleware('auth');
+    Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy')->middleware('auth');
+    Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
+    
+    // Community membership actions
+    Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join')->middleware('auth');
+    Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave')->middleware('auth');
+    
+    // Community posts
+    Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create')->middleware('auth');
+    Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store')->middleware('auth');
+    Route::get('/{community}/posts/{post}', [CommunityPostController::class, 'show'])->name('posts.show');
+    Route::get('/{community}/posts/{post}/edit', [CommunityPostController::class, 'edit'])->name('posts.edit')->middleware('auth');
+    Route::put('/{community}/posts/{post}', [CommunityPostController::class, 'update'])->name('posts.update')->middleware('auth');
+    Route::delete('/{community}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
+    
+    // Post moderation actions
+    Route::post('/{community}/posts/{post}/pin', [CommunityPostController::class, 'togglePin'])->name('posts.pin')->middleware('auth');
+    Route::post('/{community}/posts/{post}/lock', [CommunityPostController::class, 'toggleLock'])->name('posts.lock')->middleware('auth');
+    Route::post('/{community}/posts/{post}/like', [CommunityPostController::class, 'like'])->name('posts.like')->middleware('auth');
 });

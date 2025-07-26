@@ -295,4 +295,118 @@ class User extends Authenticatable
         // Only moderators and admins can evaluate
         return $this->canEvaluate();
     }
+
+    /**
+     * Communities created by this user
+     */
+    public function createdCommunities()
+    {
+        return $this->hasMany(Community::class, 'creator_id');
+    }
+
+    /**
+     * Communities this user is a member of
+     */
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_members')
+            ->withPivot(['role', 'status', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Active communities this user is a member of
+     */
+    public function activeCommunities()
+    {
+        return $this->communities()->wherePivot('status', 'active');
+    }
+
+    /**
+     * Community posts by this user
+     */
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    /**
+     * Check if user is member of a specific community
+     */
+    public function isMemberOf(Community $community): bool
+    {
+        return $this->communities()
+            ->where('community_id', $community->id)
+            ->wherePivot('status', 'active')
+            ->exists();
+    }
+
+    /**
+     * Join a community
+     */
+    public function joinCommunity(Community $community, string $status = 'active'): bool
+    {
+        if ($this->isMemberOf($community)) {
+            return false;
+        }
+
+        // Check if community requires approval
+        if ($community->requires_approval && $status === 'active') {
+            $status = 'pending';
+        }
+
+        return $community->addMember($this, 'member', $status);
+    }
+
+    /**
+     * Leave a community
+     */
+    public function leaveCommunity(Community $community): bool
+    {
+        return $community->removeMember($this);
+    }
+
+    /**
+     * Conversations this user participates in
+     */
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->withPivot(['joined_at', 'left_at', 'last_read_at', 'is_muted'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Active conversations (not left)
+     */
+    public function activeConversations()
+    {
+        return $this->conversations()->wherePivotNull('left_at');
+    }
+
+    /**
+     * Messages sent by this user
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Get total unread messages count
+     */
+    public function getUnreadMessagesCount(): int
+    {
+        return $this->activeConversations->sum(function ($conversation) {
+            return $conversation->getUnreadCount($this);
+        });
+    }
+
+    /**
+     * Start a direct message with another user
+     */
+    public function startDirectMessage(User $otherUser): Conversation
+    {
+        return Conversation::createDirectMessage($this, $otherUser);
+    }
 }
