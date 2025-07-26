@@ -13,15 +13,15 @@ class TestController extends Controller
     {
         $artwork = Artwork::first();
         $user = Auth::user();
-        
+
         if (!$artwork) {
             return response()->json(['error' => 'No artwork found']);
         }
-        
+
         if (!$user) {
             return response()->json(['error' => 'User not authenticated']);
         }
-        
+
         return response()->json([
             'artwork_id' => $artwork->id,
             'artwork_title' => $artwork->getTitle(),
