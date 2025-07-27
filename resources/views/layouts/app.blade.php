@@ -5,54 +5,64 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Acumen Craft')</title>
+    
+    <!-- Favicons from Style Guide -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url('/') }}" class="text-xl font-bold text-gray-900">
-                            Acumen Craft
+                        <a href="{{ url('/') }}" class="flex items-center space-x-2">
+                            <img src="/logo.svg" alt="Acumen Craft Logo" class="h-8 w-auto">
+                            <span class="logo-text">
+                                Acumen Craft
+                            </span>
                         </a>
                     </div>
 
                     <!-- Navigation Links -->
                     <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                         <a href="{{ url('/') }}" 
-                           class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                           class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                             {{ __('Home') }}
                         </a>
                         
                         <a href="{{ route('artworks.index') }}" 
-                           class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                           class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                             {{ __('Artworks') }}
                         </a>
 
                         <a href="{{ route('communities.index') }}" 
-                           class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                           class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                             {{ __('Communities') }}
                         </a>
 
                         <a href="{{ route('support.index') }}" 
-                           class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                           class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                             {{ __('Support') }}
                         </a>
 
                         @auth
                             <a href="{{ route('nft.collection') }}" 
-                               class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                               class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                                 {{ __('My NFTs') }}
                             </a>
                         @endauth
 
                         @auth
                             <a href="{{ route('payments.show') }}" 
-                               class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                               class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-2 px-1 font-medium text-sm">
                                 {{ __('Payments') }}
                             </a>
                         @endauth
@@ -63,11 +73,11 @@
                 <div class="flex items-center space-x-4">
                     @guest
                         <a href="{{ route('login') }}" 
-                           class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                           class="btn-text px-3 py-2 rounded-md text-sm font-medium">
                             {{ __('Login') }}
                         </a>
                         <a href="{{ route('register') }}" 
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                           class="btn-primary px-3 py-2 rounded-md text-sm font-medium">
                             {{ __('Register') }}
                         </a>
                     @else
@@ -137,7 +147,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t mt-12">
+    <footer class="bg-white mt-12">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="text-center text-gray-500 text-sm">
                 &copy; {{ date('Y') }} Acumen Craft. {{ __('All rights reserved.') }}

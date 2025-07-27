@@ -1,11 +1,209 @@
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Custom Fonts from Style Guide */
+@font-face {
+    font-family: 'extrasquare';
+    src: url('/fonts/bpg_extrasquare_2009.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+@font-face {
+    font-family: 'extrasquareCaps';
+    src: url('/fonts/bpg_extrasquare_mtavruli_2009.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NovaSquare';
+    src: url('/fonts/NovaSquare-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* CSS Custom Properties for Brand Colors */
+:root {
+    --font-sans: 'extrasquare', 'NovaSquare', serif;
+    
+    /* Custom color palette from Style Guide */
+    --color-brand-dark: #090909;     /* შავი ფონი */
+    --color-brand-gold-dark: #c28840;  /* მუქი ოქრო */
+    --color-brand-gold-medium: #d4a743; /* სტაფილოსფერი ოქრო */
+    --color-brand-gold-light: #f0c75e;  /* ღია ოქრო */
+    --color-brand-white: #f9f9f9;      /* თეთრი */
+}
+
+/* Global Styles from Style Guide */
+body {
+    background-color: #090909 !important;
+    color: #f9f9f9 !important;
+    font-family: 'extrasquare', 'NovaSquare', serif !important;
+}
+
+/* Typography from Style Guide */
+h1, h2 {
+    color: #c28840 !important;
+    font-family: 'extrasquareCaps', 'NovaSquare', serif !important;
+}
+
+h1 {
+    font-size: 36px !important;
+}
+
+h2 {
+    font-size: 28px !important;
+}
+
+h3, h4 {
+    color: #d4a743 !important;
+    font-family: 'extrasquareCaps', 'NovaSquare', serif !important;
+}
+
+h3 {
+    font-size: 24px !important;
+}
+
+h4 {
+    font-size: 20px !important;
+}
+
+h5, h6 {
+    color: #f0c75e !important;
+    font-family: 'extrasquareCaps', 'NovaSquare', serif !important;
+}
+
+h5 {
+    font-size: 17px !important;
+}
+
+h6 {
+    font-size: 14px !important;
+}
+
+p {
+    font-size: 13px !important;
+    color: #f9f9f9 !important;
+    font-family: 'extrasquare', 'NovaSquare', serif !important;
+}
+
+/* Override Tailwind default colors */
+.bg-white {
+    background-color: #090909 !important;
+}
+
+.bg-gray-50 {
+    background-color: #090909 !important;
+}
+
+.text-gray-900, .text-gray-700, .text-gray-500 {
+    color: #f9f9f9 !important;
+}
+
+.text-blue-600, .bg-blue-600 {
+    background-color: #c28840 !important;
+    color: #090909 !important;
+}
+
+.text-blue-600 {
+    background-color: transparent !important;
+    color: #c28840 !important;
+}
+
+.bg-blue-700, .hover\:bg-blue-700:hover {
+    background-color: #d4a743 !important;
+}
+
+.text-green-600 {
+    color: #f0c75e !important;
+}
+
+/* Navigation Styles */
+nav {
+    background-color: #090909 !important;
+    box-shadow: 0 1px 0 rgba(194, 136, 64, 0.3) !important;
+}
+
+/* Button Styles from Style Guide */
+.btn-primary, 
+.bg-blue-600,
+button[type="submit"] {
+    background-color: #c28840 !important;
+    color: #090909 !important;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover,
+.bg-blue-600:hover,
+.hover\:bg-blue-700:hover,
+button[type="submit"]:hover {
+    background-color: #d4a743 !important;
+}
+
+.btn-secondary {
+    background-color: transparent !important;
+    color: #f0c75e !important;
+    box-shadow: 0 0 0 1px #f0c75e !important;
+}
+
+.btn-text {
+    background: none !important;
+    color: #f0c75e !important;
+    text-decoration: none;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+/* Form Elements */
+input, textarea, select {
+    background-color: #090909 !important;
+    color: #f9f9f9 !important;
+}
+
+/* Cards and Containers */
+.card,
+.bg-white,
+.shadow-lg,
+.shadow-sm {
+    background-color: #090909 !important;
+    box-shadow: 0 4px 20px rgba(194, 136, 64, 0.1) !important;
+}
+
+/* Modal Windows */
+.modal {
+    background-color: #090909 !important;
+    box-shadow: 0 4px 20px rgba(194, 136, 64, 0.3) !important;
+}
+
+/* Dropdown menus */
+.ring-black {
+    --tw-ring-color: rgba(194, 136, 64, 0.3) !important;
+}
+
+.hover\:bg-gray-100:hover {
+    background-color: rgba(194, 136, 64, 0.1) !important;
+}
+
+/* Links */
+a {
+    color: #f0c75e !important;
+}
+
+a:hover {
+    color: #d4a743 !important;
+}
+
+/* Footer */
+footer {
+    background-color: #090909 !important;
+}
+
+/* Logo styling */
+.logo-text {
+    color: #c28840 !important;
+    font-family: 'extrasquareCaps', 'NovaSquare', serif !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
 }
