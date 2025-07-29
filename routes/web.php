@@ -106,13 +106,15 @@ if (app()->environment('local')) {
     require __DIR__ . '/dev.php';
 }
 
-// Dashboard - redirect admins to admin panel, others to user dashboard
+// Dashboard - role-based routing to appropriate dashboard
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
-    // Redirect admins to admin panel
+    // Redirect to role-specific dashboards
     if ($user->role === 'admin') {
         return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'moderator') {
+        return redirect()->route('userrole.dashboard');
     }
 
     // For regular users, show simple dashboard
@@ -281,8 +283,8 @@ Route::prefix('support')->name('support.')->group(function () {
     });
 });
 
-// Moderation routes (for moderators and admins)
-Route::middleware(['auth', 'verified'])->prefix('moderation')->name('moderation.')->group(function () {
+// User Role Management routes (for moderators and admins)
+Route::middleware(['auth', 'moderator'])->prefix('userrole')->name('userrole.')->group(function () {
     Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('dashboard');
     Route::get('/reports', [ModerationController::class, 'reports'])->name('reports.index');
     Route::get('/reports/{report}', [ModerationController::class, 'showReport'])->name('reports.show');

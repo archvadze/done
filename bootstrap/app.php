@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\LocalizationMiddleware::class,
         ]);
+        
+        // Register middleware aliases
+        $middleware->alias([
+            'moderator' => \App\Http\Middleware\ModeratorMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
