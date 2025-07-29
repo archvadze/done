@@ -1,4 +1,6 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Custom Fonts from Style Guide */
 @font-face {
@@ -96,7 +98,126 @@ p {
     background-color: #090909 !important;
 }
 
-.text-gray-900, .text-gray-700, .text-gray-500 {
+/* Remove ALL gradients */
+.bg-gradient-to-br,
+.bg-gradient-to-r,
+.bg-gradient-to-l,
+.bg-gradient-to-t,
+.bg-gradient-to-b,
+.bg-gradient-to-tr,
+.bg-gradient-to-tl,
+.bg-gradient-to-bl,
+[class*="bg-gradient"] {
+    background: #090909 !important;
+}
+
+/* Remove ALL borders */
+.border,
+.border-b,
+.border-t,
+.border-l,
+.border-r,
+.border-x,
+.border-y,
+.border-2,
+.border-4,
+.border-8,
+[class*="border-"] {
+    border: none !important;
+}
+
+/* Remove ALL rounded corners EXCEPT buttons */
+.rounded,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-full,
+[class*="rounded-"]:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-text):not(.btn-like):not(button) {
+    border-radius: 0 !important;
+}
+
+/* Override ALL background colors to match style guide */
+.bg,
+.bg-gray-100,
+.bg-gray-200,
+.bg-gray-300,
+.bg-gray-400,
+.bg-gray-500,
+.bg-gray-600,
+.bg-gray-700,
+.bg-gray-800,
+.bg-gray-900,
+.bg-blue-50,
+.bg-blue-100,
+.bg-blue-200,
+.bg-blue-300,
+.bg-blue-400,
+.bg-blue-500,
+.bg-green-50,
+.bg-green-100,
+.bg-green-200,
+.bg-green-300,
+.bg-green-400,
+.bg-green-500,
+.bg-yellow-50,
+.bg-yellow-100,
+.bg-yellow-200,
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500,
+.bg-purple-50,
+.bg-purple-100,
+.bg-purple-200,
+.bg-purple-300,
+.bg-purple-400,
+.bg-purple-500,
+.bg-red-50,
+.bg-red-100,
+.bg-red-200,
+.bg-red-300,
+.bg-red-400,
+.bg-red-500,
+.bg-indigo-50,
+.bg-indigo-100,
+.bg-indigo-200,
+.bg-indigo-300,
+.bg-indigo-400,
+.bg-indigo-500,
+.bg-pink-50,
+.bg-pink-100,
+.bg-pink-200,
+.bg-pink-300,
+.bg-pink-400,
+.bg-pink-500,
+[class*="bg-"] {
+    background-color: #090909 !important;
+}
+
+.text-gray-900, .text-gray-700, .text-gray-500, .text-gray-600, .text-gray-400, .text-gray-300, .text-gray-200, .text-gray-100 {
+    color: #f9f9f9 !important;
+}
+
+/* Override ALL text colors */
+.text-black,
+.text-slate-900,
+.text-slate-800,
+.text-slate-700,
+.text-slate-600,
+.text-slate-500,
+.text-slate-400,
+.text-neutral-900,
+.text-neutral-800,
+.text-neutral-700,
+.text-neutral-600,
+.text-neutral-500,
+.text-zinc-900,
+.text-zinc-800,
+.text-zinc-700,
+.text-zinc-600,
+.text-zinc-500 {
     color: #f9f9f9 !important;
 }
 
@@ -127,33 +248,71 @@ nav {
 /* Button Styles from Style Guide */
 .btn-primary, 
 .bg-blue-600,
-button[type="submit"] {
+button[type="submit"],
+.btn {
     background-color: #c28840 !important;
     color: #090909 !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
     transition: background-color 0.3s ease;
+    border: none !important;
 }
 
 .btn-primary:hover,
 .bg-blue-600:hover,
 .hover\:bg-blue-700:hover,
-button[type="submit"]:hover {
+button[type="submit"]:hover,
+.btn:hover {
     background-color: #d4a743 !important;
 }
 
 .btn-secondary {
     background-color: transparent !important;
     color: #f0c75e !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
     box-shadow: 0 0 0 1px #f0c75e !important;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(240, 199, 94, 0.1) !important;
 }
 
 .btn-text {
     background: none !important;
     color: #f0c75e !important;
     text-decoration: none;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
 }
 
 .btn-text:hover {
     text-decoration: underline;
+    background-color: rgba(240, 199, 94, 0.1) !important;
+}
+
+/* Likes button styling - transparent background */
+.likes-btn,
+.like-button,
+.like-btn,
+button[class*="like"],
+[class*="like-btn"],
+.btn-like {
+    background-color: transparent !important;
+    color: #f0c75e !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+}
+
+.likes-btn:hover,
+.like-button:hover,
+.like-btn:hover,
+button[class*="like"]:hover,
+[class*="like-btn"]:hover,
+.btn-like:hover {
+    background-color: transparent !important;
+    color: #d4a743 !important;
 }
 
 /* Form Elements */
@@ -169,6 +328,40 @@ input, textarea, select {
 .shadow-sm {
     background-color: #090909 !important;
     box-shadow: 0 4px 20px rgba(194, 136, 64, 0.1) !important;
+}
+
+/* Background utility classes */
+.bg-background {
+    background-color: #090909 !important;
+}
+
+.bg-card {
+    background-color: #090909 !important;
+}
+
+.nav-background {
+    background-color: #090909 !important;
+}
+
+/* Text color utility classes */
+.text-primary {
+    color: #c28840 !important;
+}
+
+.text-primary-dark {
+    color: #d4a743 !important;
+}
+
+.text-secondary {
+    color: #f0c75e !important;
+}
+
+.hover\:text-primary:hover {
+    color: #c28840 !important;
+}
+
+.hover\:text-primary-dark:hover {
+    color: #d4a743 !important;
 }
 
 /* Modal Windows */

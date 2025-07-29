@@ -5,30 +5,57 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin Panel') - Acumen Craft</title>
+    
+    <!-- Favicons from Style Guide -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .admin-sidebar {
             min-height: calc(100vh - 4rem);
+            background-color: #090909;
         }
 
         .admin-nav-item {
-            @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors;
+            display: block;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #f0c75e;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .admin-nav-item:hover {
+            background-color: rgba(240, 199, 94, 0.1);
         }
 
         .admin-nav-item.active {
-            @apply bg-blue-100 text-blue-700;
+            background-color: #c28840;
+            color: #090909;
         }
 
         .admin-stats-card {
-            @apply bg-white p-6 rounded-lg shadow-sm border;
+            background-color: #090909;
+            padding: 24px;
+            color: #f9f9f9;
         }
 
         .admin-table {
-            @apply min-w-full divide-y divide-gray-200;
+            min-width: 100%;
+            background-color: #090909;
         }
 
         .admin-table th {
-            @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+            padding: 12px 24px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 500;
+            color: #f9f9f9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .admin-table td {

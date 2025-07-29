@@ -26,21 +26,21 @@
             </style>
         @endif
     </head>
-    <body class="bg-gray-50">
+    <body class="">
         <header class="w-full text-sm mb-6">
             @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4 p-6">
+                <nav class="nav-background flex items-center justify-end gap-4 p-6">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn-primary px-5 py-2 rounded-sm text-sm">
+                        <a href="{{ url('/dashboard') }}" class="btn-primary px-5 py-2 text-sm">
                             Dashboard
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="btn-text px-5 py-2 rounded-sm text-sm">
+                        <a href="{{ route('login') }}" class="btn-text px-5 py-2 text-sm">
                             Log in
                         </a>
 
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="btn-primary px-5 py-2 rounded-sm text-sm">
+                            <a href="{{ route('register') }}" class="btn-primary px-5 py-2 text-sm">
                                 Register
                             </a>
                         @endif

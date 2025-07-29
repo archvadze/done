@@ -9,13 +9,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="min-h-screen">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="nav-background">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
+                    <a href="/" class="text-xl font-bold text-primary">ArtGallery</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="/artworks" class="text-gray-600 hover:text-gray-900">Gallery</a>

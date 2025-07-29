@@ -130,12 +130,6 @@ Route::get('/dashboard', function () {
     </div>";
 })->middleware('auth')->name('dashboard');
 
-// Logout
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/login');
-})->name('logout');
-
 // OAuth Social Authentication Routes
 Route::prefix('auth')->group(function () {
     Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])
@@ -212,17 +206,17 @@ Route::prefix('communities')->name('communities.')->group(function () {
         Route::get('/create', [CommunityController::class, 'create'])->name('create');
         Route::post('/', [CommunityController::class, 'store'])->name('store');
     });
-    
+
     Route::get('/{community}', [CommunityController::class, 'show'])->name('show');
     Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
-    
+
     Route::middleware('auth')->group(function () {
         Route::get('/{community}/edit', [CommunityController::class, 'edit'])->name('edit');
         Route::patch('/{community}', [CommunityController::class, 'update'])->name('update');
         Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy');
         Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join');
         Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave');
-        
+
         // Community posts
         Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create');
         Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store');
@@ -256,7 +250,7 @@ Route::prefix('support')->name('support.')->group(function () {
     Route::get('/contact', [SupportController::class, 'contact'])->name('contact');
     Route::post('/contact', [SupportController::class, 'submitContact'])->name('contact.submit');
     Route::get('/search', [SupportController::class, 'search'])->name('search');
-    
+
     // FAQ routes
     Route::prefix('faq')->name('faq.')->group(function () {
         Route::get('/', [FaqController::class, 'index'])->name('index');
@@ -265,7 +259,7 @@ Route::prefix('support')->name('support.')->group(function () {
         Route::post('/{faq}/helpful', [FaqController::class, 'helpful'])->name('helpful');
         Route::post('/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('not-helpful');
     });
-    
+
     // Help Articles routes
     Route::prefix('help')->name('help.')->group(function () {
         Route::get('/', [HelpArticleController::class, 'index'])->name('index');
@@ -273,7 +267,7 @@ Route::prefix('support')->name('support.')->group(function () {
         Route::post('/{article}/helpful', [HelpArticleController::class, 'helpful'])->name('helpful');
         Route::post('/{article}/not-helpful', [HelpArticleController::class, 'notHelpful'])->name('not-helpful');
     });
-    
+
     // Support Tickets (authenticated users only)
     Route::middleware('auth')->prefix('tickets')->name('tickets.')->group(function () {
         Route::get('/', [SupportTicketController::class, 'index'])->name('index');
@@ -296,11 +290,11 @@ Route::prefix('communities')->name('communities.')->group(function () {
     Route::put('/{community}', [CommunityController::class, 'update'])->name('update')->middleware('auth');
     Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy')->middleware('auth');
     Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
-    
+
     // Community membership actions
     Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join')->middleware('auth');
     Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave')->middleware('auth');
-    
+
     // Community posts
     Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create')->middleware('auth');
     Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store')->middleware('auth');
@@ -308,7 +302,7 @@ Route::prefix('communities')->name('communities.')->group(function () {
     Route::get('/{community}/posts/{post}/edit', [CommunityPostController::class, 'edit'])->name('posts.edit')->middleware('auth');
     Route::put('/{community}/posts/{post}', [CommunityPostController::class, 'update'])->name('posts.update')->middleware('auth');
     Route::delete('/{community}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
-    
+
     // Post moderation actions
     Route::post('/{community}/posts/{post}/pin', [CommunityPostController::class, 'togglePin'])->name('posts.pin')->middleware('auth');
     Route::post('/{community}/posts/{post}/lock', [CommunityPostController::class, 'toggleLock'])->name('posts.lock')->middleware('auth');
