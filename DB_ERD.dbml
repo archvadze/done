@@ -1,0 +1,763 @@
+// ArtCraft Platform - Database Schema
+// Generated: July 30, 2025
+// Version: 1.0
+// Description: Complete database schema for ArtCraft platform with 36 tables
+
+Project ArtCraft {
+  database_type: 'MariaDB'
+  Note: '''
+  ArtCraft Platform Database Schema
+  - 36 interconnected tables
+  - Multilingual support (5 languages)
+  - NFT marketplace integration
+  - Community features
+  - Content moderation system
+  - Financial transactions
+  '''
+}
+
+// Core User Management
+Table users {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  email_verified_at timestamp
+  remember_token varchar(100)
+  lang varchar(2) [default: 'en']
+  role enum('admin','moderator','artist','user') [default: 'user']
+  status enum('active','suspended','banned','deleted') [default: 'active']
+  bio text
+  avatar_path varchar(255)
+  creative_field varchar(255)
+  location varchar(255)
+  website varchar(500)
+  birth_date date
+  gender enum('male','female','other','prefer_not_to_say')
+  phone varchar(20)
+  social_links json
+  preferences json
+  notification_settings json
+  privacy_settings json
+  can_evaluate boolean [default: false]
+  balance decimal(10,2) [default: 0.00]
+  total_earnings decimal(10,2) [default: 0.00]
+  crypto_wallet_address varchar(255)
+  wallet_type enum('metamask','trust_wallet','coinbase','other')
+  two_factor_secret varchar(255)
+  two_factor_recovery_codes text
+  two_factor_confirmed_at timestamp
+  last_login_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Central user management with role-based access control'
+}
+
+Table linked_accounts {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  provider varchar(255) [not null]
+  provider_id varchar(255) [not null]
+  provider_email varchar(255)
+  provider_name varchar(255)
+  avatar_url varchar(500)
+  provider_data json
+  is_verified boolean [default: false]
+  linked_at timestamp [default: `now()`]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (user_id, provider) [unique]
+    provider_id
+  }
+  
+  Note: 'OAuth and social media account linking'
+}
+
+// Language Support
+Table languages {
+  id bigint [pk, increment]
+  code varchar(2) [unique, not null]
+  name varchar(100) [not null]
+  native_name varchar(100) [not null]
+  flag_emoji varchar(10)
+  is_active boolean [default: true]
+  is_default boolean [default: false]
+  sort_order int [default: 0]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Multilingual platform support'
+}
+
+// Content Management
+Table artworks {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  title json [not null]
+  description json
+  media_type enum('image','video','audio','3d_model','document','other') [not null]
+  file_path varchar(500) [not null]
+  file_url varchar(500)
+  thumbnail_path varchar(500)
+  compressed_path varchar(500)
+  original_filename varchar(255)
+  file_hash varchar(64) [unique]
+  file_size bigint
+  mime_type varchar(100)
+  dimensions json
+  duration int
+  license_type enum('all_rights_reserved','creative_commons_by','creative_commons_by_sa','creative_commons_by_nc','creative_commons_by_nd','creative_commons_by_nc_sa','creative_commons_by_nc_nd','public_domain') [default: 'all_rights_reserved']
+  category varchar(100) [not null]
+  subcategory varchar(100)
+  tags json
+  is_ai_generated boolean [default: false]
+  ai_model_info json
+  metadata json
+  visibility enum('public','private','unlisted') [default: 'public']
+  status enum('draft','pending','published','rejected','archived') [default: 'draft']
+  published_at timestamp
+  featured_at timestamp
+  view_count int [default: 0]
+  like_count int [default: 0]
+  comment_count int [default: 0]
+  evaluation_count int [default: 0]
+  acq_score decimal(3,2)
+  is_nft boolean [default: false]
+  nft_contract_address varchar(255)
+  nft_token_id bigint
+  blockchain_network varchar(50)
+  price decimal(10,2)
+  is_for_sale boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    user_id
+    (status, published_at)
+    (category, status)
+    (is_nft, blockchain_network)
+    file_hash
+  }
+  
+  Note: 'Core artwork storage with NFT marketplace support'
+}
+
+Table artwork_categories {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  slug varchar(100) [unique, not null]
+  description text
+  parent_id bigint [ref: > artwork_categories.id]
+  icon varchar(100)
+  color varchar(7)
+  is_active boolean [default: true]
+  sort_order int [default: 0]
+  artwork_count int [default: 0]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Hierarchical artwork categorization'
+}
+
+Table artwork_likes {
+  id bigint [pk, increment]
+  artwork_id bigint [ref: > artworks.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (artwork_id, user_id) [unique]
+    user_id
+  }
+  
+  Note: 'User artwork appreciation system'
+}
+
+Table comments {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  artwork_id bigint [ref: > artworks.id]
+  parent_id bigint [ref: > comments.id]
+  content text [not null]
+  content_translations json
+  is_edited boolean [default: false]
+  edited_at timestamp
+  status enum('active','hidden','deleted') [default: 'active']
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (artwork_id, status)
+    (user_id, status)
+    parent_id
+  }
+  
+  Note: 'Hierarchical commenting system with multilingual support'
+}
+
+// Evaluation System
+Table evaluations {
+  id bigint [pk, increment]
+  artwork_id bigint [ref: > artworks.id, not null]
+  evaluator_id bigint [ref: > users.id, not null]
+  score_technique decimal(3,2) [not null]
+  score_composition decimal(3,2) [not null]
+  score_originality decimal(3,2) [not null]
+  score_impact decimal(3,2) [not null]
+  overall_score decimal(3,2) [not null]
+  feedback_text text
+  feedback_translations json
+  source enum('human','ai') [default: 'human']
+  ai_model_version varchar(50)
+  status enum('draft','submitted','approved','rejected') [default: 'submitted']
+  reviewed_by bigint [ref: > users.id]
+  reviewed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (artwork_id, evaluator_id) [unique]
+    (artwork_id, status)
+    evaluator_id
+  }
+  
+  Note: 'ACQ (Artistic Cultural Quality) evaluation system'
+}
+
+// Community Features
+Table communities {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  slug varchar(255) [unique, not null]
+  description text
+  description_translations json
+  creator_id bigint [ref: > users.id, not null]
+  cover_image varchar(500)
+  avatar_image varchar(500)
+  privacy enum('public','private','invite_only') [default: 'public']
+  requires_approval boolean [default: false]
+  rules text
+  rules_translations json
+  tags json
+  category varchar(100)
+  status enum('active','suspended','archived') [default: 'active']
+  member_count int [default: 0]
+  post_count int [default: 0]
+  settings json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    creator_id
+    (status, privacy)
+    category
+  }
+  
+  Note: 'Artist and art enthusiast communities'
+}
+
+Table community_members {
+  id bigint [pk, increment]
+  community_id bigint [ref: > communities.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  role enum('admin','moderator','member') [default: 'member']
+  status enum('active','banned','left') [default: 'active']
+  joined_at timestamp [default: `now()`]
+  left_at timestamp
+  banned_at timestamp
+  banned_reason text
+  permissions json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (community_id, user_id) [unique]
+    (community_id, role)
+    user_id
+  }
+  
+  Note: 'Community membership management'
+}
+
+Table community_posts {
+  id bigint [pk, increment]
+  community_id bigint [ref: > communities.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  title varchar(500) [not null]
+  content text [not null]
+  content_translations json
+  type enum('discussion','announcement','question','showcase','event') [default: 'discussion']
+  is_pinned boolean [default: false]
+  is_locked boolean [default: false]
+  tags json
+  attachments json
+  like_count int [default: 0]
+  comment_count int [default: 0]
+  view_count int [default: 0]
+  status enum('active','hidden','deleted') [default: 'active']
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (community_id, status)
+    (community_id, is_pinned)
+    user_id
+  }
+  
+  Note: 'Community discussion posts and announcements'
+}
+
+// Social Features
+Table follows {
+  id bigint [pk, increment]
+  follower_id bigint [ref: > users.id, not null]
+  following_id bigint [ref: > users.id, not null]
+  status enum('active','blocked') [default: 'active']
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (follower_id, following_id) [unique]
+    following_id
+  }
+  
+  Note: 'User following/follower relationships'
+}
+
+// Messaging System
+Table conversations {
+  id bigint [pk, increment]
+  title varchar(255)
+  type enum('direct','group') [default: 'direct']
+  created_by bigint [ref: > users.id, not null]
+  last_message_at timestamp
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    created_by
+    last_message_at
+  }
+  
+  Note: 'User conversation management'
+}
+
+Table conversation_participants {
+  id bigint [pk, increment]
+  conversation_id bigint [ref: > conversations.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  role enum('admin','member') [default: 'member']
+  status enum('active','left','removed') [default: 'active']
+  joined_at timestamp [default: `now()`]
+  left_at timestamp
+  last_read_at timestamp
+  is_muted boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (conversation_id, user_id) [unique]
+    user_id
+  }
+  
+  Note: 'Conversation membership tracking'
+}
+
+Table messages {
+  id bigint [pk, increment]
+  conversation_id bigint [ref: > conversations.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  content text [not null]
+  type enum('text','image','file','system') [default: 'text']
+  attachments json
+  edited_at timestamp
+  is_deleted boolean [default: false]
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (conversation_id, created_at)
+    (conversation_id, type)
+    user_id
+  }
+  
+  Note: 'Message storage with multimedia support'
+}
+
+// Support System
+Table faq_categories {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  name_translations json
+  description text
+  description_translations json
+  icon varchar(100)
+  sort_order int [default: 0]
+  is_active boolean [default: true]
+  faq_count int [default: 0]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'FAQ organization categories'
+}
+
+Table faqs {
+  id bigint [pk, increment]
+  category_id bigint [ref: > faq_categories.id]
+  question varchar(500) [not null]
+  question_translations json
+  answer text [not null]
+  answer_translations json
+  tags json
+  sort_order int [default: 0]
+  is_active boolean [default: true]
+  view_count int [default: 0]
+  helpful_count int [default: 0]
+  not_helpful_count int [default: 0]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    category_id
+    is_active
+  }
+  
+  Note: 'Frequently asked questions with multilingual support'
+}
+
+Table support_tickets {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  ticket_number varchar(50) [unique, not null]
+  subject varchar(500) [not null]
+  description text [not null]
+  priority enum('low','normal','high','urgent') [default: 'normal']
+  status enum('open','in_progress','waiting_for_user','resolved','closed') [default: 'open']
+  category varchar(100)
+  tags json
+  assigned_to bigint [ref: > users.id]
+  assigned_at timestamp
+  resolved_at timestamp
+  closed_at timestamp
+  satisfaction_rating int
+  satisfaction_feedback text
+  internal_notes text
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (status, priority)
+    assigned_to
+    user_id
+  }
+  
+  Note: 'Customer support ticket management'
+}
+
+Table support_ticket_replies {
+  id bigint [pk, increment]
+  ticket_id bigint [ref: > support_tickets.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  message text [not null]
+  is_internal boolean [default: false]
+  attachments json
+  is_system_message boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    ticket_id
+    user_id
+  }
+  
+  Note: 'Support ticket conversation threads'
+}
+
+Table help_articles {
+  id bigint [pk, increment]
+  title varchar(500) [not null]
+  title_translations json
+  slug varchar(500) [unique, not null]
+  excerpt text
+  excerpt_translations json
+  content text [not null]
+  content_translations json
+  author_id bigint [ref: > users.id, not null]
+  category varchar(100)
+  tags json
+  status enum('draft','published','archived') [default: 'draft']
+  featured boolean [default: false]
+  view_count int [default: 0]
+  helpful_count int [default: 0]
+  not_helpful_count int [default: 0]
+  last_updated_by bigint [ref: > users.id]
+  published_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (status, published_at)
+    author_id
+    category
+  }
+  
+  Note: 'Self-service help documentation'
+}
+
+// Moderation System
+Table moderation_reports {
+  id bigint [pk, increment]
+  reporter_id bigint [ref: > users.id, not null]
+  reported_user_id bigint [ref: > users.id]
+  reportable_type varchar(255) [not null]
+  reportable_id bigint [not null]
+  reason enum('spam','harassment','copyright','inappropriate_content','fake_profile','other') [not null]
+  description text [not null]
+  status enum('pending','under_review','resolved','dismissed') [default: 'pending']
+  priority enum('low','normal','high','urgent') [default: 'normal']
+  assigned_to bigint [ref: > users.id]
+  evidence json
+  reviewed_at timestamp
+  resolved_at timestamp
+  resolution_notes json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (reportable_type, reportable_id)
+    (status, priority, created_at)
+    (assigned_to, status)
+    (reporter_id, created_at)
+  }
+  
+  Note: 'Content and user reporting system'
+}
+
+Table moderation_actions {
+  id bigint [pk, increment]
+  moderator_id bigint [ref: > users.id, not null]
+  report_id bigint [ref: > moderation_reports.id]
+  target_user_id bigint [ref: > users.id]
+  actionable_type varchar(255)
+  actionable_id bigint
+  action_type enum('warning','content_removal','temporary_ban','permanent_ban','copyright_strike','account_suspension','other') [not null]
+  reason text [not null]
+  details json
+  expires_at timestamp
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (actionable_type, actionable_id)
+    (target_user_id, action_type)
+    (moderator_id, created_at)
+    (is_active, expires_at)
+  }
+  
+  Note: 'Moderation actions and enforcement'
+}
+
+Table security_logs {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id]
+  event_type varchar(255) [not null]
+  event_category varchar(255) [default: 'security']
+  description text [not null]
+  metadata json
+  severity enum('info','warning','error','critical') [default: 'info']
+  ip_address varchar(255)
+  user_agent varchar(255)
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    user_id
+    event_type
+    event_category
+    severity
+    ip_address
+    created_at
+  }
+  
+  Note: 'Security event logging and audit trail'
+}
+
+// Financial System
+Table payments {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  amount decimal(10,2) [not null]
+  currency varchar(3) [default: 'USD']
+  provider enum('stripe','paypal') [default: 'stripe']
+  status enum('pending','completed','failed','refunded','cancelled') [default: 'pending']
+  payment_id varchar(255)
+  session_id varchar(255)
+  metadata json
+  refunded_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    user_id
+    (provider, status)
+  }
+  
+  Note: 'Payment processing and transaction history'
+}
+
+Table withdrawals {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  amount decimal(10,2) [not null]
+  currency varchar(3) [default: 'USD']
+  provider enum('stripe','paypal','bank_transfer') [default: 'stripe']
+  status enum('pending','processing','completed','failed','cancelled') [default: 'pending']
+  external_id varchar(255)
+  payout_details json
+  processed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    user_id
+    (provider, status)
+  }
+  
+  Note: 'User withdrawal requests and processing'
+}
+
+// NFT and Crypto Integration
+Table nft_ownership {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  artwork_id bigint [ref: > artworks.id, not null]
+  token_id bigint [not null]
+  contract_address varchar(255) [not null]
+  blockchain_network varchar(50) [not null]
+  purchase_price decimal(10,2)
+  purchase_currency varchar(10)
+  acquired_at timestamp [default: `now()`]
+  is_current_owner boolean [default: true]
+  transferred_at timestamp
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    (user_id, is_current_owner)
+    (artwork_id, is_current_owner)
+    (contract_address, token_id) [unique]
+    blockchain_network
+  }
+  
+  Note: 'NFT ownership tracking and history'
+}
+
+Table crypto_payments {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  artwork_id bigint [ref: > artworks.id]
+  amount decimal(18,8) [not null]
+  currency varchar(10) [not null]
+  transaction_hash varchar(255) [unique, not null]
+  from_address varchar(255) [not null]
+  to_address varchar(255) [not null]
+  block_number bigint
+  block_hash varchar(255)
+  gas_used bigint
+  gas_price decimal(18,8)
+  status enum('pending','confirmed','failed','cancelled') [default: 'pending']
+  network varchar(50) [not null]
+  confirmations int [default: 0]
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+  
+  indexes {
+    user_id
+    artwork_id
+    transaction_hash [unique]
+    (network, status)
+  }
+  
+  Note: 'Cryptocurrency transaction tracking'
+}
+
+// Cache and Jobs (Laravel Framework)
+Table cache {
+  key varchar(255) [pk]
+  value mediumtext [not null]
+  expiration int [not null]
+  
+  Note: 'Laravel cache storage'
+}
+
+Table cache_locks {
+  key varchar(255) [pk]
+  owner varchar(255) [not null]
+  expiration int [not null]
+  
+  Note: 'Laravel cache lock management'
+}
+
+Table jobs {
+  id bigint [pk, increment]
+  queue varchar(255) [not null]
+  payload longtext [not null]
+  attempts tinyint [not null]
+  reserved_at int
+  available_at int [not null]
+  created_at int [not null]
+  
+  indexes {
+    (queue, reserved_at)
+  }
+  
+  Note: 'Laravel job queue management'
+}
+
+Table job_batches {
+  id varchar(255) [pk]
+  name varchar(255) [not null]
+  total_jobs int [not null]
+  pending_jobs int [not null]
+  failed_jobs int [not null]
+  failed_job_ids longtext [not null]
+  options mediumtext
+  cancelled_at int
+  created_at int [not null]
+  finished_at int
+  
+  Note: 'Laravel batch job processing'
+}
+
+Table failed_jobs {
+  id bigint [pk, increment]
+  uuid varchar(255) [unique, not null]
+  connection text [not null]
+  queue text [not null]
+  payload longtext [not null]
+  exception longtext [not null]
+  failed_at timestamp [default: `now()`]
+  
+  Note: 'Laravel failed job tracking'
+}
+
+// Database Relationships Summary
+Note: '''
+Key Relationships:
+- Users can create multiple artworks, communities, posts
+- Artworks can have multiple evaluations, comments, likes
+- Communities have members with different roles
+- NFT ownership links users to artworks via blockchain
+- Moderation system tracks reports and actions
+- Financial system handles payments and withdrawals
+- Multilingual support across all content entities
+'''

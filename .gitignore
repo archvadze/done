@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Sensitive database documentation (contains passwords and critical info)
+DB_Success.md
