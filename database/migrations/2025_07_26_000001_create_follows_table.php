@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Ensure users can't follow themselves and prevent duplicate follows
             $table->unique(['follower_id', 'following_id']);
-            // Note: Self-follow prevention handled in application logic
+            $table->check('follower_id != following_id');
 
             // Indexes for performance
             $table->index(['follower_id', 'created_at']);

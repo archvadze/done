@@ -4,31 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $user->name }}'s Profile - Acumen Craft</title>
-    
-    <!-- Favicons from Style Guide -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="shortcut icon" href="/favicon.ico">
-    
+    <title>{{ $user->name }}'s Profile</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-background min-h-screen">
+<body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
-    @include('partials.navigation')
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/artworks" class="text-gray-600 hover:text-gray-900">Artworks</a>
+                    <a href="/leaderboard" class="text-gray-600 hover:text-gray-900">Leaderboard</a>
+                    <div class="relative inline-block text-left">
+                        <button type="button"
+                            class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            id="user-menu-button">
+                            @if ($user->avatar_url)
+                                <img class="h-8 w-8 rounded-full" src="{{ $user->avatar_url }}"
+                                    alt="{{ $user->name }}">
+                            @else
+                                <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <span
+                                        class="text-sm font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
+                                </div>
+                            @endif
+                            <span class="ml-2 text-gray-700">{{ $user->name }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Profile Header -->
-        <div class="bg-card overflow-hidden mb-6">
+        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
             <div class="px-4 py-5 sm:p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         @if ($user->avatar_url)
-                            <img class="h-20 w-20" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
+                            <img class="h-20 w-20 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
                         @else
-                            <div class="h-20 w-20 bg-gray-300 flex items-center justify-center">
+                            <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
                                 <span class="text-2xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
                             </div>
                         @endif
@@ -68,7 +89,7 @@
                             </div>
                             <div class="text-right">
                                 <a href="/profile/edit"
-                                    class="btn-primary px-4 py-2 text-sm font-medium">
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                                     Edit Profile
                                 </a>
                             </div>
@@ -80,11 +101,11 @@
 
         <!-- Statistics -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-background overflow-hidden">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-100 flex items-center justify-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -102,11 +123,11 @@
                 </div>
             </div>
 
-            <div class="bg-background overflow-hidden">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-green-100 flex items-center justify-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -124,11 +145,11 @@
                 </div>
             </div>
 
-            <div class="bg-background overflow-hidden">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-purple-100 flex items-center justify-center">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -146,11 +167,11 @@
                 </div>
             </div>
 
-            <div class="bg-background overflow-hidden">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-yellow-100 flex items-center justify-center">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                                 <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -172,7 +193,7 @@
         </div>
 
         <!-- Recent Artworks -->
-        <div class="bg-background">`
+        <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Artworks</h3>

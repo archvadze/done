@@ -158,11 +158,7 @@ class Community extends Model
      */
     public function canModerate(User $user): bool
     {
-        return $this->isCreator($user) 
-            || $this->isAdmin($user) 
-            || $this->isModerator($user)
-            || $user->isModerator() 
-            || $user->isAdmin();
+        return $this->isCreator($user) || $this->isAdmin($user) || $this->isModerator($user);
     }
 
     /**

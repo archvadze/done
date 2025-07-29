@@ -42,7 +42,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::prefix('auth')->group(function () {
     Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.redirect');
     Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('auth.callback');
-    Route::delete('/{provider}/unlink', [SocialAuthController::class, 'unlinkProvider'])->name('auth.unlink')->middleware('auth');
 });
 
 // Registration routes
@@ -106,15 +105,13 @@ if (app()->environment('local')) {
     require __DIR__ . '/dev.php';
 }
 
-// Dashboard - role-based routing to appropriate dashboard
+// Dashboard - redirect admins to admin panel, others to user dashboard
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
-    // Redirect to role-specific dashboards
+    // Redirect admins to admin panel
     if ($user->role === 'admin') {
         return redirect()->route('admin.dashboard');
-    } elseif ($user->role === 'moderator') {
-        return redirect()->route('userrole.dashboard');
     }
 
     // For regular users, show simple dashboard
@@ -132,6 +129,12 @@ Route::get('/dashboard', function () {
         </div>
     </div>";
 })->middleware('auth')->name('dashboard');
+
+// Logout
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/login');
+})->name('logout');
 
 // OAuth Social Authentication Routes
 Route::prefix('auth')->group(function () {
@@ -283,8 +286,8 @@ Route::prefix('support')->name('support.')->group(function () {
     });
 });
 
-// User Role Management routes (for moderators and admins)
-Route::middleware(['auth', 'moderator'])->prefix('userrole')->name('userrole.')->group(function () {
+// Moderation routes (for moderators and admins)
+Route::middleware(['auth', 'verified'])->prefix('moderation')->name('moderation.')->group(function () {
     Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('dashboard');
     Route::get('/reports', [ModerationController::class, 'reports'])->name('reports.index');
     Route::get('/reports/{report}', [ModerationController::class, 'showReport'])->name('reports.show');
@@ -294,4 +297,5 @@ Route::middleware(['auth', 'moderator'])->prefix('userrole')->name('userrole.')-
     Route::post('/users/{user}/actions', [ModerationController::class, 'takeAction'])->name('users.action');
     Route::get('/actions', [ModerationController::class, 'actions'])->name('actions.index');
     Route::get('/logs', [ModerationController::class, 'logs'])->name('logs.index');
+    Route::get('/security/logs', [ModerationController::class, 'securityLogs'])->name('security.logs');
 });

@@ -65,18 +65,18 @@
     </style>
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">
         <!-- Navigation -->
-        <nav class="nav-background">
+        <nav class="bg-white shadow-sm border-b">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <div class="flex items-center space-x-4">
-                        <a href="{{ url('/') }}" class="text-xl font-bold text-primary">
+                        <a href="{{ url('/') }}" class="text-xl font-bold text-gray-900">
                             🎨 Acumen Craft
                         </a>
                         <nav class="hidden md:flex space-x-4">
-                            <a href="{{ route('artworks.index') }}" class="text-primary hover:text-primary-dark">← Back to
+                            <a href="{{ route('artworks.index') }}" class="text-blue-600 hover:text-blue-700">← Back to
                                 Gallery</a>
                         </nav>
                     </div>
@@ -85,14 +85,14 @@
                         @auth
                             @if (auth()->id() === $artwork->user_id)
                                 <a href="{{ route('artworks.edit', $artwork) }}"
-                                    class="text-secondary hover:text-primary">Edit</a>
+                                    class="text-gray-600 hover:text-gray-900">Edit</a>
                             @endif
                             <a href="{{ route('artworks.create') }}"
-                                class="btn-primary px-4 py-2">
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
                                 Upload
                             </a>
                         @else
-                            <a href="{{ route('login') }}" class="text-secondary hover:text-primary">Login</a>
+                            <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900">Login</a>
                         @endauth
                     </div>
                 </div>
@@ -204,33 +204,22 @@
                     </div>
 
                     <!-- Actions Bar -->
-                    <div class="flex items-center justify-between mt-6 bg-background px-6 py-4">
+                    <div class="flex items-center justify-between mt-6 bg-white rounded-lg shadow-sm border px-6 py-4">
                         <div class="flex items-center space-x-6">
                             <!-- Like Button -->
                             @auth
-                                @if(auth()->user()->id !== $artwork->user_id)
-                                    <!-- Show like button for other users -->
-                                    <form method="POST" action="{{ route('artworks.like', $artwork) }}" class="inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="likes-btn flex items-center space-x-2 transition-colors">
-                                            <span
-                                                class="text-xl">{{ $artwork->isLikedBy(auth()->user()) ? '❤️' : '🤍' }}</span>
-                                            <span class="font-medium">{{ $artwork->likes_count }}
-                                                {{ $artwork->likes_count == 1 ? 'Like' : 'Likes' }}</span>
-                                        </button>
-                                    </form>
-                                @else
-                                    <!-- Show non-interactive likes count for artwork owner -->
-                                    <div class="flex items-center space-x-2 text-gray-500">
-                                        <span class="text-xl">❤️</span>
+                                <form method="POST" action="{{ route('artworks.like', $artwork) }}" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                        class="flex items-center space-x-2 {{ $artwork->isLikedBy(auth()->user()) ? 'text-red-500' : 'text-gray-600 hover:text-red-500' }} transition-colors">
+                                        <span
+                                            class="text-xl">{{ $artwork->isLikedBy(auth()->user()) ? '❤️' : '🤍' }}</span>
                                         <span class="font-medium">{{ $artwork->likes_count }}
                                             {{ $artwork->likes_count == 1 ? 'Like' : 'Likes' }}</span>
-                                        <span class="text-xs opacity-75">(Your artwork)</span>
-                                    </div>
-                                @endif
+                                    </button>
+                                </form>
                             @else
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2 text-gray-600">
                                     <span class="text-xl">🤍</span>
                                     <span class="font-medium">{{ $artwork->likes_count }}
                                         {{ $artwork->likes_count == 1 ? 'Like' : 'Likes' }}</span>

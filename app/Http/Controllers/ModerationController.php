@@ -18,7 +18,8 @@ class ModerationController extends Controller
     {
         $this->middleware(['auth', 'verified']);
         $this->middleware(function ($request, $next) {
-            if (!Auth::user()->hasRole(['admin', 'moderator'])) {
+            $user = Auth::user();
+            if (!($user->isAdmin() || $user->isModerator())) {
                 abort(403, 'Access denied. Moderator privileges required.');
             }
             return $next($request);
