@@ -20,10 +20,11 @@ class ArtworkApiTest extends TestCase
     {
         parent::setUp();
         
-        // Create a test user
+        // Create a test user with artist role
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
-            'name' => 'Test User'
+            'name' => 'Test User',
+            'role' => 'artist'
         ]);
         
         Storage::fake('public');

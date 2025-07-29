@@ -19,7 +19,8 @@ return new class extends Migration
 
             // Ensure users can't follow themselves and prevent duplicate follows
             $table->unique(['follower_id', 'following_id']);
-            $table->check('follower_id != following_id');
+            // Note: Check constraint removed for Laravel 11 compatibility
+            // Business logic enforced in model/controller level
 
             // Indexes for performance
             $table->index(['follower_id', 'created_at']);

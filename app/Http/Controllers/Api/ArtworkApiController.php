@@ -186,13 +186,14 @@ class ArtworkApiController extends Controller
                 'visibility' => $cachedArtwork->visibility,
                 'status' => $cachedArtwork->status,
                 'acq_score' => $acqScore,
-                'likes_count' => $cachedArtwork->likes_count,
+                'view_count' => $cachedArtwork->view_count,
+                'like_count' => $cachedArtwork->like_count,
                 'user' => [
                     'id' => $cachedArtwork->user->id,
                     'name' => $cachedArtwork->user->name,
                     'avatar_path' => $cachedArtwork->user->avatar_path
                 ],
-                'evaluations' => $cachedArtwork->evaluations->map(function ($evaluation) {
+                'recent_evaluations' => $cachedArtwork->evaluations->take(5)->map(function ($evaluation) {
                     return [
                         'id' => $evaluation->id,
                         'originality_score' => $evaluation->originality_score,
@@ -208,6 +209,7 @@ class ArtworkApiController extends Controller
                         ]
                     ];
                 }),
+                'can_edit' => Auth::check() && (Auth::id() === $cachedArtwork->user_id || Auth::user()->isAdmin()),
                 'created_at' => $cachedArtwork->created_at,
                 'updated_at' => $cachedArtwork->updated_at
             ]

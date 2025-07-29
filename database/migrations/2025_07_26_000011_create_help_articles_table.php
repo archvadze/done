@@ -30,7 +30,11 @@ return new class extends Migration
             $table->index(['status', 'published_at']);
             $table->index(['author_id', 'status']);
             $table->index('view_count');
-            $table->fullText(['title', 'excerpt', 'content']);
+            
+            // Full text search only for MySQL/MariaDB (not SQLite)
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText(['title', 'excerpt', 'content']);
+            }
         });
     }
 

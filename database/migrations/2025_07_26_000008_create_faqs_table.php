@@ -27,7 +27,11 @@ return new class extends Migration
             // Indexes
             $table->index(['category_id', 'is_active', 'sort_order']);
             $table->index(['is_active', 'view_count']);
-            $table->fullText(['question', 'answer']);
+            
+            // Full text search only for MySQL/MariaDB (not SQLite)
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText(['question', 'answer']);
+            }
         });
     }
 

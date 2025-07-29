@@ -268,27 +268,31 @@ class EvaluationApiController extends Controller
     public function leaderboard(Request $request): JsonResponse
     {
         $limit = min($request->input('limit', 20), 50);
+        $timeframe = $request->input('timeframe', 'all'); // all, week, month
 
         $topArtworks = $this->cacheService->getLeaderboard($limit);
 
         return response()->json([
             'success' => true,
+            'timeframe' => $timeframe,
             'data' => $topArtworks->map(function ($artwork) {
                 return [
                     'id' => $artwork->id,
-                    'title_en' => $artwork->title_en,
-                    'title_ka' => $artwork->title_ka,
+                    'title' => $artwork->title_en ?? $artwork->title_ka,
                     'acq_score' => $artwork->acq_score,
-                    'likes_count' => $artwork->likes_count,
-                    'file_path' => $artwork->file_path,
+                    'evaluation_count' => $artwork->evaluation_count ?? 0,
                     'user' => [
                         'id' => $artwork->user->id,
                         'name' => $artwork->user->name,
                         'avatar_path' => $artwork->user->avatar_path
-                    ],
-                    'created_at' => $artwork->created_at
+                    ]
                 ];
-            })
+            }),
+            'pagination' => [
+                'total' => $topArtworks->count(),
+                'limit' => $limit,
+                'has_more' => false
+            ]
         ]);
     }
 }

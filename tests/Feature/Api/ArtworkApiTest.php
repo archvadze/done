@@ -29,7 +29,8 @@ class ArtworkApiTest extends TestCase
 
         $this->artist = User::factory()->create([
             'email' => 'artist@example.com',
-            'name' => 'Test Artist'
+            'name' => 'Test Artist',
+            'role' => 'artist'
         ]);
     }
 

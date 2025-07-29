@@ -23,12 +23,14 @@ class EvaluationSystemTest extends TestCase
 
         $this->user = User::factory()->create([
             'name' => 'Test Evaluator',
-            'email' => 'evaluator@test.com'
+            'email' => 'evaluator@test.com',
+            'role' => 'moderator'
         ]);
 
         $this->artist = User::factory()->create([
             'name' => 'Test Artist',
-            'email' => 'artist@test.com'
+            'email' => 'artist@test.com',
+            'role' => 'artist'
         ]);
 
         $this->artwork = Artwork::factory()->create([
