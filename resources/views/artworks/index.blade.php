@@ -261,16 +261,25 @@
                                 <div class="flex items-center justify-between">
                                     <!-- Like Button -->
                                     @auth
-                                        <form method="POST" action="{{ route('artworks.like', $artwork) }}"
-                                            class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                class="likes-btn flex items-center space-x-1 transition-colors">
-                                                <span
-                                                    class="text-sm">{{ $artwork->isLikedBy(auth()->user()) ? '❤️' : '🤍' }}</span>
+                                        @if(auth()->user()->id !== $artwork->user_id)
+                                            <!-- Show like button for other users -->
+                                            <form method="POST" action="{{ route('artworks.like', $artwork) }}"
+                                                class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="likes-btn flex items-center space-x-1 transition-colors">
+                                                    <span
+                                                        class="text-sm">{{ $artwork->isLikedBy(auth()->user()) ? '❤️' : '🤍' }}</span>
+                                                    <span class="text-sm">{{ $artwork->likes_count }}</span>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <!-- Show non-interactive likes count for artwork owner -->
+                                            <div class="flex items-center space-x-1 text-gray-500">
+                                                <span class="text-sm">❤️</span>
                                                 <span class="text-sm">{{ $artwork->likes_count }}</span>
-                                            </button>
-                                        </form>
+                                            </div>
+                                        @endif
                                     @else
                                         <div class="flex items-center space-x-1">
                                             <span class="text-sm">🤍</span>

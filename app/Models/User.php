@@ -275,6 +275,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has any of the specified roles
+     */
+    public function hasRole(array $roles): bool
+    {
+        return in_array($this->role, $roles);
+    }
+
+    /**
      * Check if user can evaluate artworks
      */
     public function canEvaluate(): bool

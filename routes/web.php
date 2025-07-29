@@ -22,6 +22,7 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\HelpArticleController;
+use App\Http\Controllers\ModerationController;
 use App\Models\User;
 
 // Locale switching routes
@@ -142,7 +143,7 @@ Route::prefix('auth')->group(function () {
 
     Route::delete('/unlink/{provider}', [SocialAuthController::class, 'unlinkProvider'])
         ->where('provider', 'google|github|facebook|apple')
-        ->name('auth.unlink')
+        ->name('social.unlink')
         ->middleware('auth');
 });
 
@@ -280,31 +281,15 @@ Route::prefix('support')->name('support.')->group(function () {
     });
 });
 
-// Community routes
-Route::prefix('communities')->name('communities.')->group(function () {
-    Route::get('/', [CommunityController::class, 'index'])->name('index');
-    Route::get('/create', [CommunityController::class, 'create'])->name('create')->middleware('auth');
-    Route::post('/', [CommunityController::class, 'store'])->name('store')->middleware('auth');
-    Route::get('/{community}', [CommunityController::class, 'show'])->name('show');
-    Route::get('/{community}/edit', [CommunityController::class, 'edit'])->name('edit')->middleware('auth');
-    Route::put('/{community}', [CommunityController::class, 'update'])->name('update')->middleware('auth');
-    Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy')->middleware('auth');
-    Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
-
-    // Community membership actions
-    Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join')->middleware('auth');
-    Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave')->middleware('auth');
-
-    // Community posts
-    Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create')->middleware('auth');
-    Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store')->middleware('auth');
-    Route::get('/{community}/posts/{post}', [CommunityPostController::class, 'show'])->name('posts.show');
-    Route::get('/{community}/posts/{post}/edit', [CommunityPostController::class, 'edit'])->name('posts.edit')->middleware('auth');
-    Route::put('/{community}/posts/{post}', [CommunityPostController::class, 'update'])->name('posts.update')->middleware('auth');
-    Route::delete('/{community}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
-
-    // Post moderation actions
-    Route::post('/{community}/posts/{post}/pin', [CommunityPostController::class, 'togglePin'])->name('posts.pin')->middleware('auth');
-    Route::post('/{community}/posts/{post}/lock', [CommunityPostController::class, 'toggleLock'])->name('posts.lock')->middleware('auth');
-    Route::post('/{community}/posts/{post}/like', [CommunityPostController::class, 'like'])->name('posts.like')->middleware('auth');
+// Moderation routes (for moderators and admins)
+Route::middleware(['auth', 'verified'])->prefix('moderation')->name('moderation.')->group(function () {
+    Route::get('/dashboard', [ModerationController::class, 'dashboard'])->name('dashboard');
+    Route::get('/reports', [ModerationController::class, 'reports'])->name('reports.index');
+    Route::get('/reports/{report}', [ModerationController::class, 'showReport'])->name('reports.show');
+    Route::post('/reports/{report}/assign', [ModerationController::class, 'assignReport'])->name('reports.assign');
+    Route::post('/reports/{report}/resolve', [ModerationController::class, 'resolveReport'])->name('reports.resolve');
+    Route::get('/users/{user}', [ModerationController::class, 'showUser'])->name('users.show');
+    Route::post('/users/{user}/actions', [ModerationController::class, 'takeAction'])->name('users.action');
+    Route::get('/actions', [ModerationController::class, 'actions'])->name('actions.index');
+    Route::get('/logs', [ModerationController::class, 'logs'])->name('logs.index');
 });
