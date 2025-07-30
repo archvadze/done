@@ -373,6 +373,68 @@ class FileUploadService
     }
 
     /**
+     * Replace artwork file with a new one
+     */
+    public function replaceArtworkFile(Artwork $artwork, UploadedFile $newFile): array
+    {
+        // Validate new file
+        $this->validateFile($newFile);
+
+        // Store old file paths
+        $oldFilePath = $artwork->file_path;
+        $oldThumbnailPath = $artwork->thumbnail_path;
+
+        // Generate new file path
+        $newFilePath = $this->generateFilePath($newFile->getClientOriginalName());
+        $fileHash = hash_file('sha256', $newFile->getPathname());
+
+        // Store new file
+        $storedPath = $newFile->storeAs(
+            dirname($newFilePath),
+            basename($newFilePath),
+            'public'
+        );
+
+        if (!$storedPath) {
+            throw new Exception('Failed to store new file');
+        }
+
+        // Determine media type and extract metadata
+        $mediaType = $this->determineMediaType($newFile->getMimeType());
+        $fileMetadata = $this->extractFileMetadata($newFile, $mediaType);
+
+        // Generate new thumbnail
+        $newThumbnailPath = null;
+        if ($this->shouldGenerateThumbnail($mediaType)) {
+            $newThumbnailPath = $this->generateThumbnail($newFile, $newFilePath);
+        }
+
+        // Create file URL
+        $fileUrl = asset('storage/' . $newFilePath);
+
+        // Delete old files
+        if ($oldFilePath && Storage::disk('public')->exists($oldFilePath)) {
+            Storage::disk('public')->delete($oldFilePath);
+        }
+        if ($oldThumbnailPath && Storage::disk('public')->exists($oldThumbnailPath)) {
+            Storage::disk('public')->delete($oldThumbnailPath);
+        }
+
+        // Return new file attributes
+        return [
+            'media_type' => $mediaType,
+            'file_path' => $newFilePath,
+            'file_url' => $fileUrl,
+            'thumbnail_path' => $newThumbnailPath,
+            'original_filename' => $newFile->getClientOriginalName(),
+            'file_hash' => $fileHash,
+            'file_size' => $newFile->getSize(),
+            'mime_type' => $newFile->getMimeType(),
+            'file_metadata' => $fileMetadata,
+        ];
+    }
+
+    /**
      * Delete artwork files
      */
     public function deleteArtworkFiles(Artwork $artwork): bool

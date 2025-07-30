@@ -63,6 +63,20 @@ class LoginController extends Controller
     }
 
     /**
+     * Show logout confirmation page for GET requests
+     */
+    public function showLogout(Request $request)
+    {
+        // If user is not authenticated, redirect to login
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->with('info', 'You are not currently logged in.');
+        }
+
+        return view('auth.logout');
+    }
+
+    /**
      * Handle logout
      */
     public function logout(Request $request)

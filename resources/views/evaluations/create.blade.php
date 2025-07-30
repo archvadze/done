@@ -80,7 +80,7 @@
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="md:w-1/2">
                         @if ($artwork->isImage())
-                            <img src="{{ $artwork->getFileUrl() }}" alt="{{ $artwork->getTitle() }}"
+                            <img src="{{ $artwork->getThumbnailUrl() }}" alt="{{ $artwork->getTitle() }}"
                                 class="artwork-preview w-full">
                         @else
                             <div

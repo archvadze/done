@@ -151,7 +151,7 @@ class CommunityPostController extends Controller
         $post->togglePin();
 
         $message = $post->is_pinned ? 'Post pinned successfully!' : 'Post unpinned successfully!';
-        
+
         return back()->with('success', $message);
     }
 
@@ -167,7 +167,7 @@ class CommunityPostController extends Controller
         $post->toggleLock();
 
         $message = $post->is_locked ? 'Post locked successfully!' : 'Post unlocked successfully!';
-        
+
         return back()->with('success', $message);
     }
 

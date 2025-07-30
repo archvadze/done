@@ -36,6 +36,7 @@ Route::get('/', function () {
 // Authentication routes
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::get('/logout', [LoginController::class, 'showLogout'])->name('logout.get');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // OAuth routes
@@ -129,12 +130,6 @@ Route::get('/dashboard', function () {
         </div>
     </div>";
 })->middleware('auth')->name('dashboard');
-
-// Logout
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/login');
-})->name('logout');
 
 // OAuth Social Authentication Routes
 Route::prefix('auth')->group(function () {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class CommunityPost extends Model
 {
@@ -52,9 +53,9 @@ class CommunityPost extends Model
     /**
      * Get comments for this post
      */
-    public function comments(): HasMany
+    public function comments(): MorphMany
     {
-        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', self::class);
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     /**

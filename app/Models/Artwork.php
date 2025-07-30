@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -113,18 +114,18 @@ class Artwork extends Model
         return $this->hasMany(ArtworkLike::class);
     }
 
-    public function comments(): HasMany
+    public function comments(): MorphMany
     {
-        return $this->hasMany(Comment::class)
+        return $this->morphMany(Comment::class, 'commentable')
             ->where('status', 'active')
             ->whereNull('parent_id') // Only root comments, replies are loaded separately
             ->with(['user', 'replies.user'])
             ->latest();
     }
 
-    public function allComments(): HasMany
+    public function allComments(): MorphMany
     {
-        return $this->hasMany(Comment::class)
+        return $this->morphMany(Comment::class, 'commentable')
             ->where('status', 'active');
     }
 
@@ -252,14 +253,19 @@ class Artwork extends Model
     public function getFileUrl()
     {
         if ($this->file_path) {
-            return Storage::url($this->file_path);
+            // Check if the file exists, if not fall back to thumbnail
+            if (Storage::disk('public')->exists($this->file_path)) {
+                return Storage::url($this->file_path);
+            } elseif ($this->thumbnail_path && Storage::disk('public')->exists($this->thumbnail_path)) {
+                return Storage::url($this->thumbnail_path);
+            }
         }
         return null;
     }
 
     public function getThumbnailUrl()
     {
-        if ($this->thumbnail_path) {
+        if ($this->thumbnail_path && Storage::disk('public')->exists($this->thumbnail_path)) {
             return Storage::url($this->thumbnail_path);
         }
         return $this->getFileUrl();

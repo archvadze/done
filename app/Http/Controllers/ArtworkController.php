@@ -359,6 +359,7 @@ class ArtworkController extends Controller
             'visibility' => 'required|in:public,private,unlisted',
             'comments_enabled' => 'boolean',
             'downloads_enabled' => 'boolean',
+            'file' => 'nullable|file|max:102400', // 100MB - only validate if file is provided
         ];
 
         $validator = Validator::make($request->all(), $validationRules);
@@ -374,6 +375,8 @@ class ArtworkController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
             // Auto-detect language and translate to all active languages
             $languageService = app(LanguageDetectionService::class);
             $detectedLanguage = $languageService->detectLanguage($request->title);
@@ -383,7 +386,14 @@ class ArtworkController extends Controller
             $descriptionTranslations = $request->description ?
                 $languageService->autoTranslate($request->description, $detectedLanguage) : null;
 
-            $artwork->update([
+            // Handle file replacement if a new file is uploaded
+            $fileAttributes = [];
+            if ($request->hasFile('file')) {
+                $fileAttributes = $this->fileUploadService->replaceArtworkFile($artwork, $request->file('file'));
+            }
+
+            // Update artwork attributes
+            $updateData = array_merge([
                 'title' => $titleTranslations,
                 'description' => $descriptionTranslations,
                 'content_language' => $detectedLanguage,
@@ -398,7 +408,11 @@ class ArtworkController extends Controller
                 'visibility' => $request->visibility,
                 'comments_enabled' => $request->boolean('comments_enabled'),
                 'downloads_enabled' => $request->boolean('downloads_enabled'),
-            ]);
+            ], $fileAttributes);
+
+            $artwork->update($updateData);
+
+            DB::commit();
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -411,6 +425,8 @@ class ArtworkController extends Controller
                 ->route('artworks.show', $artwork)
                 ->with('success', 'Artwork updated successfully!');
         } catch (Exception $e) {
+            DB::rollBack();
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,

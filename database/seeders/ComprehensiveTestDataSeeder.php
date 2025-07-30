@@ -379,7 +379,9 @@ class ComprehensiveTestDataSeeder extends Seeder
 
                     Comment::create([
                         'user_id' => $commenter->id,
-                        'artwork_id' => $artwork->id,
+                        'commentable_type' => Artwork::class,
+                        'commentable_id' => $artwork->id,
+                        'artwork_id' => $artwork->id, // Keep for backward compatibility
                         'content' => $commentTexts[array_rand($commentTexts)],
                         'status' => 'active',
                         'created_at' => now()->subDays(rand(1, 20)),
@@ -388,8 +390,51 @@ class ComprehensiveTestDataSeeder extends Seeder
             }
         }
 
-        // Note: Community post comments would need a different approach
-        // since we're using artwork_id. For now, we'll skip them.
+        // Comments on community posts
+        $communityCommentTexts = [
+            'Great discussion topic! Thanks for bringing this up.',
+            'I completely agree with your perspective on this.',
+            'This is a very insightful post. Well written!',
+            'Could you elaborate more on this point?',
+            'I have a different viewpoint on this matter.',
+            'Excellent question! Looking forward to the responses.',
+            'This really resonates with my own experience.',
+            'Thanks for sharing your knowledge with the community.',
+            'Very helpful information for beginners like me.',
+            'This sparks an interesting debate. What do others think?',
+        ];
+
+        foreach ($communityPosts as $post) {
+            $commentCount = rand(2, 10); // More comments on community posts
+            
+            // Get community members to comment
+            $communityMembers = \App\Models\CommunityMember::where('community_id', $post->community_id)
+                ->where('status', 'active')
+                ->pluck('user_id')
+                ->toArray();
+            
+            if (empty($communityMembers)) continue;
+
+            for ($i = 0; $i < $commentCount; $i++) {
+                $commenterId = $communityMembers[array_rand($communityMembers)];
+                
+                // Skip if user is commenting on their own post
+                if ($commenterId === $post->user_id) continue;
+
+                // Use the polymorphic relationship to create comments
+                $comment = new Comment([
+                    'user_id' => $commenterId,
+                    'content' => $communityCommentTexts[array_rand($communityCommentTexts)],
+                    'status' => 'active'
+                ]);
+                
+                $comment->created_at = $post->created_at->addMinutes(rand(10, 1440));
+                $post->comments()->save($comment);
+            }
+
+            // Update post comment count
+            $post->update(['comment_count' => $post->comments()->count()]);
+        }
     }
 
     private function seedEvaluations(array $users, array $artworks): void
