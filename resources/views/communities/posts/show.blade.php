@@ -138,11 +138,29 @@
             <div class="bg-white rounded-lg shadow-sm border p-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-6">Comments ({{ $post->comments->count() }})</h2>
 
+                @if(session('success'))
+                    <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @auth
                     <!-- Comment Form -->
                     <div class="mb-8">
-                        <form action="#" method="POST" class="space-y-4">
+                        <form action="{{ route('comments.store') }}" method="POST" class="space-y-4">
                             @csrf
+                            <input type="hidden" name="commentable_type" value="App\Models\CommunityPost">
+                            <input type="hidden" name="commentable_id" value="{{ $post->id }}">
                             <div>
                                 <label for="comment" class="sr-only">Add a comment</label>
                                 <textarea 

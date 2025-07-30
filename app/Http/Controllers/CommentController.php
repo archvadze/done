@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Artwork;
+use App\Models\CommunityPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -15,28 +16,69 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'artwork_id' => 'required|exists:artworks,id',
-            'content' => 'required|string|min:1|max:2000',
-            'parent_id' => 'nullable|exists:comments,id',
-        ]);
-
-        $artwork = Artwork::findOrFail($request->artwork_id);
-
-        // Check if user can comment on this artwork
-        if ($artwork->privacy_setting === 'private' && $artwork->user_id !== Auth::id()) {
-            throw ValidationException::withMessages([
-                'artwork' => 'You cannot comment on this private artwork.'
+        // Handle both legacy artwork comments and new polymorphic comments
+        if ($request->has('artwork_id')) {
+            // Legacy artwork comment handling
+            $request->validate([
+                'artwork_id' => 'required|exists:artworks,id',
+                'content' => 'required|string|min:1|max:2000',
+                'parent_id' => 'nullable|exists:comments,id',
             ]);
-        }
 
-        $comment = Comment::create([
-            'user_id' => Auth::id(),
-            'artwork_id' => $request->artwork_id,
-            'parent_id' => $request->parent_id,
-            'content' => $request->content,
-            'status' => 'active',
-        ]);
+            $artwork = Artwork::findOrFail($request->artwork_id);
+
+            // Check if user can comment on this artwork
+            if ($artwork->privacy_setting === 'private' && $artwork->user_id !== Auth::id()) {
+                throw ValidationException::withMessages([
+                    'artwork' => 'You cannot comment on this private artwork.'
+                ]);
+            }
+
+            $comment = Comment::create([
+                'user_id' => Auth::id(),
+                'artwork_id' => $request->artwork_id,
+                'commentable_type' => Artwork::class,
+                'commentable_id' => $request->artwork_id,
+                'parent_id' => $request->parent_id,
+                'content' => $request->content,
+                'status' => 'active',
+            ]);
+        } else {
+            // New polymorphic comment handling
+            $request->validate([
+                'commentable_type' => 'required|string|in:' . implode(',', ['App\\Models\\Artwork', 'App\\Models\\CommunityPost']),
+                'commentable_id' => 'required|integer',
+                'content' => 'required|string|min:1|max:2000',
+                'parent_id' => 'nullable|exists:comments,id',
+            ]);
+
+            // Get the commentable model
+            $commentableClass = $request->commentable_type;
+            $commentable = $commentableClass::findOrFail($request->commentable_id);
+
+            // Check permissions based on the commentable type
+            if ($commentable instanceof Artwork) {
+                if ($commentable->privacy_setting === 'private' && $commentable->user_id !== Auth::id()) {
+                    throw ValidationException::withMessages([
+                        'commentable' => 'You cannot comment on this private artwork.'
+                    ]);
+                }
+            }
+
+            $comment = Comment::create([
+                'user_id' => Auth::id(),
+                'commentable_type' => $request->commentable_type,
+                'commentable_id' => $request->commentable_id,
+                'parent_id' => $request->parent_id,
+                'content' => $request->content,
+                'status' => 'active',
+            ]);
+
+            // For community posts, update comment count
+            if ($commentable instanceof \App\Models\CommunityPost) {
+                $commentable->increment('comment_count');
+            }
+        }
 
         // Load relationships for response
         $comment->load(['user', 'replies.user']);
