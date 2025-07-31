@@ -23,11 +23,11 @@ return new class extends Migration
             $table->integer('helpful_count')->default(0);
             $table->integer('not_helpful_count')->default(0);
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['category_id', 'is_active', 'sort_order']);
             $table->index(['is_active', 'view_count']);
-            
+
             // Full text search only for MySQL/MariaDB (not SQLite)
             if (config('database.default') !== 'sqlite') {
                 $table->fullText(['question', 'answer']);

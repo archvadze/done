@@ -16,13 +16,13 @@ class MessageController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Get conversations with proper relationships
         $conversations = collect(); // Empty for now to avoid relationship errors
-        
+
         // Get unread message count
         $unreadCount = 0; // Set to 0 for now
-        
+
         // Get recent contacts
         $recentContacts = collect(); // Empty for now
 
@@ -57,7 +57,7 @@ class MessageController extends Controller
     public function create(Request $request)
     {
         $users = collect();
-        
+
         // If starting conversation with specific user
         if ($request->filled('user_id')) {
             $user = User::findOrFail($request->user_id);
@@ -226,11 +226,11 @@ class MessageController extends Controller
     public function searchUsers(Request $request)
     {
         $search = $request->get('search', '');
-        
+
         $users = User::where('id', '!=', Auth::id())
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })
             ->limit(10)
             ->get(['id', 'name', 'email']);

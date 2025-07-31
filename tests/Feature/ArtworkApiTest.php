@@ -19,14 +19,14 @@ class ArtworkApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user with artist role
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
             'name' => 'Test User',
             'role' => 'artist'
         ]);
-        
+
         Storage::fake('public');
     }
 
@@ -87,7 +87,7 @@ class ArtworkApiTest extends TestCase
             ->post("/artworks/{$artwork->id}/like");
 
         $response->assertStatus(200);
-        
+
         $this->assertDatabaseHas('artwork_likes', [
             'user_id' => $this->user->id,
             'artwork_id' => $artwork->id
@@ -128,7 +128,7 @@ class ArtworkApiTest extends TestCase
             ->post("/artworks/{$artwork->id}/publish");
 
         $response->assertStatus(302);
-        
+
         $artwork->refresh();
         $this->assertEquals('published', $artwork->status);
     }

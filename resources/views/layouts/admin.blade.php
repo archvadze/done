@@ -6,25 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin Panel') - Acumen Craft</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
         .admin-sidebar {
             min-height: calc(100vh - 4rem);
         }
 
         .admin-nav-item {
-            @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors;
+            @apply block px-4 py-2 text-sm acumen-text hover:acumen-secondary transition-colors;
         }
 
         .admin-nav-item.active {
-            @apply bg-blue-100 text-blue-700;
+            @apply acumen-primary;
         }
 
         .admin-stats-card {
-            @apply bg-white p-6 rounded-lg shadow-sm border;
+            @apply acumen-bg p-6 shadow-sm;
         }
 
         .admin-table {
-            @apply min-w-full divide-y divide-gray-200;
+            @apply min-w-full divide-y divide-acumen-medium-gold;
         }
 
         .admin-table th {

@@ -25,12 +25,12 @@ return new class extends Migration
             $table->integer('not_helpful_count')->default(0);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['status', 'published_at']);
             $table->index(['author_id', 'status']);
             $table->index('view_count');
-            
+
             // Full text search only for MySQL/MariaDB (not SQLite)
             if (config('database.default') !== 'sqlite') {
                 $table->fullText(['title', 'excerpt', 'content']);

@@ -6,35 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Upload Artwork - Acumen Craft</title>
-        
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <style>
-            .drop-zone {
-                transition: all 0.3s ease;
-            }
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-            .drop-zone.dragover {
-                border-color: #3b82f6;
-                background-color: #eff6ff;
-                transform: scale(1.02);
-            }
+    <style>
+        .drop-zone {
+            transition: all 0.3s ease;
+        }
 
-            .file-preview {
-                max-width: 100%;
-                max-height: 300px;
-                object-fit: contain;
-            }
+        .drop-zone.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: scale(1.02);
+        }
 
-            .progress-bar {
-                transition: width 0.3s ease;
-            }
-        </style>
+        .file-preview {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
@@ -159,7 +159,7 @@
                                 </label>
                                 <input type="text" id="title" name="title" value="{{ old('title') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Enter artwork title in any language (Georgian, German, English)" 
+                                    placeholder="Enter artwork title in any language (Georgian, German, English)"
                                     onchange="detectLanguage(this, 'title-detection')" required>
                                 <div id="title-detection" class="mt-1 text-xs text-gray-600"></div>
                                 @error('title')
@@ -621,7 +621,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || ''
                     },
                     body: JSON.stringify({
                         texts: [text]
@@ -634,20 +635,20 @@
 
                 const data = await response.json();
                 console.log('API Response:', data); // Debug log
-                
+
                 if (data && data.length > 0) {
                     const result = data[0];
                     const detectedLanguage = result.detected || 'en';
                     const languageNames = {
                         'ka': 'Georgian',
-                        'de': 'German', 
+                        'de': 'German',
                         'en': 'English'
                     };
                     const languageName = languageNames[detectedLanguage] || 'English';
 
                     // Show detection result with translations if available
                     let displayText = `🌐 Detected: <strong>${languageName}</strong> (${detectedLanguage})`;
-                    
+
                     if (result.translations) {
                         displayText += '<br><small class="text-gray-500">Translations: ';
                         const translations = [];
@@ -663,7 +664,7 @@
                     }
 
                     document.getElementById(targetId).innerHTML = displayText;
-                    
+
                     // Store detected language in hidden field
                     let hiddenField = document.getElementById('detected_language');
                     if (!hiddenField) {
@@ -680,11 +681,11 @@
 
             } catch (error) {
                 console.error('Language detection API error:', error);
-                
+
                 // Fallback to client-side detection
                 let detectedLanguage = 'en';
                 let languageName = 'English';
-                
+
                 // Georgian detection
                 if (/[ა-ჿ]/.test(text)) {
                     detectedLanguage = 'ka';
@@ -696,9 +697,9 @@
                     languageName = 'German';
                 }
 
-                document.getElementById(targetId).innerHTML = 
+                document.getElementById(targetId).innerHTML =
                     `🌐 <strong>${languageName}</strong> (${detectedLanguage}) <small class="text-orange-500">[Fallback]</small>`;
-                
+
                 // Store fallback detection
                 let hiddenField = document.getElementById('detected_language');
                 if (!hiddenField) {

@@ -6,23 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acumen Craft - Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+<body class="acumen-bg min-h-screen flex items-center justify-center">
+    <div class="acumen-bg p-8 shadow-md w-full max-w-md">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Join Acumen Craft</h1>
-            <p class="text-gray-600">შექმენი ანგარიში და დაიწყე შენი შემოქმედებითი მოგზაურობა</p>
+            <h1 class="text-3xl font-bold acumen-text-primary mb-2">Join Acumen Craft</h1>
+            <p class="acumen-text-secondary">შექმენი ანგარიში და დაიწყე შენი შემოქმედებითი მოგზაურობა</p>
         </div>
 
         @if (session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div class="acumen-bg acumen-text-accent px-4 py-3 mb-4">
                 {{ session('success') }}
             </div>
         @endif
 
         @if (session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div class="acumen-bg acumen-text-accent px-4 py-3 mb-4">
                 {{ session('error') }}
             </div>
         @endif
@@ -41,10 +42,10 @@
             @php
                 $configuredProviders = getConfiguredOAuthProviders();
             @endphp
-            
-            @if(!empty($configuredProviders))
+
+            @if (!empty($configuredProviders))
                 <!-- OAuth Buttons -->
-                @if(in_array('google', $configuredProviders))
+                @if (in_array('google', $configuredProviders))
                     <a href="{{ route('auth.provider', 'google') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -61,7 +62,7 @@
                     </a>
                 @endif
 
-                @if(in_array('github', $configuredProviders))
+                @if (in_array('github', $configuredProviders))
                     <a href="{{ route('auth.provider', 'github') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -73,7 +74,7 @@
                     </a>
                 @endif
 
-                @if(in_array('facebook', $configuredProviders))
+                @if (in_array('facebook', $configuredProviders))
                     <a href="{{ route('auth.provider', 'facebook') }}"
                         class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
@@ -107,7 +108,7 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                
+
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required
@@ -117,7 +118,7 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                
+
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input type="password" id="password" name="password" required
@@ -130,14 +131,15 @@
                         Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.
                     </p>
                 </div>
-                
+
                 <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm
+                        Password</label>
                     <input type="password" id="password_confirmation" name="password_confirmation" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Confirm password">
                 </div>
-                
+
                 <button type="submit"
                     class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
                     Create Account
@@ -145,7 +147,8 @@
             </form>
 
             <div class="text-center text-sm text-gray-600">
-                <p>Already have an account? <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Sign in</a></p>
+                <p>Already have an account? <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Sign
+                        in</a></p>
             </div>
         </div>
     </div>
