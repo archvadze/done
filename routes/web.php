@@ -22,6 +22,7 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\HelpArticleController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModerationController;
 use App\Models\User;
 
@@ -36,7 +37,6 @@ Route::get('/', function () {
 // Authentication routes
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::get('/logout', [LoginController::class, 'showLogout'])->name('logout.get');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // OAuth routes
@@ -106,30 +106,14 @@ if (app()->environment('local')) {
     require __DIR__ . '/dev.php';
 }
 
-// Dashboard - redirect admins to admin panel, others to user dashboard
-Route::get('/dashboard', function () {
-    $user = Auth::user();
+// Dashboard route
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
-    // Redirect admins to admin panel
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-
-    // For regular users, show simple dashboard
-    $twoFaStatus = $user->twofa_enabled ? 'enabled' : 'disabled';
-    return "
-    <div style='font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px;'>
-        <h1>Dashboard - Welcome {$user->name}!</h1>
-        <div style='background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;'>
-            <h3>Account Security</h3>
-            <p>Two-Factor Authentication: <strong style='color: " . ($user->twofa_enabled ? 'green' : 'orange') . ";'>" . ucfirst($twoFaStatus) . "</strong></p>
-            <a href='/2fa' style='color: #007bff; text-decoration: none;'>→ Manage 2FA Settings</a>
-        </div>
-        <div style='margin-top: 30px;'>
-            <a href='/logout' style='color: #dc3545; text-decoration: none;'>Logout</a>
-        </div>
-    </div>";
-})->middleware('auth')->name('dashboard');
+// Logout
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/login');
+})->name('logout');
 
 // OAuth Social Authentication Routes
 Route::prefix('auth')->group(function () {
