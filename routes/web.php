@@ -39,12 +39,6 @@ Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// OAuth routes
-Route::prefix('auth')->group(function () {
-    Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.redirect');
-    Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('auth.callback');
-});
-
 // Registration routes
 Route::get('/register', [RegisterController::class, 'show'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
@@ -108,12 +102,6 @@ if (app()->environment('local')) {
 
 // Dashboard route
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
-
-// Logout
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/login');
-})->name('logout');
 
 // Handle GET requests to logout by redirecting to login
 Route::get('/logout', function () {
