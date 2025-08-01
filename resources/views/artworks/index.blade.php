@@ -374,12 +374,16 @@
 
         // Infinite scroll (optional enhancement)
         let loading = false;
+        let noMorePages = false;
 
         function loadMore() {
-            if (loading) return;
+            if (loading || noMorePages) return;
 
             const nextPageUrl = document.querySelector('a[rel="next"]')?.href;
-            if (!nextPageUrl) return;
+            if (!nextPageUrl) {
+                noMorePages = true;
+                return;
+            }
 
             loading = true;
 
@@ -391,14 +395,27 @@
                     const newArtworks = doc.querySelectorAll('.artwork-card');
                     const grid = document.querySelector('.masonry-grid');
 
+                    if (newArtworks.length === 0) {
+                        noMorePages = true;
+                        loading = false;
+                        return;
+                    }
+
                     newArtworks.forEach(artwork => {
                         grid.appendChild(artwork);
                     });
 
                     // Update pagination
                     const newPagination = doc.querySelector('.pagination');
-                    if (newPagination) {
-                        document.querySelector('.pagination').innerHTML = newPagination.innerHTML;
+                    const currentPagination = document.querySelector('.pagination');
+                    if (newPagination && currentPagination) {
+                        currentPagination.innerHTML = newPagination.innerHTML;
+                    }
+
+                    // Check if there's still a next page
+                    const hasNextPage = doc.querySelector('a[rel="next"]');
+                    if (!hasNextPage) {
+                        noMorePages = true;
                     }
 
                     loading = false;
@@ -411,7 +428,7 @@
 
         // Auto-load more when scrolling near bottom
         window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            if (!loading && !noMorePages && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
                 loadMore();
             }
         });

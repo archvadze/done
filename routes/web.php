@@ -115,6 +115,11 @@ Route::post('/logout', function () {
     return redirect('/login');
 })->name('logout');
 
+// Handle GET requests to logout by redirecting to login
+Route::get('/logout', function () {
+    return redirect('/login')->with('message', 'Please use the logout button to sign out.');
+});
+
 // OAuth Social Authentication Routes
 Route::prefix('auth')->group(function () {
     Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])

@@ -17,21 +17,21 @@
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 </head>
 
-<body class="acumen-bg acumen-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+<body class="bg-gray-50 text-gray-900 flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
     <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6">
         @if (Route::has('login'))
             <nav class="flex items-center justify-end gap-4">
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="acumen-button-secondary px-5 py-1.5 text-sm">
+                    <a href="{{ url('/dashboard') }}" class="bg-gray-200 text-gray-700 hover:bg-gray-300 px-5 py-1.5 text-sm rounded">
                         Dashboard
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="acumen-button-transparent px-5 py-1.5 text-sm">
+                    <a href="{{ route('login') }}" class="border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-1.5 text-sm rounded">
                         Log in
                     </a>
 
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="acumen-button-secondary px-5 py-1.5 text-sm">
+                        <a href="{{ route('register') }}" class="bg-gray-200 text-gray-700 hover:bg-gray-300 px-5 py-1.5 text-sm rounded">
                             Register
                         </a>
                     @endif
