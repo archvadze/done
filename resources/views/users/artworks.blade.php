@@ -1,53 +1,25 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $user->name }}'s Artworks</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+@section('title', $user->name . "'s Artworks - Acumen Craft")
+@section('description', 'Browse the complete artwork collection by ' . $user->name . '. Discover their creative portfolio and artistic journey on Acumen Craft.')
+@section('keywords', 'artworks, ' . $user->name . ', artist portfolio, digital art collection, creative works')
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/artworks" class="text-gray-600 hover:text-gray-900">Gallery</a>
-                    <a href="/leaderboard" class="text-gray-600 hover:text-gray-900">Leaderboard</a>
-                    @auth
-                        <a href="/profile" class="text-gray-600 hover:text-gray-900">Profile</a>
-                        @if (Auth::id() === $user->id)
-                            <a href="/artworks/create"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Upload</a>
-                        @endif
+@section('content')
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- User Header -->
+    <header class="bg-white overflow-hidden shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    @if ($user->avatar_url)
+                        <img class="h-16 w-16 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}'s profile picture">
                     @else
-                        <a href="/login" class="text-gray-600 hover:text-gray-900">Login</a>
-                    @endauth
+                        <div class="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
+                        </div>
+                    @endif
                 </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- User Header -->
-        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
-            <div class="px-4 py-5 sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        @if ($user->avatar_url)
-                            <img class="h-16 w-16 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
-                        @else
-                            <div class="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span class="text-xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="ml-5 flex-1">
+                <div class="ml-5 flex-1">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900">{{ $user->name }}'s Artworks</h1>
@@ -239,6 +211,4 @@
             </div>
         @endif
     </div>
-</body>
-
-</html>
+@endsection

@@ -1,53 +1,29 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $user->name }}'s Followers</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+@section('title', $user->name . "'s Followers - Acumen Craft")
+@section('description', 'View the followers of ' . $user->name . ' on Acumen Craft. See who follows this artist and discover new connections in the creative community.')
+@section('keywords', 'followers, ' . $user->name . ', artist network, community, social connections')
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/artworks" class="text-gray-600 hover:text-gray-900">Gallery</a>
-                    <a href="/leaderboard" class="text-gray-600 hover:text-gray-900">Leaderboard</a>
-                    @auth
-                        <a href="/profile" class="text-gray-600 hover:text-gray-900">My Profile</a>
-                    @else
-                        <a href="/login" class="text-gray-600 hover:text-gray-900">Login</a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+@section('content')
+<div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <header class="mb-6">
+        <nav class="flex items-center space-x-4 mb-4" aria-label="Breadcrumb">
+            <a href="{{ route('users.show', $user) }}" class="text-blue-600 hover:text-blue-800">
+                ← Back to {{ $user->name }}'s Profile
+            </a>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">{{ $user->name }}'s Followers</h1>
+        <p class="text-gray-600">{{ $followers->total() }} {{ Str::plural('follower', $followers->total()) }}</p>
+    </header>
 
-    <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-6">
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('users.show', $user) }}" class="text-blue-600 hover:text-blue-800">
-                    ← Back to {{ $user->name }}'s Profile
-                </a>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 mt-4">{{ $user->name }}'s Followers</h1>
-            <p class="text-gray-600">{{ $followers->total() }} {{ Str::plural('follower', $followers->total()) }}</p>
-        </div>
-
-        @if ($followers->count() > 0)
-            <div class="bg-white shadow rounded-lg">
-                <div class="divide-y divide-gray-200">
-                    @foreach ($followers as $follower)
-                        <div class="p-6 flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <!-- Avatar -->
+    @if ($followers->count() > 0)
+        <div class="bg-white shadow rounded-lg">
+            <div class="divide-y divide-gray-200">
+                @foreach ($followers as $follower)
+                    <div class="p-6 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <!-- Avatar -->
                                 <div class="flex-shrink-0">
                                     @if ($follower->avatar_url)
                                         <img class="h-12 w-12 rounded-full" src="{{ $follower->avatar_url }}"
@@ -127,6 +103,4 @@
             </div>
         @endif
     </div>
-</body>
-
-</html>
+@endsection

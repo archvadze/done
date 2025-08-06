@@ -1,62 +1,24 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $user->name }}'s Profile</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+@section('title', $user->name . "'s Profile")
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/artworks" class="text-gray-600 hover:text-gray-900">Artworks</a>
-                    <a href="/leaderboard" class="text-gray-600 hover:text-gray-900">Leaderboard</a>
-                    <div class="relative inline-block text-left">
-                        <button type="button"
-                            class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            id="user-menu-button">
-                            @if ($user->avatar_url)
-                                <img class="h-8 w-8 rounded-full" src="{{ $user->avatar_url }}"
-                                    alt="{{ $user->name }}">
-                            @else
-                                <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <span
-                                        class="text-sm font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
-                                </div>
-                            @endif
-                            <span class="ml-2 text-gray-700">{{ $user->name }}</span>
-                        </button>
+@section('content')
+<!-- Profile Header -->
+<div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                @if ($user->avatar_url)
+                    <img class="h-20 w-20 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
+                @else
+                    <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
+                        <span class="text-2xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
                     </div>
-                </div>
+                @endif
             </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Profile Header -->
-        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
-            <div class="px-4 py-5 sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        @if ($user->avatar_url)
-                            <img class="h-20 w-20 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
-                        @else
-                            <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span class="text-2xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="ml-5 flex-1">
-                        <div class="flex items-center justify-between">
-                            <div>
+            <div class="ml-5 flex-1">
+                <div class="flex items-center justify-between">
+                    <div>
                                 <h1 class="text-2xl font-bold text-gray-900">{{ $user->name }}</h1>
                                 @if ($user->bio)
                                     <p class="text-gray-600 mt-1">{{ $user->bio }}</p>
@@ -280,6 +242,4 @@
             {{ session('success') }}
         </div>
     @endif
-</body>
-
-</html>
+@endsection

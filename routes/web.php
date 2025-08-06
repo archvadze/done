@@ -34,6 +34,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Leaderboard route
+Route::get('/leaderboard', function () {
+    return view('leaderboard.index');
+})->name('leaderboard');
+
 // Authentication routes
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
@@ -68,27 +73,36 @@ Route::middleware('auth')->group(function () {
     Route::get('artworks/{artwork}/evaluations/create', [EvaluationController::class, 'create'])->name('evaluations.create');
     Route::post('artworks/{artwork}/evaluations', [EvaluationController::class, 'store'])->name('evaluations.store');
     Route::get('artworks/{artwork}/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
-    Route::get('artworks/{artwork}/evaluations/{evaluation}/edit', [EvaluationController::class, 'edit'])->name('evaluations.edit');
-    Route::put('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'update'])->name('evaluations.update');
-    Route::delete('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'destroy'])->name('evaluations.destroy');
-    Route::get('artworks/{artwork}/evaluations/{evaluation}', [EvaluationController::class, 'show'])->name('evaluations.show');
 });
 
-// Public evaluation routes
-Route::get('leaderboard', [EvaluationController::class, 'leaderboard'])->name('leaderboard');
-
-// User profile routes
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [UserController::class, 'profile'])->name('users.profile');
-    Route::get('/profile/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/profile', [UserController::class, 'update'])->name('users.update');
-});
-
-// Public user profiles
+// User routes
 Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 Route::get('/users/{user}/artworks', [UserController::class, 'artworks'])->name('users.artworks');
 Route::get('/users/{user}/followers', [UserController::class, 'followers'])->name('users.followers');
 Route::get('/users/{user}/following', [UserController::class, 'following'])->name('users.following');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('/profile', [UserController::class, 'profile'])->name('users.profile');
+    Route::get('/profile/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::delete('/profile/avatar', [UserController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+    Route::get('/settings', [UserController::class, 'settings'])->name('settings');
+    Route::put('/settings', [UserController::class, 'updateSettings'])->name('settings.update');
+});
+
+// Social authentication routes
+Route::get('/auth/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.provider');
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('social.callback');
+
+// Two-factor authentication routes
+Route::middleware('auth')->group(function () {
+    Route::get('/2fa/setup', [TwoFactorController::class, 'setup'])->name('2fa.setup');
+    Route::get('/2fa', [TwoFactorController::class, 'show'])->name('two-factor.show');
+    Route::post('/2fa/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
+    Route::post('/2fa/disable', [TwoFactorController::class, 'disable'])->name('2fa.disable');
+    Route::get('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+    Route::post('/2fa/verify', [TwoFactorController::class, 'validateToken'])->name('2fa.validate');
+});
 
 // Follow/Unfollow (requires authentication)
 Route::middleware('auth')->group(function () {
@@ -108,34 +122,51 @@ Route::get('/logout', function () {
     return redirect('/login')->with('message', 'Please use the logout button to sign out.');
 });
 
-// OAuth Social Authentication Routes
-Route::prefix('auth')->group(function () {
-    Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider'])
-        ->where('provider', 'google|github|facebook|apple')
-        ->name('auth.provider');
-
-    Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])
-        ->where('provider', 'google|github|facebook|apple')
-        ->name('auth.callback');
-
-    Route::delete('/unlink/{provider}', [SocialAuthController::class, 'unlinkProvider'])
-        ->where('provider', 'google|github|facebook|apple')
-        ->name('social.unlink')
-        ->middleware('auth');
+// Language management routes
+Route::middleware('auth')->prefix('api')->group(function () {
+    Route::get('/languages', [LanguageController::class, 'index'])->name('api.languages.index');
+    Route::post('/languages', [LanguageController::class, 'store'])->name('api.languages.store');
+    Route::put('/languages/{language}', [LanguageController::class, 'update'])->name('api.languages.update');
+    Route::delete('/languages/{language}', [LanguageController::class, 'destroy'])->name('api.languages.destroy');
 });
 
-// Two-Factor Authentication Routes
-Route::middleware('auth')->prefix('2fa')->group(function () {
-    Route::get('/', [TwoFactorController::class, 'show'])->name('two-factor.show');
-    Route::post('/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
-    Route::post('/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
-    Route::get('/backup-codes', [TwoFactorController::class, 'generateBackupCodes'])->name('two-factor.backup-codes');
+// Payment and NFT routes
+Route::middleware('auth')->group(function () {
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/form', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/payments/history', [PaymentController::class, 'history'])->name('payments.history');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+    
+    Route::get('/nfts', [NftController::class, 'index'])->name('nfts.index');
+    Route::get('/nft/collection', [NftController::class, 'collection'])->name('nft.collection');
+    Route::post('/nfts', [NftController::class, 'store'])->name('nfts.store');
+    Route::get('/nfts/{nft}', [NftController::class, 'show'])->name('nfts.show');
 });
 
-// Two-Factor Verification (for login)
-Route::middleware('guest')->group(function () {
-    Route::get('/2fa/verify', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
-    Route::post('/2fa/verify', [TwoFactorController::class, 'verifyCode'])->name('two-factor.verify.post');
+// Community routes
+Route::get('/community', [CommunityController::class, 'index'])->name('communities.index');
+Route::get('/community/{community}', [CommunityController::class, 'show'])->name('communities.show');
+
+// Test route for debugging community issues
+Route::get('/test-community/{slug}', [App\Http\Controllers\TestCommunityController::class, 'test']);
+
+// Redirect /communities to /community for backward compatibility
+Route::get('/communities', function () {
+    return redirect('/community');
+});
+Route::get('/community/posts/{post}', [CommunityPostController::class, 'show'])->name('community.posts.show');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/community/posts', [CommunityPostController::class, 'store'])->name('community.posts.store');
+    Route::put('/community/posts/{post}', [CommunityPostController::class, 'update'])->name('community.posts.update');
+    Route::delete('/community/posts/{post}', [CommunityPostController::class, 'destroy'])->name('community.posts.destroy');
+});
+
+// Messaging routes
+Route::middleware('auth')->group(function () {
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
 
 // Admin routes (protected by admin middleware)
@@ -148,114 +179,69 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::patch('/languages/{language}/status', [AdminController::class, 'updateLanguageStatus'])->name('languages.status');
     Route::patch('/languages/{language}/default', [AdminController::class, 'setDefaultLanguage'])->name('languages.default');
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
+    Route::patch('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    Route::patch('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.role');
+    Route::patch('/users/{user}/status', [AdminController::class, 'updateUserStatus'])->name('users.status');
+    Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
+    
+    Route::get('/artworks/{artwork}', [AdminController::class, 'showArtwork'])->name('artworks.show');
+    Route::patch('/artworks/{artwork}/status', [AdminController::class, 'updateArtworkStatus'])->name('artworks.status');
+    Route::delete('/artworks/{artwork}', [AdminController::class, 'deleteArtwork'])->name('artworks.delete');
+    
+    Route::get('/evaluations/{evaluation}', [AdminController::class, 'showEvaluation'])->name('evaluations.show');
+    Route::patch('/evaluations/{evaluation}/status', [AdminController::class, 'updateEvaluationStatus'])->name('evaluations.status');
+    Route::delete('/evaluations/{evaluation}', [AdminController::class, 'deleteEvaluation'])->name('evaluations.delete');
+    
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/reports/{report}', [AdminController::class, 'showReport'])->name('reports.show');
+    Route::patch('/reports/{report}/status', [AdminController::class, 'updateReportStatus'])->name('reports.status');
 });
 
-// Payment routes
-Route::middleware('auth')->prefix('payments')->name('payments.')->group(function () {
-    Route::get('/', [PaymentController::class, 'show'])->name('show');
-    Route::post('/checkout', [PaymentController::class, 'createCheckout'])->name('checkout');
-    Route::get('/success', [PaymentController::class, 'success'])->name('success');
-    Route::get('/history', [PaymentController::class, 'history'])->name('history');
+// Moderation routes (protected by moderator middleware)
+Route::middleware('auth')->prefix('moderation')->name('moderation.')->group(function () {
+    Route::get('/', [ModerationController::class, 'dashboard'])->name('dashboard');
 });
 
-// Stripe webhook (no auth needed)
-Route::post('/webhook/stripe', [PaymentController::class, 'webhook'])->name('webhook.stripe');
+// Support routes
+Route::get('/support', [SupportController::class, 'index'])->name('support.index');
+Route::get('/support/search', [SupportController::class, 'search'])->name('support.search');
+Route::get('/support/contact', [SupportController::class, 'contact'])->name('support.contact');
+Route::get('/support/faq', [FaqController::class, 'index'])->name('support.faq.index');
+Route::get('/support/faq/{faq}', [FaqController::class, 'show'])->name('support.faq.show');
+Route::post('/support/faq/{faq}/helpful', [FaqController::class, 'helpful'])->name('support.faq.helpful');
+Route::post('/support/faq/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('support.faq.not-helpful');
+Route::get('/support/faq/category/{category}', [FaqController::class, 'category'])->name('support.faq.category');
+Route::get('/support/help', [HelpArticleController::class, 'index'])->name('support.help.index');
+Route::get('/support/help/{article}', [HelpArticleController::class, 'show'])->name('support.help.show');
+Route::post('/support/help/{article}/helpful', [HelpArticleController::class, 'helpful'])->name('support.help.helpful');
+Route::post('/support/help/{article}/not-helpful', [HelpArticleController::class, 'notHelpful'])->name('support.help.not-helpful');
+Route::get('/support/articles', [HelpArticleController::class, 'index'])->name('support.articles');
+Route::get('/support/articles/{article}', [HelpArticleController::class, 'show'])->name('support.articles.show');
 
-// NFT routes
-Route::middleware('auth')->prefix('nft')->name('nft.')->group(function () {
-    Route::get('/mint/{artwork}', [NftController::class, 'mint'])->name('mint');
-    Route::post('/mint/{artwork}', [NftController::class, 'processMint'])->name('process-mint');
-    Route::get('/show/{nft}', [NftController::class, 'show'])->name('show');
-    Route::get('/collection/{user?}', [NftController::class, 'collection'])->name('collection');
-    Route::post('/connect-wallet', [NftController::class, 'connectWallet'])->name('connect-wallet');
-    Route::post('/disconnect-wallet', [NftController::class, 'disconnectWallet'])->name('disconnect-wallet');
+Route::middleware('auth')->group(function () {
+    Route::get('/support/tickets', [SupportTicketController::class, 'index'])->name('support.tickets.index');
+    Route::get('/support/tickets/create', [SupportTicketController::class, 'create'])->name('support.tickets.create');
+    Route::post('/support/tickets', [SupportTicketController::class, 'store'])->name('support.tickets.store');
+    Route::get('/support/tickets/{ticket}', [SupportTicketController::class, 'show'])->name('support.tickets.show');
+    Route::post('/support/tickets/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('support.tickets.reply');
+    Route::patch('/support/tickets/{ticket}/close', [SupportTicketController::class, 'close'])->name('support.tickets.close');
 });
 
-// NFT API routes (for AJAX calls)
-Route::middleware('auth')->prefix('api/nft')->name('api.nft.')->group(function () {
-    Route::get('/ownership/{artwork}', [NftController::class, 'ownership'])->name('ownership');
+// FAQ management (admin only)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('faqs', FaqController::class)->except(['index', 'show']);
+    Route::resource('help-articles', HelpArticleController::class)->except(['index', 'show']);
 });
 
-// Community routes
-Route::prefix('communities')->name('communities.')->group(function () {
-    Route::get('/', [CommunityController::class, 'index'])->name('index');
-    Route::middleware('auth')->group(function () {
-        Route::get('/create', [CommunityController::class, 'create'])->name('create');
-        Route::post('/', [CommunityController::class, 'store'])->name('store');
-    });
-
-    Route::get('/{community}', [CommunityController::class, 'show'])->name('show');
-    Route::get('/{community}/members', [CommunityController::class, 'members'])->name('members');
-
-    Route::middleware('auth')->group(function () {
-        Route::get('/{community}/edit', [CommunityController::class, 'edit'])->name('edit');
-        Route::patch('/{community}', [CommunityController::class, 'update'])->name('update');
-        Route::delete('/{community}', [CommunityController::class, 'destroy'])->name('destroy');
-        Route::post('/{community}/join', [CommunityController::class, 'join'])->name('join');
-        Route::post('/{community}/leave', [CommunityController::class, 'leave'])->name('leave');
-
-        // Community posts
-        Route::get('/{community}/posts/create', [CommunityPostController::class, 'create'])->name('posts.create');
-        Route::post('/{community}/posts', [CommunityPostController::class, 'store'])->name('posts.store');
-        Route::get('/{community}/posts/{post}', [CommunityPostController::class, 'show'])->name('posts.show');
-        Route::get('/{community}/posts/{post}/edit', [CommunityPostController::class, 'edit'])->name('posts.edit');
-        Route::patch('/{community}/posts/{post}', [CommunityPostController::class, 'update'])->name('posts.update');
-        Route::delete('/{community}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('posts.destroy');
-        Route::post('/{community}/posts/{post}/pin', [CommunityPostController::class, 'togglePin'])->name('posts.pin');
-        Route::post('/{community}/posts/{post}/lock', [CommunityPostController::class, 'toggleLock'])->name('posts.lock');
-        Route::post('/{community}/posts/{post}/like', [CommunityPostController::class, 'like'])->name('posts.like');
-    });
-});
-
-// Messaging routes
-Route::middleware('auth')->prefix('messages')->name('messages.')->group(function () {
-    Route::get('/', [MessageController::class, 'index'])->name('index');
-    Route::get('/create', [MessageController::class, 'create'])->name('create');
-    Route::post('/', [MessageController::class, 'store'])->name('store');
-    Route::get('/{conversation}', [MessageController::class, 'show'])->name('show');
-    Route::post('/{conversation}/send', [MessageController::class, 'sendMessage'])->name('send');
-    Route::patch('/message/{message}', [MessageController::class, 'editMessage'])->name('message.edit');
-    Route::delete('/message/{message}', [MessageController::class, 'deleteMessage'])->name('message.delete');
-    Route::post('/{conversation}/leave', [MessageController::class, 'leave'])->name('leave');
-    Route::get('/api/search-users', [MessageController::class, 'searchUsers'])->name('search-users');
-});
-
-// Support & Help routes
-Route::prefix('support')->name('support.')->group(function () {
-    // Main support pages
-    Route::get('/', [SupportController::class, 'index'])->name('index');
-    Route::get('/contact', [SupportController::class, 'contact'])->name('contact');
-    Route::post('/contact', [SupportController::class, 'submitContact'])->name('contact.submit');
-    Route::get('/search', [SupportController::class, 'search'])->name('search');
-
-    // FAQ routes
-    Route::prefix('faq')->name('faq.')->group(function () {
-        Route::get('/', [FaqController::class, 'index'])->name('index');
-        Route::get('/category/{category}', [FaqController::class, 'category'])->name('category');
-        Route::get('/{faq}', [FaqController::class, 'show'])->name('show');
-        Route::post('/{faq}/helpful', [FaqController::class, 'helpful'])->name('helpful');
-        Route::post('/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('not-helpful');
-    });
-
-    // Help Articles routes
-    Route::prefix('help')->name('help.')->group(function () {
-        Route::get('/', [HelpArticleController::class, 'index'])->name('index');
-        Route::get('/{article}', [HelpArticleController::class, 'show'])->name('show');
-        Route::post('/{article}/helpful', [HelpArticleController::class, 'helpful'])->name('helpful');
-        Route::post('/{article}/not-helpful', [HelpArticleController::class, 'notHelpful'])->name('not-helpful');
-    });
-
-    // Support Tickets (authenticated users only)
-    Route::middleware('auth')->prefix('tickets')->name('tickets.')->group(function () {
-        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
-        Route::get('/create', [SupportTicketController::class, 'create'])->name('create');
-        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
-        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
-        Route::post('/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('reply');
-        Route::post('/{ticket}/close', [SupportTicketController::class, 'close'])->name('close');
-        Route::post('/{ticket}/reopen', [SupportTicketController::class, 'reopen'])->name('reopen');
-    });
+// Support ticket management (staff only)
+Route::middleware(['auth', 'staff'])->prefix('staff')->name('staff.')->group(function () {
+    Route::get('/tickets', [SupportTicketController::class, 'staffIndex'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [SupportTicketController::class, 'staffShow'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [SupportTicketController::class, 'staffReply'])->name('tickets.reply');
+    Route::patch('/tickets/{ticket}/assign', [SupportTicketController::class, 'assign'])->name('tickets.assign');
+    Route::patch('/tickets/{ticket}/priority', [SupportTicketController::class, 'updatePriority'])->name('tickets.priority');
+    Route::patch('/tickets/{ticket}/status', [SupportTicketController::class, 'updateStatus'])->name('tickets.status');
 });
 
 // Moderation routes (for moderators and admins)
@@ -266,8 +252,27 @@ Route::middleware(['auth', 'verified'])->prefix('moderation')->name('moderation.
     Route::post('/reports/{report}/assign', [ModerationController::class, 'assignReport'])->name('reports.assign');
     Route::post('/reports/{report}/resolve', [ModerationController::class, 'resolveReport'])->name('reports.resolve');
     Route::get('/users/{user}', [ModerationController::class, 'showUser'])->name('users.show');
+        Route::post('/users/{user}/actions', [ModerationController::class, 'takeAction'])->name('users.action');
+});
+
+// Admin routes group with proper admin middleware
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/artworks', [AdminController::class, 'artworks'])->name('admin.artworks');
+    Route::get('/evaluations', [AdminController::class, 'evaluations'])->name('admin.evaluations');
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+
+    // User management
+    Route::post('/users/{user}/ban', [ModerationController::class, 'banUser'])->name('users.ban');
+    Route::post('/users/{user}/unban', [ModerationController::class, 'unbanUser'])->name('users.unban');
     Route::post('/users/{user}/actions', [ModerationController::class, 'takeAction'])->name('users.action');
     Route::get('/actions', [ModerationController::class, 'actions'])->name('actions.index');
     Route::get('/logs', [ModerationController::class, 'logs'])->name('logs.index');
     Route::get('/security/logs', [ModerationController::class, 'securityLogs'])->name('security.logs');
 });
+
+// Include test routes in development
+if (app()->environment('local')) {
+    include __DIR__ . '/test.php';
+}

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin-fixed')
 
 @section('title', 'Dashboard')
 @section('subtitle', 'Overview of your platform statistics and recent activity')

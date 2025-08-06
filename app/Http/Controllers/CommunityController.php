@@ -6,6 +6,7 @@ use App\Models\Community;
 use App\Models\CommunityPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -112,52 +113,77 @@ class CommunityController extends Controller
      */
     public function show(Community $community, Request $request)
     {
-        // Check if user can view this community
-        if ($community->privacy === 'private' && !$community->isMember(Auth::user() ?? new \App\Models\User())) {
-            abort(403, 'This community is private.');
+        try {
+            Log::info('Controller show method called', ['community_id' => $community->id]);
+            
+            $user = Auth::user();
+            Log::info('User retrieved', ['user_id' => $user ? $user->id : 'none']);
+            
+            // Check if user can view this community
+            $isGlobalAdmin = $user && $user->role === 'admin';
+            
+            if ($community->privacy === 'private' && (!$user || (!$isGlobalAdmin && !$community->isMember($user)))) {
+                abort(403, 'This community is private.');
+            }
+
+            if ($community->privacy === 'hidden' && (!$user || (!$isGlobalAdmin && !$community->canModerate($user)))) {
+                abort(404);
+            }
+            Log::info('Privacy checks passed');
+
+            // Load community data
+            $community->load(['creator', 'activeMembers' => function ($query) {
+                $query->latest('community_members.joined_at')->limit(12);
+            }]);
+            Log::info('Community data loaded');
+
+            // Get posts with filters
+            $postsQuery = $community->posts()
+                ->with(['user', 'comments'])
+                ->where('is_locked', false);
+            Log::info('Posts query created');
+
+            // Filter by post type
+            if ($request->filled('type') && $request->type !== 'all') {
+                $postsQuery->where('type', $request->type);
+            }
+
+            // Sort posts
+            $sort = $request->get('sort', 'recent');
+            switch ($sort) {
+                case 'popular':
+                    $postsQuery->orderBy('like_count', 'desc');
+                    break;
+                case 'discussed':
+                    $postsQuery->orderBy('comment_count', 'desc');
+                    break;
+                case 'recent':
+                default:
+                    $postsQuery->orderBy('is_pinned', 'desc')
+                              ->orderBy('created_at', 'desc');
+                    break;
+            }
+            Log::info('Posts query sorted');
+
+            $posts = $postsQuery->paginate(10);
+            Log::info('Posts paginated', ['count' => $posts->count()]);
+
+            // Get pinned posts separately for display at top
+            $pinnedPosts = $community->pinnedPosts()->with(['user', 'comments'])->get();
+            Log::info('Pinned posts retrieved', ['count' => $pinnedPosts->count()]);
+
+            Log::info('About to return view');
+            return view('communities.show', compact('community', 'posts', 'pinnedPosts'));
+            
+        } catch (\Exception $e) {
+            Log::error('Error in CommunityController@show', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        if ($community->privacy === 'hidden' && !$community->canModerate(Auth::user() ?? new \App\Models\User())) {
-            abort(404);
-        }
-
-        // Load community data
-        $community->load(['creator', 'activeMembers' => function ($query) {
-            $query->latest('community_members.joined_at')->limit(12);
-        }]);
-
-        // Get posts with filters
-        $postsQuery = $community->posts()
-            ->with(['user', 'comments'])
-            ->where('is_locked', false);
-
-        // Filter by post type
-        if ($request->filled('type') && $request->type !== 'all') {
-            $postsQuery->where('type', $request->type);
-        }
-
-        // Sort posts
-        $sort = $request->get('sort', 'recent');
-        switch ($sort) {
-            case 'popular':
-                $postsQuery->orderBy('like_count', 'desc');
-                break;
-            case 'discussed':
-                $postsQuery->orderBy('comment_count', 'desc');
-                break;
-            case 'recent':
-            default:
-                $postsQuery->orderBy('is_pinned', 'desc')
-                          ->orderBy('created_at', 'desc');
-                break;
-        }
-
-        $posts = $postsQuery->paginate(10);
-
-        // Get pinned posts separately for display at top
-        $pinnedPosts = $community->pinnedPosts()->with(['user', 'comments'])->get();
-
-        return view('communities.show', compact('community', 'posts', 'pinnedPosts'));
     }
 
     /**

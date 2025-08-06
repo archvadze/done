@@ -1,2 +1,32 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Allow crawling of main pages
+Allow: /artworks
+Allow: /users/*/artworks
+Allow: /users/*/followers
+Allow: /communities
+Allow: /leaderboard
+
+# Disallow sensitive areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+Disallow: /profile/edit
+Disallow: /dashboard
+Disallow: /payments/
+Disallow: /messages/
+Disallow: /*.json$
+Disallow: /*?*
+
+# Allow specific API endpoints for structured data
+Allow: /api/artworks/*/public
+Allow: /api/users/*/public
+
+# Sitemap location
+Sitemap: https://done.ddev.site/sitemap.xml
+
+# Crawl delay for polite crawling
+Crawl-delay: 1

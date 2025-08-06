@@ -1,44 +1,20 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $user->name }}'s Profile</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
+@section('title', $user->name . "'s Profile - Acumen Craft")
+@section('description', 'View ' . $user->name . "'s profile, artworks, and achievements on Acumen Craft. " . ($user->bio ? Str::limit($user->bio, 120) : 'Discover their creative journey and artistic contributions.'))
+@section('keywords', 'artist profile, ' . $user->name . ', digital artist, artwork portfolio, creative profile')
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-gray-900">ArtGallery</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/artworks" class="text-gray-600 hover:text-gray-900">Gallery</a>
-                    <a href="/leaderboard" class="text-gray-600 hover:text-gray-900">Leaderboard</a>
-                    @auth
-                        <a href="/profile" class="text-gray-600 hover:text-gray-900">My Profile</a>
-                        <a href="/artworks/create"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Upload</a>
-                    @else
-                        <a href="/login" class="text-gray-600 hover:text-gray-900">Login</a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+@if($user->avatar_url)
+    @section('og_image', $user->avatar_url)
+@endif
 
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Profile Header -->
-        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
-            <div class="px-4 py-5 sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        @if ($user->avatar_url)
+@section('content')
+<!-- Profile Header -->
+<div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                @if ($user->avatar_url)
                             <img class="h-20 w-20 rounded-full" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
                         @else
                             <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
@@ -359,73 +335,8 @@
                 @endif
             </div>
         </div>
-    </div>
+@endsection
 
-    <script>
-        // Follow/Unfollow functionality
-        async function toggleFollow(userId) {
-            const followBtn = document.getElementById('follow-btn');
-            const followText = document.getElementById('follow-text');
-            const followersCount = document.getElementById('followers-count');
-
-            // Disable button during request
-            followBtn.disabled = true;
-
-            try {
-                const response = await fetch(`/users/${userId}/follow`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Update button text and style
-                    if (data.action === 'followed') {
-                        followText.textContent = 'Following';
-                        followBtn.className =
-                            'px-4 py-2 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300';
-                    } else {
-                        followText.textContent = 'Follow';
-                        followBtn.className =
-                            'px-4 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700';
-                    }
-
-                    // Update followers count
-                    followersCount.textContent = data.followers_count;
-
-                    // Show success message
-                    showMessage(`Successfully ${data.action} user!`, 'success');
-                } else {
-                    showMessage(data.message || 'Failed to toggle follow', 'error');
-                }
-            } catch (error) {
-                console.error('Follow error:', error);
-                showMessage('Failed to toggle follow. Please try again.', 'error');
-            } finally {
-                followBtn.disabled = false;
-            }
-        }
-
-        // Show message helper
-        function showMessage(message, type) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`;
-            messageDiv.textContent = message;
-
-            document.body.appendChild(messageDiv);
-
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 3000);
-        }
-    </script>
-</body>
-
-</html>
+@push('scripts')
+    <script src="{{ asset('js/user-profile.js') }}"></script>
+@endpush

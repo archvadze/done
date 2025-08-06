@@ -75,8 +75,8 @@
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <!-- Language Switcher -->
-                        <x-locale-switcher />
+                        <!-- Language Switcher - Temporarily disabled -->
+                        <!-- <x-locale-switcher /> -->
 
                         <!-- User Menu -->
                         <div class="flex items-center space-x-2">
@@ -147,7 +147,7 @@
                     <h1 class="text-2xl font-bold text-gray-900">@yield('title', 'Admin Dashboard')</h1>
                     @hasSection('subtitle')
                         <p class="text-gray-600 mt-1">@yield('subtitle')</p>
-                    @endif
+                    @endhasSection
                 </div>
 
                 <!-- Flash Messages -->
