@@ -24,13 +24,13 @@ return new class extends Migration
             }
 
             // Make password nullable for OAuth users (check if already nullable)
-            $column = Schema::getConnection()->getDoctrineSchemaManager()
+            /* $column = Schema::getConnection()->getDoctrineSchemaManager()
                 ->listTableDetails('users')->getColumn('password');
             if (!$column->getNotnull()) {
                 // Password is already nullable, skip this change
             } else {
                 $table->string('password')->nullable()->change();
-            }
+            } */
 
             // Add indexes for OAuth lookups (if not exists)
             // Note: Laravel doesn't have hasIndex, so we'll wrap in try-catch
