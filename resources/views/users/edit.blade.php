@@ -5,29 +5,30 @@
 @section('keywords', 'profile edit, account settings, avatar upload, user profile')
 
 @section('content')
-<div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h1 class="text-lg leading-6 font-medium text-gray-900 mb-6">Edit Profile</h1>
+    <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h1 class="text-lg leading-6 font-medium text-gray-900 mb-6">Edit Profile</h1>
 
-            <form action="/profile" method="POST" enctype="multipart/form-data" class="space-y-6">
-                @csrf
-                @method('PUT')
+                <form action="/profile" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                <!-- Profile Picture -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
-                    <div class="flex items-center space-x-6">
-                        <div class="shrink-0">
-                            <div id="avatar-preview" class="relative">
-                                @if ($user->avatar_url)
-                                    <img id="current-avatar"
-                                        class="h-20 w-20 object-cover rounded-full border-2 border-gray-200"
-                                        src="{{ $user->avatar_url }}" alt="Current profile photo for {{ $user->name }}">
-                                @else
-                                    <div id="current-avatar"
-                                        class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-200">
-                                        <span
+                    <!-- Profile Picture -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        <div class="flex items-center space-x-6">
+                            <div class="shrink-0">
+                                <div id="avatar-preview" class="relative">
+                                    @if ($user->avatar_url)
+                                        <img id="current-avatar"
+                                            class="h-20 w-20 object-cover rounded-full border-2 border-gray-200"
+                                            src="{{ $user->avatar_url }}"
+                                            alt="Current profile photo for {{ $user->name }}">
+                                    @else
+                                        <div id="current-avatar"
+                                            class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-200">
+                                            <span
                                                 class="text-xl font-medium text-gray-700">{{ substr($user->name, 0, 1) }}</span>
                                         </div>
                                     @endif
@@ -97,8 +98,7 @@
                     <!-- Location -->
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
-                        <input type="text" name="location" id="location"
-                            value="{{ old('location', $user->location) }}"
+                        <input type="text" name="location" id="location" value="{{ old('location', $user->location) }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('location') border-red-300 @enderror"
                             placeholder="City, Country">
                         @error('location')
@@ -109,8 +109,7 @@
                     <!-- Website -->
                     <div>
                         <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
-                        <input type="url" name="website" id="website"
-                            value="{{ old('website', $user->website) }}"
+                        <input type="url" name="website" id="website" value="{{ old('website', $user->website) }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('website') border-red-300 @enderror"
                             placeholder="https://example.com">
                         @error('website')

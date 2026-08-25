@@ -64,7 +64,7 @@
                         {{ __('Register') }}
                     </a>
                 @endguest
-                
+
                 @auth
                     <!-- Quick Create Button -->
                     <a href="{{ route('artworks.create') }}"
@@ -78,8 +78,7 @@
                             class="flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             aria-expanded="false" aria-haspopup="true" aria-label="User menu">
                             <span class="mr-2 text-gray-700">{{ auth()->user()->name }}</span>
-                            <div
-                                class="h-8 w-8 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center">
+                            <div class="h-8 w-8 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center">
                                 {{ substr(auth()->user()->name, 0, 1) }}
                             </div>
                         </button>
@@ -287,7 +286,7 @@
                     </div>
                 </div>
             @endauth
-            
+
             @guest
                 <div class="border-t border-gray-200 pt-2">
                     <a href="{{ route('login') }}"
